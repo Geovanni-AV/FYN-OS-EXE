@@ -14,6 +14,10 @@ import Presupuestos from './screens/Presupuestos'
 import Deudas from './screens/Deudas'
 import Calendario from './screens/Calendario'
 import Analisis from './screens/Analisis'
+import Metas from './screens/Metas'
+import Simulador from './screens/Simulador'
+import NetWorth from './screens/NetWorth'
+import Perfil from './screens/Perfil'
 
 // Fallback visual para rutas no implementadas aún
 function InConstruction({ name }: { name: string }) {
@@ -50,12 +54,12 @@ export default function App() {
                 
                 {/* Rutas en construcción */}
                 <Route path="analisis" element={<Analisis />} />
-                <Route path="perfil" element={<InConstruction name="Perfil" />} />
+                <Route path="perfil" element={<Perfil />} />
                 <Route path="deudas" element={<Deudas />} />
-                <Route path="metas" element={<InConstruction name="Metas" />} />
+                <Route path="metas" element={<Metas />} />
                 <Route path="calendario" element={<Calendario />} />
-                <Route path="simulador" element={<InConstruction name="Simulador" />} />
-                <Route path="net-worth" element={<InConstruction name="Net Worth Extendido" />} />
+                <Route path="simulador" element={<Simulador />} />
+                <Route path="net-worth" element={<NetWorth />} />
               </Route>
             </Routes>
           </AppProvider>

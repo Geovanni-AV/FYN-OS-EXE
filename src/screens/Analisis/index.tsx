@@ -58,7 +58,7 @@ export default function Analisis() {
       { month: 'Mar', ingresos: 47000, gastos: totalThis || 34200 }
     ]
 
-    return { totalThis, totalLast, catData, totalBalance, trendData }
+    return { totalThis, totalLast, catData, trendData, totalBalance }
   }, [transactions, accounts])
 
   const handleExport = () => {
@@ -66,8 +66,33 @@ export default function Analisis() {
     setTimeout(() => {
       setIsGenerating(false)
       setIsExportOpen(false)
-      // Feedback or download logic would go here
-    }, 2000)
+    }, 2500)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="p-4 lg:p-6 lg:max-w-6xl mx-auto space-y-8">
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Skeleton className="h-80" />
+          <Skeleton className="h-80" />
+        </div>
+      </div>
+    )
   }
 
   if (isLoading) {
@@ -89,123 +114,115 @@ export default function Analisis() {
     : 0
 
   return (
-    <div className="space-y-6 animate-fade-in pb-10">
-      <div className="flex items-center justify-between">
+    <div className="p-4 lg:p-6 lg:max-w-6xl mx-auto space-y-8 animate-fade-in shadow-2xl shadow-black/5">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">
-            Análisis y Reportes
-          </h1>
-          <p className="text-light-text-2 dark:text-dark-text-2 text-sm mt-1">
-            Visualiza el rendimiento de tu patrimonio y hábitos de consumo.
-          </p>
+          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Análisis y Reportes</h1>
+          <p className="text-sm text-light-text-2 dark:text-dark-text-2">Inteligencia financiera para mejores decisiones.</p>
         </div>
-        <Button onClick={() => setIsExportOpen(true)} className="gap-2">
-          <span className="material-symbols-outlined text-lg">download</span>
-          Exportar
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" size="lg">
+             <span className="material-symbols-outlined">filter_list</span>
+             Filtros
+          </Button>
+          <Button onClick={() => setIsExportOpen(true)} size="lg" className="shadow-lg shadow-primary/20">
+             <span className="material-symbols-outlined">ios_share</span>
+             Exportar
+          </Button>
+        </div>
       </div>
 
-      {/* KPI Row */}
+      {/* Main KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <span className="material-symbols-outlined text-5xl">shopping_cart</span>
-          </div>
-          <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">Gasto Total Mes</p>
-          <h2 className="text-2xl font-black text-light-text dark:text-dark-text tabular-nums">
-            {formatMXN(analysisData.totalThis)}
-          </h2>
-          <div className={`flex items-center gap-1 mt-2 text-xs font-bold ${gastoDiff > 0 ? 'text-danger' : 'text-success'}`}>
-            <span className="material-symbols-outlined text-sm">{gastoDiff > 0 ? 'trending_up' : 'trending_down'}</span>
-            {Math.abs(Math.round(gastoDiff))}% vs mes anterior
+        <Card className="p-6 border-l-4 border-l-primary bg-primary/5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Gasto Total Mes</p>
+          <p className="text-3xl font-black text-light-text dark:text-dark-text mb-2">{formatMXN(analysisData.totalThis)}</p>
+          <div className={`flex items-center gap-1 text-xs font-bold ${analysisData.totalThis > analysisData.totalLast ? 'text-danger' : 'text-success'}`}>
+             <span className="material-symbols-outlined text-[14px]">
+               {analysisData.totalThis > analysisData.totalLast ? 'trending_up' : 'trending_down'}
+             </span>
+             {analysisData.totalLast > 0 ? (((analysisData.totalThis - analysisData.totalLast) / analysisData.totalLast) * 100).toFixed(1) : '0'}% vs mes ant.
           </div>
         </Card>
-
-        <Card className="relative overflow-hidden group border-l-4 border-l-primary">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <span className="material-symbols-outlined text-5xl">account_balance_wallet</span>
-          </div>
-          <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">Balance Consolidado</p>
-          <h2 className="text-2xl font-black text-light-text dark:text-dark-text tabular-nums">
+        
+        <Card className="p-6 border-l-4 border-l-success bg-success/5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-success mb-1">Balance Consolidado</p>
+          <p className="text-3xl font-black text-light-text dark:text-dark-text mb-2">
             {formatMXN(analysisData.totalBalance)}
-          </h2>
-          <Badge variant="info" className="mt-2">Patrimonio Neto</Badge>
+          </p>
+          <p className="text-xs font-bold text-light-text-2 dark:text-dark-text-2 italic">
+            Suma de todas tus cuentas activas
+          </p>
         </Card>
 
-        <Card className="relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <span className="material-symbols-outlined text-5xl">savings</span>
-          </div>
-          <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">Ahorro Proyectado</p>
-          <h2 className="text-2xl font-black text-success tabular-nums">
-            {formatMXN(analysisData.totalBalance * 0.12)}
-          </h2>
-          <p className="text-[10px] text-light-muted dark:text-dark-muted mt-2 italic font-medium">Estimado basado en excedente histórico.</p>
+        <Card className="p-6 border-l-4 border-l-warning bg-warning/5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-warning mb-1">Ahorro Proyectado</p>
+          <p className="text-3xl font-black text-light-text dark:text-dark-text mb-2">
+            {formatMXN(12500)}
+          </p>
+          <p className="text-xs font-bold text-success flex items-center gap-1">
+             <span className="material-symbols-outlined text-[14px]">check_circle</span>
+             Superando meta por $4,200
+          </p>
         </Card>
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-light-text dark:text-dark-text flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">show_chart</span>
+      {/* Main Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Trend Area Chart */}
+        <Card className="p-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="font-black text-light-text dark:text-dark-text flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">analytics</span>
               Tendencia de Flujo
             </h3>
-            <Badge variant="neutral">Últimos 6 meses</Badge>
+            <Badge variant="outline">Últimos 6 meses</Badge>
           </div>
-          <div className="h-[300px] w-full">
+          <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={analysisData.trendData}>
                 <defs>
                   <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorGastos" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1}/>
-                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(128,128,128,0.1)" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
                 <YAxis hide />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '12px', color: '#f8fafc' }}
-                  itemStyle={{ fontSize: '12px' }}
+                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', background: 'white' }}
                 />
-                <Area type="monotone" dataKey="ingresos" stroke="#22c55e" fillOpacity={1} fill="url(#colorIngresos)" strokeWidth={3} />
-                <Area type="monotone" dataKey="gastos" stroke="#ef4444" fillOpacity={1} fill="url(#colorGastos)" strokeWidth={3} />
+                <Area type="monotone" dataKey="ingresos" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorIngresos)" />
+                <Area type="monotone" dataKey="gastos" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorGastos)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <Card>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-light-text dark:text-dark-text flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">donut_large</span>
-              Gastos por Categoría
-            </h3>
-            <select className="bg-transparent text-xs font-bold border-none text-primary focus:ring-0 cursor-pointer outline-none">
-              <option>Este Mes</option>
-              <option>Mes Pasado</option>
-            </select>
+        {/* Expenses by Category Bar */}
+        <Card className="p-8 space-y-6">
+          <div className="flex items-center justify-between">
+             <h3 className="font-black text-light-text dark:text-dark-text flex items-center gap-2">
+                <span className="material-symbols-outlined text-danger">pie_chart</span>
+                Gastos por Categoría
+             </h3>
+             <Badge variant="primary">Este Mes</Badge>
           </div>
-          <div className="h-[300px] w-full">
+          <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analysisData.catData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#334155" opacity={0.1}/>
+              <BarChart data={analysisData.catData} layout="vertical" margin={{ left: -20 }}>
                 <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={12} width={100} tickLine={false} axisLine={false} />
-                <RechartsTooltip 
-                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '12px' }}
-                  formatter={(val: number) => formatMXNShort(val)}
-                />
-                <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={20}>
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700 }} width={100} />
+                <RechartsTooltip cursor={{ fill: 'transparent' }} />
+                <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={24}>
                   {analysisData.catData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.8} />
                   ))}
                 </Bar>
               </BarChart>
@@ -214,89 +231,83 @@ export default function Analisis() {
         </Card>
       </div>
 
-      {/* Intelligent Insights */}
-      <div className="pt-4">
-        <h3 className="text-lg font-bold text-light-text dark:text-dark-text mb-4 uppercase tracking-tighter flex items-center gap-2">
-          <span className="material-symbols-outlined text-warning animate-pulse">lightbulb</span>
-          Insights Inteligentes
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="glass-card border border-primary/20 p-4 rounded-card flex gap-4 items-start hover:border-primary/40 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
-              <span className="material-symbols-outlined">auto_fix_high</span>
-            </div>
-            <div>
-              <p className="font-bold text-sm text-light-text dark:text-dark-text">Optimización de Suscripciones</p>
-              <p className="text-xs text-light-muted dark:text-dark-muted mt-1">Has gastado <span className="text-primary font-bold">{formatMXN(1240)}</span> en servicios digitales este mes. Podrías ahorrar un 15% consolidando planes familiares.</p>
-            </div>
-          </div>
-          <div className="glass-card border border-success/20 p-4 rounded-card flex gap-4 items-start hover:border-success/40 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 text-success">
-              <span className="material-symbols-outlined">trending_up</span>
-            </div>
-            <div>
-              <p className="font-bold text-sm text-light-text dark:text-dark-text">Potencial de Inversión</p>
-              <p className="text-xs text-light-muted dark:text-dark-muted mt-1">Tu excedente actual te permitiría invertir <span className="text-success font-bold">$3,500</span> en un fondo de bajo riesgo sin afectar tu liquidez.</p>
-            </div>
-          </div>
+      {/* Insights Section */}
+      <h3 className="text-xl font-black text-light-text dark:text-dark-text px-1 uppercase tracking-tighter">Insights Inteligentes</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-6 rounded-3xl bg-light-surface/40 dark:bg-dark-surface/40 border border-light-border/10 dark:border-dark-border/10 flex gap-4 transition-all hover:bg-light-surface/60 dark:hover:bg-dark-surface/60">
+           <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+             <span className="material-symbols-outlined text-2xl">lightbulb</span>
+           </div>
+           <div>
+             <h4 className="font-black text-light-text dark:text-dark-text mb-1 italic">Optimización de Suscripciones</h4>
+             <p className="text-sm text-light-text-2 dark:text-dark-text-2 leading-relaxed">Detectamos 3 suscripciones no utilizadas el último mes. Cancelarlas te ahorraría <span className="font-bold text-light-text dark:text-dark-text">$540 MXN</span> mensuales.</p>
+           </div>
+        </div>
+        <div className="p-6 rounded-3xl bg-light-surface/40 dark:bg-dark-surface/40 border border-light-border/10 dark:border-dark-border/10 flex gap-4 transition-all hover:bg-light-surface/60 dark:hover:bg-dark-surface/60">
+           <div className="w-12 h-12 rounded-2xl bg-success/10 text-success flex items-center justify-center flex-shrink-0">
+             <span className="material-symbols-outlined text-2xl">rocket_launch</span>
+           </div>
+           <div>
+             <h4 className="font-black text-light-text dark:text-dark-text mb-1 italic">Potencial de Inversión</h4>
+             <p className="text-sm text-light-text-2 dark:text-dark-text-2 leading-relaxed">Mantienes un excedente de <span className="font-bold text-light-text dark:text-dark-text">$12,000 MXN</span> en cuenta de débito. Moverlo a CETES generaría intereses inmediatos.</p>
+           </div>
         </div>
       </div>
 
       {/* Export Drawer */}
-      <Drawer
-        isOpen={isExportOpen}
-        onClose={() => setIsExportOpen(false)}
-        title="Generar Reporte"
-      >
-        <div className="space-y-8">
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest text-primary mb-4">Formato de Archivo</p>
-            <ChipSelector
-              options={[
-                { value: 'pdf', label: 'PDF Ejecutivo', icon: 'picture_as_pdf' },
-                { value: 'excel', label: 'Excel Estructurado', icon: 'table_view' },
-                { value: 'csv', label: 'Dataset CSV', icon: 'description' }
-              ]}
-              value={exportFormat}
-              onChange={setExportFormat}
-            />
-          </div>
-
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest text-primary mb-4">Rango de Datos</p>
+      <Drawer isOpen={isExportOpen} onClose={() => setIsExportOpen(false)} title="Exportar Reporte" width={420}>
+        <div className="space-y-8 p-4">
+          <p className="text-sm text-light-text-2 dark:text-dark-text-2">Personaliza la exportación de tus datos financieros para presentaciones o contabilidad externa.</p>
+          
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-light-muted dark:text-dark-muted px-1">1. Seleccionar Formato</h4>
             <div className="grid grid-cols-1 gap-3">
-              <button className="flex items-center justify-between p-3 rounded-card border border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface transition-all text-sm font-medium">
-                Últimos 30 días <span className="text-xs text-primary">Recomendado</span>
-              </button>
-              <button className="flex items-center justify-between p-3 rounded-card border border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface transition-all text-sm font-medium">
-                Mes actual (Marzo)
-              </button>
-              <button className="flex items-center justify-between p-3 rounded-card border border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface transition-all text-sm font-medium">
-                Personalizado...
-              </button>
+               {[
+                 { id: 'pdf', label: 'Reporte Visual PDF', desc: 'Gráficas y KPIs en formato editorial', icon: 'picture_as_pdf' },
+                 { id: 'excel', label: 'Excel Estructurado', desc: 'Todas las transacciones para análisis', icon: 'table_view' },
+                 { id: 'csv', label: 'Fichero CSV', desc: 'Datos puros para otros sistemas', icon: 'description' },
+               ].map(f => (
+                 <button 
+                  key={f.id}
+                  onClick={() => setExportFormat(f.id as any)}
+                  className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left group w-full ${exportFormat === f.id ? 'border-primary bg-primary/5' : 'border-transparent bg-light-surface dark:bg-dark-surface hover:bg-light-surface/80 dark:hover:bg-dark-surface/80'}`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${exportFormat === f.id ? 'bg-primary text-white scale-110 shadow-lg' : 'bg-light-border/20 dark:bg-dark-border/20 text-light-muted dark:text-dark-muted shadow-sm'}`}>
+                      <span className="material-symbols-outlined text-2xl">{f.icon}</span>
+                    </div>
+                    <div>
+                      <p className={`font-black text-sm ${exportFormat === f.id ? 'text-primary' : 'text-light-text dark:text-dark-text'}`}>{f.label}</p>
+                      <p className="text-[10px] font-bold text-light-text-2 dark:text-dark-text-2 opacity-70">{f.desc}</p>
+                    </div>
+                 </button>
+               ))}
             </div>
           </div>
 
-          <div className="bg-light-surface dark:bg-dark-surface p-4 rounded-card border-l-4 border-l-primary">
-            <p className="text-[10px] text-light-muted dark:text-dark-muted leading-tight">
-              El reporte incluirá un desglose detallado de todas las transacciones, gráficas de tendencia y un resumen del balance consolidado.
-            </p>
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-light-muted dark:text-dark-muted px-1">2. Rango de Tiempo</h4>
+            <ChipSelector 
+              options={['Marzo 2026', 'Último Trimestre', 'Año 2026', 'Personalizado']} 
+              selected="Marzo 2026"
+              onChange={() => {}}
+            />
           </div>
 
-          <Button 
-            className="w-full py-4 h-auto uppercase tracking-tighter font-black" 
-            onClick={handleExport}
-            disabled={isGenerating}
-          >
-            {isGenerating ? (
-              <span className="flex items-center gap-3">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generando...
-              </span>
-            ) : (
-              `Descargar ${exportFormat.toUpperCase()}`
-            )}
-          </Button>
+          <div className="pt-8 flex flex-col items-center">
+            <Button size="lg" className="w-full justify-center shadow-2xl shadow-primary/30 relative overflow-hidden h-14" disabled={isGenerating} onClick={handleExport}>
+              {isGenerating ? (
+                <>
+                   <span className="animate-spin material-symbols-outlined mr-2">progress_activity</span>
+                   Generando...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined mr-2">download_for_offline</span>
+                  Descargar {exportFormat.toUpperCase()}
+                </>
+              )}
+            </Button>
+            <p className="text-[10px] font-bold text-light-muted dark:text-dark-muted mt-4 text-center italic">Protegemos tu privacidad: este reporte se genera localmente.</p>
+          </div>
         </div>
       </Drawer>
     </div>

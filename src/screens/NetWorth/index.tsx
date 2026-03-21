@@ -1,14 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useApp } from '../../context/AppContext'
 import { useNetWorth } from '../../hooks/useFinance'
-import { Card } from '../../components/ui'
+import { Card, Skeleton } from '../../components/ui'
 import { formatMXN, formatMXNShort } from '../../types'
 
 export default function NetWorth() {
   const { accounts, netWorthHistory } = useApp()
   const { assets, liabilities, netWorth } = useNetWorth()
   const [range, setRange] = useState<'3m' | '6m' | '1y'>('1y')
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="p-4 lg:p-6 space-y-6 animate-fade-in">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <Skeleton className="lg:col-span-2 h-32 rounded-card" />
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-20 rounded-card" />
+            <Skeleton className="h-20 rounded-card" />
+          </div>
+        </div>
+        <Skeleton className="h-64 h-w-full rounded-card" />
+      </div>
+    )
+  }
 
   const chartData = netWorthHistory
     .slice(range === '3m' ? -3 : range === '6m' ? -6 : -12)

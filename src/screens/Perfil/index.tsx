@@ -1,10 +1,32 @@
+import { useState, useEffect } from 'react'
 import { useApp } from '../../context/AppContext'
 import { useToast } from '../../context/ToastContext'
-import { Card, Toggle, Button } from '../../components/ui'
+import { Card, Toggle, Button, Skeleton } from '../../components/ui'
 
 export default function Perfil() {
   const { profile, updateProfile } = useApp()
   const { success } = useToast()
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="p-4 lg:p-6 space-y-6 max-w-4xl mx-auto animate-fade-in">
+        <Skeleton className="h-8 w-64 mb-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <Skeleton className="lg:col-span-4 h-64 rounded-card" />
+          <div className="lg:col-span-8 space-y-5">
+            <Skeleton className="h-40 rounded-card" />
+            <Skeleton className="h-40 rounded-card" />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const toggleTheme = () => {
     const next = profile.theme === 'dark' ? 'light' : 'dark'

@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useApp } from '../../context/AppContext'
 import { calcSavingsProjection } from '../../hooks/useFinance'
-import { Card, GoalGauge, Badge, Modal, Drawer, Button, Input } from '../../components/ui'
+import { Card, GoalGauge, Badge, Modal, Drawer, Button, Input, Skeleton } from '../../components/ui'
 import { formatMXN, formatMXNShort } from '../../types'
 import type { SavingGoal } from '../../types'
 
@@ -24,6 +24,12 @@ export default function Metas() {
   const [activeGoal, setActiveGoal] = useState<SavingGoal | null>(null)
   const [sliderTerm, setSliderTerm] = useState(12)
   const [sliderRate, setSliderRate] = useState(8)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800)
+    return () => clearTimeout(timer)
+  }, [])
 
   // New goal form
   const [newName, setNewName] = useState('')

@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { AreaChart, Area, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { useApp } from '../../context/AppContext'
 import { calcMonthlyPayment, calcAmortizationTable, calcSavingsProjection } from '../../hooks/useFinance'
-import { Card } from '../../components/ui'
+import { Card, Button, Tabs, Skeleton } from '../../components/ui'
 import { formatMXN, formatMXNShort } from '../../types'
 
 type Tab = 'credito' | 'ahorro' | 'deudas'
@@ -10,6 +10,12 @@ type Tab = 'credito' | 'ahorro' | 'deudas'
 export default function Simulador() {
   const { debts } = useApp()
   const [tab, setTab] = useState<Tab>('credito')
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500)
+    return () => clearTimeout(timer)
+  }, [])
 
   // ── Crédito ──────────────────────────────────────────────────────────────────
   const [principal, setPrincipal] = useState(30000)
@@ -29,7 +35,7 @@ export default function Simulador() {
 
   const pieData = [
     { name: 'Capital', value: principal, color: '#2563EB' },
-    { name: 'Intereses', value: creditCalc.totalInterest, color: '#6366F1' },
+    { name: 'Intereses', value: Math.max(0, creditCalc.totalInterest), color: '#6366F1' },
   ]
 
   // ── Ahorro ───────────────────────────────────────────────────────────────────
@@ -53,7 +59,7 @@ export default function Simulador() {
     return Array.from({ length: months + 1 }, (_, i) => {
       const row: Record<string, number | string> = { mes: i === 0 ? 'Hoy' : `M${i}` }
       debts.forEach(d => {
-        const pmt = d.minimumPayment + (i === 0 ? 0 : extraPmt / debts.length)
+        const pmt = d.minimumPayment + (i === 0 ? 0 : extraPmt / (debts.length || 1))
         const balance = Math.max(0, d.balance - pmt * i)
         row[d.name] = Math.round(balance)
       })
@@ -69,6 +75,22 @@ export default function Simulador() {
     { id: 'deudas'  as Tab, label: 'Liberación deudas', icon: 'release_alert' },
   ]
 
+  if (isLoading) {
+    return (
+      <div className="p-4 lg:p-6 space-y-6 animate-fade-in">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-80" />
+        </div>
+        <Skeleton className="h-12 w-full rounded-card" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <Skeleton className="lg:col-span-4 h-[400px] rounded-card" />
+          <Skeleton className="lg:col-span-8 h-[400px] rounded-card" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-4 lg:p-6 space-y-6">
       <div>
@@ -76,25 +98,11 @@ export default function Simulador() {
         <p className="text-sm text-light-text-2 dark:text-dark-text-2 mt-0.5">Proyecta tu futuro con herramientas de precisión</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-light-border dark:border-dark-border gap-1">
-        {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
-              tab === t.id
-                ? 'border-primary text-primary'
-                : 'border-transparent text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text'
-            }`}>
-            <span className="material-symbols-outlined text-lg">{t.icon}</span>
-            <span className="hidden sm:inline">{t.label}</span>
-          </button>
-        ))}
-      </div>
+      <Tabs tabs={tabs} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
 
       {/* ── CRÉDITO ──────────────────────────────────────────────────────────── */}
       {tab === 'credito' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Inputs */}
           <Card className="lg:col-span-5 space-y-5">
             <h3 className="font-semibold text-light-text dark:text-dark-text flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">tune</span> Parámetros
@@ -126,7 +134,6 @@ export default function Simulador() {
               </div>
             </div>
 
-            {/* Amortización preview */}
             <div className="border border-light-border dark:border-dark-border rounded-card overflow-hidden">
               <div className="px-4 py-3 border-b border-light-border dark:border-dark-border flex justify-between items-center">
                 <p className="text-xs font-bold uppercase text-light-text-2 dark:text-dark-text-2 tracking-wider">Amortización</p>
@@ -134,23 +141,31 @@ export default function Simulador() {
                   {showFullAmort ? 'Ver menos' : 'Ver completa'}
                 </button>
               </div>
-              <div className="grid grid-cols-4 px-4 py-2 text-[10px] font-bold text-light-muted dark:text-dark-muted uppercase">
-                <span>Mes</span><span>Capital</span><span>Interés</span><span className="text-right">Saldo</span>
-              </div>
-              <div className="divide-y divide-light-border dark:divide-dark-border max-h-48 overflow-y-auto no-scrollbar">
-                {(showFullAmort ? creditCalc.amort : creditCalc.amort.slice(0, 3)).map(row => (
-                  <div key={row.month} className="grid grid-cols-4 px-4 py-2.5 text-sm hover:bg-light-surface dark:hover:bg-dark-surface">
-                    <span className="text-light-text-2 dark:text-dark-text-2">{row.month}</span>
-                    <span className="tabular-nums text-success">{formatMXNShort(row.principal)}</span>
-                    <span className="tabular-nums text-danger">{formatMXNShort(row.interest)}</span>
-                    <span className="text-right tabular-nums font-medium text-light-text dark:text-dark-text">{formatMXNShort(row.balance)}</span>
-                  </div>
-                ))}
+              <div className="max-h-[180px] overflow-y-auto no-scrollbar">
+                <table className="w-full text-left border-collapse">
+                  <thead className="sticky top-0 bg-light-card dark:bg-dark-card shadow-sm z-10">
+                    <tr className="text-[10px] uppercase text-light-muted dark:text-dark-muted border-b border-light-border dark:border-dark-border">
+                      <th className="px-4 py-2 font-bold">Mes</th>
+                      <th className="px-4 py-2 font-bold text-right">Pago</th>
+                      <th className="px-4 py-2 font-bold text-right">Interés</th>
+                      <th className="px-4 py-2 font-bold text-right">Saldo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(showFullAmort ? creditCalc.amort : creditCalc.amort.slice(0, 3)).map(row => (
+                      <tr key={row.month} className="border-b border-light-border dark:border-dark-border last:border-0 hover:bg-light-surface dark:hover:bg-dark-surface transition-colors">
+                        <td className="px-4 py-2 text-[11px] font-medium text-light-text dark:text-dark-text">{row.month}</td>
+                        <td className="px-4 py-2 text-[11px] text-right tabular-nums text-light-text-2 dark:text-dark-text-2">{formatMXNShort(row.payment)}</td>
+                        <td className="px-4 py-2 text-[11px] text-right tabular-nums text-danger">{formatMXNShort(row.interest)}</td>
+                        <td className="px-4 py-2 text-[11px] text-right tabular-nums text-light-text dark:text-dark-text font-medium">{formatMXNShort(row.balance)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </Card>
 
-          {/* Results */}
           <div className="lg:col-span-7 space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <Card className="bg-primary/10 border-primary/30">
@@ -169,7 +184,6 @@ export default function Simulador() {
 
             <Card>
               <div className="flex flex-col md:flex-row items-center gap-8">
-                {/* Donut */}
                 <div className="relative w-44 h-44 flex-shrink-0">
                   <PieChart width={176} height={176}>
                     <Pie data={pieData} cx={88} cy={88} innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" animationDuration={600}>
@@ -181,7 +195,6 @@ export default function Simulador() {
                     <span className="text-xl font-bold tabular-nums text-light-text dark:text-dark-text">{formatMXNShort(creditCalc.totalPmt)}</span>
                   </div>
                 </div>
-                {/* Summary */}
                 <div className="flex-1 space-y-3 w-full">
                   <h3 className="font-semibold text-light-text dark:text-dark-text">Resumen del préstamo</h3>
                   {[
@@ -204,16 +217,14 @@ export default function Simulador() {
               </div>
             </Card>
 
-            {/* Tip */}
             <div className="bg-primary/5 border border-primary/20 rounded-card p-4 flex gap-3">
               <div className="w-9 h-9 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="material-symbols-outlined text-primary text-lg">lightbulb</span>
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="font-semibold text-primary text-sm mb-1">Tip de Fyn</p>
                 <p className="text-sm text-light-text-2 dark:text-dark-text-2">
-                  Si aumentas tu mensualidad a <span className="font-bold text-light-text dark:text-dark-text">{formatMXN(creditCalc.monthlyPmt * 1.12)}</span>,
-                  podrías terminar de pagar en {Math.max(1, termMonths - 2)} meses y ahorrar en intereses.
+                  Aumentar tu mensualidad un 12% reduce considerablemente el tiempo y costo total del crédito.
                 </p>
               </div>
             </div>
@@ -295,8 +306,8 @@ export default function Simulador() {
               <p className="text-2xl font-bold tabular-nums text-light-text dark:text-dark-text">{formatMXN(debts.reduce((s, d) => s + d.minimumPayment, 0))}</p>
             </Card>
             <Card>
-              <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase font-medium mb-1">Pago extra</p>
-              <p className="text-2xl font-bold tabular-nums text-primary">{formatMXN(extraPmt)}</p>
+               <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase font-medium mb-1">Pago extra</p>
+               <p className="text-2xl font-bold tabular-nums text-primary">{formatMXN(extraPmt)}</p>
             </Card>
           </div>
 
