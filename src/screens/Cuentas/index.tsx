@@ -107,39 +107,42 @@ export default function Cuentas() {
       </div>
 
       {/* Grid de tarjetas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {accounts.filter(a => a.isActive).map(a => (
           <div key={a.id} onClick={() => setSelectedAcc(a.id)}
-            className="rounded-xl p-5 cursor-pointer relative overflow-hidden shadow-lg transition-transform hover:-translate-y-1 active:scale-95 group"
+            className="rounded-2xl p-6 cursor-pointer relative overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group border border-white/10"
             style={{
-              background: `linear-gradient(135deg, ${a.color} 0%, ${a.color}dd 100%)`,
-              color: 'white'
+              background: `linear-gradient(145deg, ${a.color}ee 0%, ${a.color}aa 100%)`,
+              color: 'white',
+              backdropFilter: 'blur(10px)'
             }}>
             {/* Elementos decorativos glassmorphism */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
-            <div className="absolute bottom-0 right-0 p-4 opacity-10 pointer-events-none">
-              <span className="material-symbols-outlined text-8xl transform rotate-12">{
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-transform group-hover:scale-110" />
+            <div className="absolute bottom-0 right-0 p-4 opacity-15 pointer-events-none transition-transform group-hover:rotate-12 group-hover:scale-110 duration-500">
+              <span className="material-symbols-outlined text-9xl transform rotate-12">{
                 a.type === 'credito' ? 'credit_card' : a.type === 'efectivo' ? 'payments' : 'account_balance'
               }</span>
             </div>
 
-            <div className="flex justify-between items-start mb-8 relative z-10">
+            <div className="flex justify-between items-start mb-10 relative z-10">
               <div>
-                <p className="font-bold text-lg tracking-wide shadow-sm">{a.bank}</p>
-                <p className="text-white/70 text-xs uppercase tracking-widest">{a.type}</p>
+                <p className="font-bold text-xl tracking-wide drop-shadow-sm">{a.bank}</p>
+                <p className="text-white/80 text-xs uppercase tracking-[0.2em] font-medium mt-1">{a.name}</p>
               </div>
-              <span className="material-symbols-outlined opacity-80">{a.type === 'efectivo' ? 'payments' : 'contactless'}</span>
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md shadow-inner">
+                <span className="material-symbols-outlined opacity-90">{a.type === 'efectivo' ? 'payments' : 'contactless'}</span>
+              </div>
             </div>
 
             <div className="space-y-4 relative z-10">
-              <p className="font-mono text-sm tracking-[0.2em] opacity-80">{formatCardNumber(a.lastFour)}</p>
+              <p className="font-mono text-sm tracking-[0.25em] opacity-90 drop-shadow-sm">{formatCardNumber(a.lastFour)}</p>
               <div>
-                <p className="text-xs text-white/70 uppercase tracking-wider mb-0.5">{a.type === 'credito' ? 'Deuda actual' : 'Saldo disponible'}</p>
-                <p className="text-2xl font-bold tabular-nums tracking-tight">
+                <p className="text-xs text-white/80 uppercase tracking-widest mb-1 font-medium">{a.type === 'credito' ? 'Deuda actual' : 'Saldo disponible'}</p>
+                <p className="text-3xl font-extrabold tabular-nums tracking-tight drop-shadow-md">
                   {formatMXN(a.balance)}
                 </p>
                 {a.type === 'credito' && a.creditLimit && (
-                  <p className="text-xs text-white/70 mt-1">Límite: {formatMXNShort(a.creditLimit)}</p>
+                  <p className="text-xs text-white/90 mt-2 font-medium bg-black/20 inline-block px-2 py-1 rounded-md backdrop-blur-sm">Límite: {formatMXNShort(a.creditLimit)}</p>
                 )}
               </div>
             </div>

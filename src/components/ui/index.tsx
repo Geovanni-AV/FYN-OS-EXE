@@ -1,15 +1,16 @@
-import { useEffect, useRef, type ReactNode, type ButtonHTMLAttributes } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
 import { useToast } from '../../context/ToastContext'
 
 // ─── BUTTON ───────────────────────────────────────────────────────────────────
-type BtnVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+type BtnVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
 type BtnSize    = 'sm' | 'md' | 'lg'
 
 const BTN_VAR: Record<BtnVariant, string> = {
-  primary:   'bg-primary hover:bg-primary-hover text-white shadow-sm',
-  secondary: 'bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border text-light-text dark:text-dark-text hover:bg-light-border dark:hover:bg-dark-border',
+  primary:   'bg-primary hover:bg-primary-hover text-white shadow-md shadow-primary/20 hover:shadow-primary/40',
+  secondary: 'glass border border-light-border dark:border-dark-border text-light-text dark:text-dark-text hover:bg-light-surface dark:hover:bg-dark-surface hover:text-primary transition-all',
   ghost:     'text-primary hover:bg-primary/10',
-  danger:    'bg-danger hover:bg-red-600 text-white',
+  outline:   'border border-primary text-primary hover:bg-primary/5',
+  danger:    'bg-danger hover:bg-red-600 text-white shadow-md shadow-danger/20',
 }
 const BTN_SIZE: Record<BtnSize, string> = {
   sm: 'px-3 py-1.5 text-xs',
@@ -18,12 +19,12 @@ const BTN_SIZE: Record<BtnSize, string> = {
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: BtnVariant; size?: BtnSize; children: ReactNode
+  variant?: BtnVariant; size?: BtnSize; children: ReactNode; iconOnly?: boolean
 }
-export function Button({ variant = 'primary', size = 'md', className = '', children, ...props }: ButtonProps) {
+export function Button({ variant = 'primary', size = 'md', className = '', children, iconOnly, ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center gap-2 rounded-btn font-medium transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${BTN_VAR[variant]} ${BTN_SIZE[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-btn font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${BTN_VAR[variant]} ${BTN_SIZE[size]} ${iconOnly ? 'w-9 h-9 p-0' : ''} ${className}`}
       {...props}
     >
       {children}
@@ -32,10 +33,10 @@ export function Button({ variant = 'primary', size = 'md', className = '', child
 }
 
 // ─── CARD ─────────────────────────────────────────────────────────────────────
-export function Card({ children, className = '', padding = true, clickable = false }:
-  { children: ReactNode; className?: string; padding?: boolean; clickable?: boolean }) {
+export function Card({ children, className = '', padding = true, clickable = false, onClick, style }:
+  { children: ReactNode; className?: string; padding?: boolean; clickable?: boolean; onClick?: () => void; style?: React.CSSProperties }) {
   return (
-    <div className={`bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-card shadow-card dark:shadow-card-dark ${padding ? 'p-5' : ''} ${clickable ? 'cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]' : ''} ${className}`}>
+    <div onClick={onClick} style={style} className={`glass-card rounded-card shadow-card dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 ${padding ? 'p-5' : ''} ${clickable ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] border-opacity-50 hover:border-primary/30' : ''} ${className}`}>
       {children}
     </div>
   )
@@ -44,16 +45,16 @@ export function Card({ children, className = '', padding = true, clickable = fal
 // ─── BADGE ────────────────────────────────────────────────────────────────────
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
 const BADGE: Record<BadgeVariant, string> = {
-  success: 'bg-success/10 text-success',
-  warning: 'bg-warning/10 text-warning',
-  danger:  'bg-danger/10 text-danger',
-  info:    'bg-primary/10 text-primary',
-  neutral: 'bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2',
+  success: 'bg-success/15 text-success border border-success/20',
+  warning: 'bg-warning/15 text-warning border border-warning/20',
+  danger:  'bg-danger/15 text-danger border border-danger/20',
+  info:    'bg-primary/15 text-primary border border-primary/20',
+  neutral: 'bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 border border-light-border dark:border-dark-border',
 }
 export function Badge({ variant = 'neutral', children, className = '' }:
   { variant?: BadgeVariant; children: ReactNode; className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-badge text-xs font-medium ${BADGE[variant]} ${className}`}>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-badge text-xs font-semibold tracking-wide ${BADGE[variant]} ${className}`}>
       {children}
     </span>
   )
@@ -219,5 +220,189 @@ export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, conf
         <Button variant="danger" onClick={() => { onConfirm(); onClose() }}>{confirmLabel}</Button>
       </div>
     </Modal>
+  )
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+export function Tabs({ tabs, activeTab, onChange, variant = 'underline' }:
+  { tabs: { id: string; label: string; icon?: string }[]; activeTab: string; onChange: (id: string) => void; variant?: 'underline' | 'pills' }) {
+  
+  if (variant === 'pills') {
+    return (
+      <div className="flex bg-light-surface dark:bg-dark-surface rounded-card p-1 gap-1 overflow-x-auto no-scrollbar">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => onChange(tab.id)}
+            className={`flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-btn transition-all flex-shrink-0 ${
+              activeTab === tab.id
+                ? 'bg-light-card dark:bg-dark-card text-primary shadow-sm'
+                : 'text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text'
+            }`}
+          >
+            {tab.icon && <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex border-b border-light-border dark:border-dark-border overflow-x-auto no-scrollbar gap-6">
+      {tabs.map(tab => (
+        <button
+          key={tab.id}
+          onClick={() => onChange(tab.id)}
+          className={`flex items-center gap-2 px-1 py-3 text-sm transition-colors whitespace-nowrap border-b-2 ${
+            activeTab === tab.id
+              ? 'border-primary text-primary font-bold'
+              : 'border-transparent text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text'
+          }`}
+        >
+          {tab.icon && <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>}
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ─── ACCORDION ────────────────────────────────────────────────────────────────
+export function Accordion({ title, icon, defaultOpen = false, children, badge }:
+  { title: string; icon?: string; defaultOpen?: boolean; children: ReactNode; badge?: string }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+  
+  return (
+    <div className="border border-light-border dark:border-dark-border rounded-card overflow-hidden bg-light-card dark:bg-dark-card transition-all duration-200">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-4 hover:bg-light-surface dark:hover:bg-dark-surface transition-colors focus:outline-none"
+      >
+        <div className="flex items-center gap-3">
+          {icon && <span className="material-symbols-outlined text-primary">{icon}</span>}
+          <span className="font-semibold text-light-text dark:text-dark-text">{title}</span>
+          {badge && <Badge variant="neutral">{badge}</Badge>}
+        </div>
+        <span className={`material-symbols-outlined text-light-muted dark:text-dark-muted transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+          expand_more
+        </span>
+      </button>
+      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="p-4 pt-0 border-t border-light-border dark:border-dark-border mt-1">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── CALENDAR GRID ────────────────────────────────────────────────────────────
+export type CalendarEvent = { 
+  id?: string;
+  day: number; 
+  color: string; 
+  title: string; 
+  type?: 'pago' | 'corte' | 'ingreso' | 'danger' | 'warning' | 'success' | 'info';
+  amount?: number;
+  icon?: string;
+  label?: string; // Legacy field
+}
+
+export function CalendarGrid({ year, month, events, onDayClick, className = '' }:
+  { year: number; month: number; events: CalendarEvent[]; onDayClick?: (day: number) => void; className?: string }) {
+  
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const firstDayIndex = new Date(year, month, 1).getDay()
+  const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1 // Monday start
+  
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+  const blanks = Array.from({ length: adjustedFirstDay }, (_, i) => i)
+
+  const today = new Date()
+  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month
+
+  const getDayEvents = (d: number) => events.filter(e => e.day === d)
+
+  return (
+    <div className={`w-full ${className}`}>
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'].map(d => (
+          <div key={d} className="text-center text-[10px] font-black uppercase tracking-widest text-light-muted dark:text-dark-muted py-2">
+            {d}
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {blanks.map(b => <div key={`blank-${b}`} className="min-h-[50px] rounded-2xl opacity-10 bg-light-surface dark:bg-dark-surface" />)}
+        {days.map(d => {
+          const isToday = isCurrentMonth && today.getDate() === d
+          const dayEvents = getDayEvents(d)
+          // Consider 'pago' or 'danger' as urgent/payments
+          const urgent = dayEvents.some(e => (e.type === 'pago' || e.type === 'danger') && d >= today.getDate() && d <= today.getDate() + 3 && isCurrentMonth)
+
+          return (
+            <div
+              key={d}
+              onClick={() => onDayClick?.(d)}
+              title={dayEvents.map(e => e.title || e.label).join('\n')}
+              className={`relative min-h-[50px] flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 p-1
+                ${isToday 
+                  ? 'bg-primary text-white font-bold shadow-lg shadow-primary/30 z-10 scale-105' 
+                  : 'bg-light-surface/40 dark:bg-dark-surface/40 text-light-text dark:text-dark-text hover:bg-light-surface dark:hover:bg-dark-surface hover:shadow-md hover:-translate-y-0.5'}
+                ${urgent && !isToday ? 'ring-2 ring-danger ring-inset' : ''}
+              `}
+            >
+              <span className="text-sm z-10">{d}</span>
+              {dayEvents.length > 0 && (
+                <div className="flex gap-0.5 mt-1 z-10">
+                  {dayEvents.slice(0, 3).map((e, i) => (
+                    <div key={i} className="w-1 h-1 rounded-full shadow-sm" style={{ backgroundColor: isToday ? 'rgba(255,255,255,0.8)' : e.color }} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── CHIP SELECTOR ────────────────────────────────────────────────────────────
+export function ChipSelector({ options, value, onChange, multi = false }:
+  { options: { value: string; label: string; icon?: string }[]; value: string | string[]; onChange: (v: any) => void; multi?: boolean }) {
+  
+  const isSelected = (val: string) => multi ? (value as string[]).includes(val) : value === val
+
+  const handleToggle = (val: string) => {
+    if (multi) {
+      const arr = value as string[]
+      onChange(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val])
+    } else {
+      onChange(val)
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map(opt => {
+        const active = isSelected(opt.value)
+        return (
+          <button
+            key={opt.value}
+            onClick={() => handleToggle(opt.value)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+              active 
+                ? 'bg-primary/10 text-primary border-primary/30 shadow-sm' 
+                : 'bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 border-transparent hover:text-light-text dark:hover:text-dark-text hover:bg-light-border dark:hover:bg-dark-border'
+            }`}
+          >
+            {opt.icon && <span className="material-symbols-outlined text-[16px]">{opt.icon}</span>}
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
   )
 }

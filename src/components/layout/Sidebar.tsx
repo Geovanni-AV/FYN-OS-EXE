@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
-
+import { useTheme } from '../../context/ThemeContext'
 const NAV_GROUPS = [
   {
     label: 'Operación diaria',
@@ -33,6 +33,7 @@ const NAV_GROUPS = [
 
 export default function Sidebar() {
   const { alerts, profile } = useApp()
+  const { theme, setTheme } = useTheme()
   const unread = alerts.filter(a => !a.isRead).length
 
   return (
@@ -80,9 +81,9 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* User */}
-      <div className="p-3 border-t border-light-border dark:border-dark-border">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-btn bg-light-surface dark:bg-dark-surface">
+      {/* User & Theme */}
+      <div className="p-3 border-t border-light-border dark:border-dark-border flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 px-2 py-2 rounded-btn bg-light-surface dark:bg-dark-surface flex-1 min-w-0">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
             {profile.name.slice(0, 2).toUpperCase()}
           </div>
@@ -91,6 +92,15 @@ export default function Sidebar() {
             <p className="text-[10px] text-light-muted dark:text-dark-muted">Plan Básico</p>
           </div>
         </div>
+        <button 
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="p-2 rounded-btn bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 hover:text-primary transition-colors flex-shrink-0"
+          title="Cambiar tema"
+        >
+          <span className="material-symbols-outlined text-xl">
+            {theme === 'light' ? 'dark_mode' : 'light_mode'}
+          </span>
+        </button>
       </div>
     </aside>
   )

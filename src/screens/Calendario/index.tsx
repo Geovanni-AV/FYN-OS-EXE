@@ -1,93 +1,177 @@
+import { useState, useMemo } from 'react'
 import { useApp } from '../../context/AppContext'
-import { Card } from '../../components/ui'
-import { formatMXN } from '../../types'
+import { Card, Button, Badge, CalendarGrid, type CalendarEvent } from '../../components/ui'
+import { formatMXN, CATEGORY_ICONS, CATEGORY_COLORS, CATEGORY_LABELS } from '../../types'
 
 export default function Calendario() {
-  const { transactions, debts } = useApp()
+  const { transactions, debts, goals } = useApp()
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [selectedDay, setSelectedDay] = useState<number>(new Date().getDate())
 
-  const today = new Date()
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()
-  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay()
+  const curMonth = currentDate.getMonth()
+  const curYear = currentDate.getFullYear()
 
-  const paymentDays = debts.map(d => ({ day: d.dueDay, label: d.name, amount: d.minimumPayment, color: '#EF4444' }))
-  const recurringTx = transactions.filter(t => t.isRecurring).map(t => ({
-    day: parseInt(t.date.slice(-2)),
-    label: t.description,
-    amount: t.amount,
-    color: t.type === 'ingreso' ? '#10B981' : '#F59E0B',
-  }))
-  const allEvents = [...paymentDays, ...recurringTx]
-
-  const weeks: (number | null)[][] = []
-  let week: (number | null)[] = Array(firstDay === 0 ? 6 : firstDay - 1).fill(null)
-  for (let d = 1; d <= daysInMonth; d++) {
-    week.push(d)
-    if (week.length === 7) { weeks.push(week); week = [] }
+  const handlePrevMonth = () => setCurrentDate(new Date(curYear, curMonth - 1, 1))
+  const handleNextMonth = () => setCurrentDate(new Date(curYear, curMonth + 1, 1))
+  const handleToday = () => {
+    const now = new Date()
+    setCurrentDate(now)
+    setSelectedDay(now.getDate())
   }
-  if (week.length > 0) weeks.push([...week, ...Array(7 - week.length).fill(null)])
+
+  // Calculate events for the current month
+  const events: CalendarEvent[] = useMemo(() => {
+    const evs: CalendarEvent[] = []
+
+    // 1. Transactions (filtering for current month/year)
+    transactions.forEach(t => {
+      const d = new Date(t.date)
+      if (d.getMonth() === curMonth && d.getFullYear() === curYear) {
+        evs.push({
+          id: `tx-${t.id}`,
+          day: d.getDate(),
+          title: t.description,
+          type: t.type === 'ingreso' ? 'success' : 'info',
+          color: CATEGORY_COLORS[t.category],
+          amount: t.amount,
+          icon: CATEGORY_ICONS[t.category]
+        })
+      }
+    })
+
+    // 2. Debts (assuming they occur every month on dueDay)
+    debts.forEach(debt => {
+      evs.push({
+        id: `debt-${debt.id}`,
+        day: debt.dueDay,
+        title: `Pago: ${debt.name}`,
+        type: 'danger',
+        color: '#EF4444',
+        amount: debt.minimumPayment,
+        icon: 'payments'
+      })
+    })
+
+    // 3. Goals (if targetDate is in this month)
+    goals.forEach(goal => {
+      const d = new Date(goal.targetDate)
+      if (d.getMonth() === curMonth && d.getFullYear() === curYear) {
+        evs.push({
+          id: `goal-${goal.id}`,
+          day: d.getDate(),
+          title: `Meta: ${goal.name}`,
+          type: 'success',
+          color: goal.color,
+          amount: goal.targetAmount,
+          icon: goal.icon
+        })
+      }
+    })
+
+    return evs
+  }, [transactions, debts, goals, curMonth, curYear])
+
+  const selectedDayEvents = events.filter(e => e.day === selectedDay)
 
   return (
-    <div className="p-4 lg:p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">Calendario de pagos</h1>
+    <div className="p-4 lg:p-6 lg:max-w-7xl mx-auto space-y-6 animate-fade-in-up">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-light-text dark:text-dark-text tracking-tight flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-3xl">calendar_month</span>
+            Calendario Financiero
+          </h1>
+          <p className="text-sm text-light-text-2 dark:text-dark-text-2 mt-1 lowercase">
+            <span className="capitalize">{currentDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}</span>
+          </p>
+        </div>
+        <div className="flex items-center bg-light-surface dark:bg-dark-surface p-1 rounded-2xl border border-light-border/30 dark:border-dark-border/30 shadow-sm">
+          <Button variant="ghost" size="sm" iconOnly onClick={handlePrevMonth}>
+             <span className="material-symbols-outlined">chevron_left</span>
+          </Button>
+          <Button variant="ghost" size="sm" className="px-4 font-bold text-xs uppercase tracking-widest" onClick={handleToday}>
+            Hoy
+          </Button>
+          <Button variant="ghost" size="sm" iconOnly onClick={handleNextMonth}>
+             <span className="material-symbols-outlined">chevron_right</span>
+          </Button>
+        </div>
+      </div>
 
-      <Card>
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="font-semibold text-light-text dark:text-dark-text capitalize">
-            {today.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}
-          </h3>
-          <div className="flex gap-1">
-            <button className="w-8 h-8 flex items-center justify-center rounded-btn hover:bg-light-surface dark:hover:bg-dark-surface cursor-pointer">
-              <span className="material-symbols-outlined text-lg text-light-text-2 dark:text-dark-text-2">chevron_left</span>
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-btn hover:bg-light-surface dark:hover:bg-dark-surface cursor-pointer">
-              <span className="material-symbols-outlined text-lg text-light-text-2 dark:text-dark-text-2">chevron_right</span>
-            </button>
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+        {/* Calendar Grid (7/10) */}
+        <Card className="lg:col-span-7 p-6 overflow-hidden relative group">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-primary/10 transition-colors duration-700" />
+          <div className="relative z-10">
+            <CalendarGrid 
+              year={curYear}
+              month={curMonth}
+              events={events}
+              onDayClick={setSelectedDay}
+              className="min-h-[500px]" 
+            />
           </div>
-        </div>
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'].map(d => (
-            <div key={d} className="text-center text-xs font-bold text-light-muted dark:text-dark-muted uppercase py-1">{d}</div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {weeks.flat().map((day, i) => {
-            if (!day) return <div key={i} />
-            const isToday = day === today.getDate()
-            const events = allEvents.filter(e => e.day === day)
-            return (
-              <div key={i} className={`relative h-10 flex flex-col items-center justify-center rounded-btn text-sm cursor-pointer transition-colors
-                ${isToday ? 'bg-primary text-white font-bold' : 'hover:bg-light-surface dark:hover:bg-dark-surface text-light-text dark:text-dark-text'}`}>
-                {day}
-                {events.length > 0 && !isToday && (
-                  <div className="flex gap-0.5 absolute bottom-1">
-                    {events.slice(0, 3).map((e, j) => (
-                      <div key={j} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.color }} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </Card>
+        </Card>
 
-      {/* Upcoming */}
-      <div>
-        <h3 className="font-semibold text-light-text dark:text-dark-text mb-3">Próximos compromisos</h3>
-        <div className="space-y-3">
-          {allEvents.slice(0, 6).map((e, i) => (
-            <div key={i} className="flex items-center gap-4 p-3 bg-light-surface dark:bg-dark-surface rounded-btn">
-              <div className="w-10 h-10 rounded-btn flex flex-col items-center justify-center text-white flex-shrink-0"
-                style={{ backgroundColor: e.color }}>
-                <span className="text-[9px] font-bold uppercase">{today.toLocaleDateString('es-MX', { month: 'short' })}</span>
-                <span className="text-sm font-bold leading-none">{e.day}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-light-text dark:text-dark-text truncate">{e.label}</p>
-              </div>
-              <p className="font-semibold tabular-nums text-sm text-light-text dark:text-dark-text">{formatMXN(e.amount)}</p>
+        {/* Selected Day Details (3/10) */}
+        <div className="lg:col-span-3 space-y-6">
+          <Card className="h-full flex flex-col min-h-[500px] bg-primary/5 border-primary/10 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary/60 to-primary/20" />
+            
+            <div className="p-6 border-b border-primary/5">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-light-muted dark:text-dark-muted mb-1">Detalles del día</p>
+              <h2 className="text-2xl font-black text-light-text dark:text-dark-text">
+                {selectedDay} de {currentDate.toLocaleDateString('es-MX', { month: 'long' })}
+              </h2>
             </div>
-          ))}
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+              {selectedDayEvents.length > 0 ? (
+                selectedDayEvents.map(e => (
+                  <div key={e.id} className="p-4 bg-white/40 dark:bg-black/40 rounded-2xl border border-white/60 dark:border-white/5 backdrop-blur-md shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-sm transition-transform group-hover:scale-110"
+                        style={{ backgroundColor: e.color }}>
+                        <span className="material-symbols-outlined text-xl">{e.icon || 'event'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-light-text dark:text-dark-text truncate">{e.title}</p>
+                        <Badge variant={e.type === 'success' ? 'success' : e.type === 'danger' ? 'danger' : 'info'} className="mt-1 scale-90 origin-left opacity-80">
+                          {e.type === 'success' ? 'Ingreso/Meta' : e.type === 'danger' ? 'Pago' : 'Gasto'}
+                        </Badge>
+                      </div>
+                    </div>
+                    {e.amount !== undefined && (
+                      <div className="mt-4 pt-3 border-t border-light-border/20 dark:border-dark-border/20 flex justify-between items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-light-muted dark:text-dark-muted">Monto</span>
+                        <span className={`text-sm font-black tabular-nums ${e.type === 'success' ? 'text-success' : 'text-danger'}`}>
+                          {e.type === 'success' ? '+' : '-'}{formatMXN(e.amount)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-center p-8 opacity-40">
+                  <span className="material-symbols-outlined text-6xl mb-4">coffee</span>
+                  <p className="text-sm font-bold text-light-text dark:text-dark-text">Sin compromisos para hoy</p>
+                  <p className="text-xs mt-1">¡Un día de descanso financiero!</p>
+                </div>
+              )}
+            </div>
+
+            {selectedDayEvents.length > 0 && (
+              <div className="p-6 bg-primary/10 border-t border-primary/5">
+                <div className="flex justify-between items-center">
+                  <p className="text-[11px] font-black uppercase text-primary/70">Balance del día</p>
+                  <p className="text-lg font-black text-primary">
+                    {formatMXN(selectedDayEvents.reduce((acc, e) => acc + (e.type === 'success' ? (e.amount || 0) : -(e.amount || 0)), 0))}
+                  </p>
+                </div>
+              </div>
+            )}
+          </Card>
         </div>
       </div>
     </div>

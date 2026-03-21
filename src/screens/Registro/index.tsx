@@ -77,13 +77,13 @@ export default function Registro() {
       <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">Registrar movimiento</h1>
 
       {/* Tab bar */}
-      <div className="flex gap-1 bg-light-surface dark:bg-dark-surface rounded-card p-1">
+      <div className="flex gap-1 bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-md rounded-card p-1.5 shadow-inner border border-light-border/50 dark:border-dark-border/50">
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-btn text-sm font-medium transition-all duration-150 cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-btn text-sm font-semibold transition-all duration-300 cursor-pointer ${
               tab === t.id
-                ? 'bg-light-card dark:bg-dark-card text-light-text dark:text-dark-text shadow-sm'
-                : 'text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text'
+                ? 'glass shadow-md text-primary scale-[1.02]'
+                : 'text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text hover:bg-light-surface/50 dark:hover:bg-dark-surface/50'
             }`}>
             <span className="material-symbols-outlined text-lg">{t.icon}</span>
             <span className="hidden sm:inline">{t.label}</span>
@@ -93,13 +93,13 @@ export default function Registro() {
 
       {/* Manual */}
       {tab === 'manual' && (
-        <Card className="space-y-5">
+        <Card className="space-y-6">
           {/* Type toggle */}
-          <div className="flex gap-1 bg-light-surface dark:bg-dark-surface rounded-btn p-1">
+          <div className="flex gap-1 bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm rounded-btn p-1.5 border border-light-border/30 dark:border-dark-border/30">
             {(['gasto', 'ingreso', 'transferencia'] as TransactionType[]).map(t => (
               <button key={t} onClick={() => setTxType(t)}
-                className={`flex-1 py-2.5 rounded-btn text-sm font-semibold capitalize transition-all duration-150 cursor-pointer ${
-                  txType === t ? `${TYPE_BG[t]} text-white` : 'text-light-text-2 dark:text-dark-text-2'
+                className={`flex-1 py-2.5 rounded-btn text-sm font-bold capitalize transition-all duration-300 cursor-pointer ${
+                  txType === t ? `${TYPE_BG[t]} text-white shadow-md scale-[1.02]` : 'text-light-text-2 dark:text-dark-text-2 hover:bg-white/50 dark:hover:bg-black/20'
                 }`}>
                 {t}
               </button>
@@ -107,9 +107,9 @@ export default function Registro() {
           </div>
 
           {/* Amount */}
-          <div className="text-center py-4">
-            <p className="text-xs font-medium text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide mb-2">Monto</p>
-            <div className="relative inline-flex items-center">
+          <div className="text-center py-6">
+            <p className="text-xs font-semibold text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide mb-3">Monto de transacción</p>
+            <div className="relative inline-flex items-center justify-center">
               <span className={`text-3xl font-bold mr-1 ${TYPE_COLORS[txType].split(' ')[0]}`}>$</span>
               <input
                 type="text"
@@ -117,25 +117,25 @@ export default function Registro() {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className={`text-5xl font-bold tabular-nums w-48 bg-transparent border-b-2 text-center focus:outline-none transition-colors ${TYPE_COLORS[txType]}`}
+                className={`text-6xl font-extrabold tabular-nums w-48 bg-transparent border-b-2 text-center focus:outline-none transition-all ${TYPE_COLORS[txType]} placeholder:text-light-muted dark:placeholder:text-dark-muted shadow-sm`}
               />
-              <span className="text-lg text-light-text-2 dark:text-dark-text-2 ml-1">MXN</span>
+              <span className="text-xl font-medium text-light-text-2 dark:text-dark-text-2 ml-2">MXN</span>
             </div>
           </div>
 
           {/* Categories */}
           <div>
-            <p className="text-sm font-medium text-light-text dark:text-dark-text mb-3">Categoría</p>
-            <div className="grid grid-cols-4 gap-2">
+            <p className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Categoría</p>
+            <div className="grid grid-cols-4 gap-3">
               {CATEGORIES.map(cat => (
                 <button key={cat} onClick={() => setCategory(cat)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-btn transition-all duration-150 cursor-pointer text-center ${
+                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 cursor-pointer text-center ${
                     category === cat
-                      ? 'bg-primary/10 border border-primary/30 text-primary'
-                      : 'bg-light-surface dark:bg-dark-surface border border-transparent hover:border-light-border dark:hover:border-dark-border text-light-text-2 dark:text-dark-text-2'
+                      ? 'glass border-primary/40 text-primary shadow-md scale-105'
+                      : 'bg-transparent border border-transparent hover:glass hover:border-light-border/50 text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text'
                   }`}>
-                  <span className="material-symbols-outlined text-xl">{CATEGORY_ICONS[cat]}</span>
-                  <span className="text-[10px] font-medium leading-tight">{CATEGORY_LABELS[cat].slice(0, 10)}</span>
+                  <span className="material-symbols-outlined text-2xl">{CATEGORY_ICONS[cat]}</span>
+                  <span className="text-[10px] font-semibold tracking-wider leading-tight uppercase">{CATEGORY_LABELS[cat].slice(0, 10)}</span>
                 </button>
               ))}
             </div>
