@@ -13,6 +13,7 @@ import Alertas from './screens/Alertas'
 import Presupuestos from './screens/Presupuestos'
 import Deudas from './screens/Deudas'
 import Calendario from './screens/Calendario'
+import Analisis from './screens/Analisis'
 
 // Fallback visual para rutas no implementadas aún
 function InConstruction({ name }: { name: string }) {
@@ -48,7 +49,7 @@ export default function App() {
                 <Route path="presupuestos" element={<Presupuestos />} />
                 
                 {/* Rutas en construcción */}
-                <Route path="analisis" element={<InConstruction name="Análisis" />} />
+                <Route path="analisis" element={<Analisis />} />
                 <Route path="perfil" element={<InConstruction name="Perfil" />} />
                 <Route path="deudas" element={<Deudas />} />
                 <Route path="metas" element={<InConstruction name="Metas" />} />

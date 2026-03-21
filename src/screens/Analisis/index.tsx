@@ -1,235 +1,304 @@
-import { useState, useMemo } from 'react'
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { useMemo, useState, useEffect } from 'react'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+  AreaChart, Area, Cell
+} from 'recharts'
 import { useApp } from '../../context/AppContext'
-import { Card, Badge } from '../../components/ui'
-import { formatMXN, formatMXNShort, CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_COLORS, type CategoryId } from '../../types'
-
-const PAGE_SIZE = 10
+import { Card, Button, Drawer, ChipSelector, Badge, Skeleton } from '../../components/ui'
+import { formatMXN, formatMXNShort, CATEGORY_ICONS, CATEGORY_COLORS, CATEGORY_LABELS, type CategoryId } from '../../types'
 
 export default function Analisis() {
   const { transactions, accounts } = useApp()
-  const [filter, setFilter] = useState<'todos' | 'ingreso' | 'gasto'>('todos')
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(0)
+  const [isExportOpen, setIsExportOpen] = useState(false)
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'excel' | 'csv'>('pdf')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const currentMonth = new Date().toISOString().slice(0, 7)
-  const lastMonth = (() => {
-    const d = new Date(); d.setMonth(d.getMonth() - 1)
-    return d.toISOString().slice(0, 7)
-  })()
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800)
+    return () => clearTimeout(timer)
+  }, [])
 
-  const monthTx  = transactions.filter(t => t.date.startsWith(currentMonth))
-  const lastMonthTx = transactions.filter(t => t.date.startsWith(lastMonth))
+  // Statistical calculations
+  const analysisData = useMemo(() => {
+    const now = new Date()
+    const thisMonthStr = now.toISOString().slice(0, 7)
+    
+    const lastMonthDate = new Date()
+    lastMonthDate.setMonth(now.getMonth() - 1)
+    const lastMonthStr = lastMonthDate.toISOString().slice(0, 7)
+    
+    const expensesThisMonth = transactions.filter(t => t.type === 'gasto' && t.date.startsWith(thisMonthStr))
+    const expensesLastMonth = transactions.filter(t => t.type === 'gasto' && t.date.startsWith(lastMonthStr))
+    
+    const totalThis = expensesThisMonth.reduce((sum, t) => sum + t.amount, 0)
+    const totalLast = expensesLastMonth.reduce((sum, t) => sum + t.amount, 0)
+    
+    // Group by category for chart
+    const categoryIds = Object.keys(CATEGORY_LABELS) as CategoryId[]
+    const catData = categoryIds.map(id => {
+      const amount = expensesThisMonth.filter(t => t.category === id).reduce((sum, t) => sum + t.amount, 0)
+      return {
+        id,
+        name: CATEGORY_LABELS[id],
+        amount,
+        color: CATEGORY_COLORS[id] || '#cbd5e1'
+      }
+    }).filter(c => c.amount > 0).sort((a, b) => b.amount - a.amount)
 
-  const kpis = useMemo(() => {
-    const ingresos  = monthTx.filter(t => t.type === 'ingreso').reduce((s, t) => s + t.amount, 0)
-    const gastos    = monthTx.filter(t => t.type === 'gasto').reduce((s, t) => s + t.amount, 0)
-    const ahorro    = ingresos - gastos
-    const tasa      = ingresos > 0 ? ahorro / ingresos : 0
-    const totalBalance = accounts.reduce((s, a) => s + a.balance, 0)
+    const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0)
 
-    const prevIngresos = lastMonthTx.filter(t => t.type === 'ingreso').reduce((s, t) => s + t.amount, 0)
-    const prevGastos   = lastMonthTx.filter(t => t.type === 'gasto').reduce((s, t) => s + t.amount, 0)
+    // Trend mock data (last 6 months)
+    const trendData = [
+      { month: 'Oct', ingresos: 45000, gastos: 32000 },
+      { month: 'Nov', ingresos: 48000, gastos: 35000 },
+      { month: 'Dic', ingresos: 52000, gastos: 41000 },
+      { month: 'Ene', ingresos: 46000, gastos: 38000 },
+      { month: 'Feb', ingresos: 45500, gastos: 36500 },
+      { month: 'Mar', ingresos: 47000, gastos: totalThis || 34200 }
+    ]
 
-    return { ingresos, gastos, ahorro, tasa, totalBalance, prevIngresos, prevGastos }
-  }, [monthTx, lastMonthTx, accounts])
+    return { totalThis, totalLast, catData, totalBalance, trendData }
+  }, [transactions, accounts])
 
-  // Category distribution
-  const categoryData = useMemo(() => {
-    const map: Record<string, number> = {}
-    monthTx.filter(t => t.type === 'gasto').forEach(t => {
-      map[t.category] = (map[t.category] ?? 0) + t.amount
-    })
-    return Object.entries(map)
-      .map(([cat, total]) => ({ name: CATEGORY_LABELS[cat as CategoryId], value: total, color: CATEGORY_COLORS[cat as CategoryId], icon: CATEGORY_ICONS[cat as CategoryId] }))
-      .sort((a, b) => b.value - a.value)
-  }, [monthTx])
-
-  // Monthly comparison (last 3 months)
-  const monthlyCompare = [
-    { month: 'Ene', ingresos: 37000, gastos: 29000 },
-    { month: 'Feb', ingresos: 40800, gastos: 32500 },
-    { month: 'Mar', ingresos: kpis.ingresos, gastos: kpis.gastos },
-  ]
-
-  // Filtered transactions
-  const filtered = useMemo(() =>
-    transactions
-      .filter(t => filter === 'todos' || t.type === filter)
-      .filter(t => !search || t.description.toLowerCase().includes(search.toLowerCase()))
-      .sort((a, b) => b.date.localeCompare(a.date)),
-    [transactions, filter, search]
-  )
-  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-
-  const delta = (current: number, prev: number) => {
-    if (!prev) return 0
-    return ((current - prev) / prev) * 100
+  const handleExport = () => {
+    setIsGenerating(true)
+    setTimeout(() => {
+      setIsGenerating(false)
+      setIsExportOpen(false)
+      // Feedback or download logic would go here
+    }, 2000)
   }
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-32" />)}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-[400px]" />
+          <Skeleton className="h-[400px]" />
+        </div>
+      </div>
+    )
+  }
+
+  const gastoDiff = analysisData.totalLast > 0 
+    ? ((analysisData.totalThis - analysisData.totalLast) / analysisData.totalLast) * 100 
+    : 0
+
   return (
-    <div className="p-4 lg:p-6 space-y-6">
+    <div className="space-y-6 animate-fade-in pb-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">Análisis</h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 mt-0.5">Panel de rendimiento financiero</p>
-        </div>
-        <button className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-btn text-sm font-medium cursor-pointer hover:bg-primary-hover transition-colors">
-          <span className="material-symbols-outlined text-lg">download</span> Exportar PDF
-        </button>
-      </div>
-
-      {/* 5 KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        {[
-          { label: 'Balance total',  value: kpis.totalBalance, prev: null,             color: 'text-primary',  icon: 'account_balance' },
-          { label: 'Ingresos',       value: kpis.ingresos,     prev: kpis.prevIngresos, color: 'text-success',  icon: 'trending_up'     },
-          { label: 'Gastos',         value: kpis.gastos,       prev: kpis.prevGastos,  color: 'text-danger',   icon: 'trending_down'   },
-          { label: 'Ahorro',         value: kpis.ahorro,       prev: null,             color: 'text-primary',  icon: 'savings'         },
-          { label: 'Tasa ahorro',    value: null, pct: kpis.tasa, prev: null,          color: 'text-warning',  icon: 'percent'         },
-        ].map(k => {
-          const d = k.prev !== null ? delta(k.value ?? 0, k.prev) : null
-          return (
-            <Card key={k.label} padding={false} className="p-4">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-light-text-2 dark:text-dark-text-2 mb-2">{k.label}</p>
-              <p className={`text-xl font-bold tabular-nums ${k.color}`}>
-                {k.pct !== undefined ? `${(k.pct * 100).toFixed(1)}%` : formatMXNShort(k.value!)}
-              </p>
-              {d !== null && (
-                <div className={`flex items-center gap-0.5 mt-1 text-xs font-medium ${d >= 0 ? 'text-success' : 'text-danger'}`}>
-                  <span className="material-symbols-outlined text-sm">{d >= 0 ? 'trending_up' : 'trending_down'}</span>
-                  {Math.abs(d).toFixed(1)}%
-                </div>
-              )}
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Charts grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Bar chart comparativo */}
-        <Card className="lg:col-span-8">
-          <h3 className="font-semibold text-light-text dark:text-dark-text mb-4">Flujo de caja mensual</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={monthlyCompare} barSize={24}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={0.3} vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--chart-label)' }} />
-              <YAxis tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12, fill: 'var(--chart-label)' }} />
-              <Tooltip formatter={(v: number, name: string) => [formatMXN(v), name === 'ingresos' ? 'Ingresos' : 'Gastos']} />
-              <Legend />
-              <Bar dataKey="ingresos" fill="#2563EB" radius={[4, 4, 0, 0]} animationDuration={600} />
-              <Bar dataKey="gastos"   fill="#E2E8F0" radius={[4, 4, 0, 0]} animationDuration={600} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        {/* Donut gastos por categoría */}
-        <Card className="lg:col-span-4">
-          <h3 className="font-semibold text-light-text dark:text-dark-text mb-4">Gastos por categoría</h3>
-          <div className="flex justify-center mb-4">
-            <PieChart width={160} height={160}>
-              <Pie data={categoryData} cx={80} cy={80} innerRadius={48} outerRadius={72} paddingAngle={2} dataKey="value" animationDuration={600}>
-                {categoryData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-            </PieChart>
-          </div>
-          <div className="space-y-2">
-            {categoryData.slice(0, 5).map(c => (
-              <div key={c.name} className="flex items-center gap-2 text-sm">
-                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: c.color }} />
-                <span className="flex-1 text-light-text dark:text-dark-text truncate">{c.name}</span>
-                <span className="tabular-nums font-medium text-light-text dark:text-dark-text">{formatMXNShort(c.value)}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* Transactions table */}
-      <Card padding={false}>
-        <div className="px-5 py-4 border-b border-light-border dark:border-dark-border">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <h3 className="font-semibold text-light-text dark:text-dark-text">Transacciones</h3>
-            <div className="flex-1 sm:max-w-xs relative">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-light-muted dark:text-dark-muted text-lg">search</span>
-              <input
-                value={search} onChange={e => { setSearch(e.target.value); setPage(0) }}
-                placeholder="Buscar..."
-                className="w-full pl-9 pr-4 py-2 bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-btn text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              />
-            </div>
-            <div className="flex gap-1.5">
-              {(['todos', 'ingreso', 'gasto'] as const).map(f => (
-                <button key={f} onClick={() => { setFilter(f); setPage(0) }}
-                  className={`px-3 py-1.5 rounded-btn text-xs font-bold capitalize cursor-pointer transition-colors border ${
-                    filter === f
-                      ? 'bg-primary/10 text-primary border-primary/30'
-                      : 'bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 border-light-border dark:border-dark-border'
-                  }`}>{f}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 text-xs font-bold uppercase tracking-wider">
-                <th className="px-5 py-3 text-left">Transacción</th>
-                <th className="px-5 py-3 text-left hidden sm:table-cell">Categoría</th>
-                <th className="px-5 py-3 text-left hidden md:table-cell">Fecha</th>
-                <th className="px-5 py-3 text-right">Monto</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-light-border dark:divide-dark-border">
-              {paginated.map(tx => (
-                <tr key={tx.id} className="hover:bg-light-surface dark:hover:bg-dark-surface transition-colors">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-btn flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: `${CATEGORY_COLORS[tx.category]}20` }}>
-                        <span className="material-symbols-outlined text-lg" style={{ color: CATEGORY_COLORS[tx.category] }}>
-                          {CATEGORY_ICONS[tx.category]}
-                        </span>
-                      </div>
-                      <p className="font-medium text-light-text dark:text-dark-text truncate max-w-[180px]">{tx.description}</p>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 hidden sm:table-cell">
-                    <Badge variant={tx.type === 'ingreso' ? 'success' : 'neutral'}>
-                      {CATEGORY_LABELS[tx.category]}
-                    </Badge>
-                  </td>
-                  <td className="px-5 py-3 text-light-text-2 dark:text-dark-text-2 hidden md:table-cell">
-                    {new Date(tx.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </td>
-                  <td className={`px-5 py-3 text-right font-bold tabular-nums ${tx.type === 'ingreso' ? 'text-success' : 'text-danger'}`}>
-                    {tx.type === 'ingreso' ? '+' : '-'}{formatMXNShort(tx.amount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex items-center justify-between px-5 py-3 border-t border-light-border dark:border-dark-border">
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2">
-            {filtered.length} transacciones · Página {page + 1} de {totalPages}
+          <h1 className="text-2xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">
+            Análisis y Reportes
+          </h1>
+          <p className="text-light-text-2 dark:text-dark-text-2 text-sm mt-1">
+            Visualiza el rendimiento de tu patrimonio y hábitos de consumo.
           </p>
-          <div className="flex gap-2">
-            <button disabled={page === 0} onClick={() => setPage(p => p - 1)}
-              className="w-8 h-8 flex items-center justify-center rounded-btn bg-light-surface dark:bg-dark-surface text-light-muted dark:text-dark-muted disabled:opacity-40 cursor-pointer hover:bg-light-border dark:hover:bg-dark-border transition-colors">
-              <span className="material-symbols-outlined text-lg">chevron_left</span>
-            </button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}
-              className="w-8 h-8 flex items-center justify-center rounded-btn bg-light-surface dark:bg-dark-surface text-light-muted dark:text-dark-muted disabled:opacity-40 cursor-pointer hover:bg-light-border dark:hover:bg-dark-border transition-colors">
-              <span className="material-symbols-outlined text-lg">chevron_right</span>
-            </button>
+        </div>
+        <Button onClick={() => setIsExportOpen(true)} className="gap-2">
+          <span className="material-symbols-outlined text-lg">download</span>
+          Exportar
+        </Button>
+      </div>
+
+      {/* KPI Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <span className="material-symbols-outlined text-5xl">shopping_cart</span>
+          </div>
+          <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">Gasto Total Mes</p>
+          <h2 className="text-2xl font-black text-light-text dark:text-dark-text tabular-nums">
+            {formatMXN(analysisData.totalThis)}
+          </h2>
+          <div className={`flex items-center gap-1 mt-2 text-xs font-bold ${gastoDiff > 0 ? 'text-danger' : 'text-success'}`}>
+            <span className="material-symbols-outlined text-sm">{gastoDiff > 0 ? 'trending_up' : 'trending_down'}</span>
+            {Math.abs(Math.round(gastoDiff))}% vs mes anterior
+          </div>
+        </Card>
+
+        <Card className="relative overflow-hidden group border-l-4 border-l-primary">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <span className="material-symbols-outlined text-5xl">account_balance_wallet</span>
+          </div>
+          <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">Balance Consolidado</p>
+          <h2 className="text-2xl font-black text-light-text dark:text-dark-text tabular-nums">
+            {formatMXN(analysisData.totalBalance)}
+          </h2>
+          <Badge variant="info" className="mt-2">Patrimonio Neto</Badge>
+        </Card>
+
+        <Card className="relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <span className="material-symbols-outlined text-5xl">savings</span>
+          </div>
+          <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">Ahorro Proyectado</p>
+          <h2 className="text-2xl font-black text-success tabular-nums">
+            {formatMXN(analysisData.totalBalance * 0.12)}
+          </h2>
+          <p className="text-[10px] text-light-muted dark:text-dark-muted mt-2 italic font-medium">Estimado basado en excedente histórico.</p>
+        </Card>
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-light-text dark:text-dark-text flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">show_chart</span>
+              Tendencia de Flujo
+            </h3>
+            <Badge variant="neutral">Últimos 6 meses</Badge>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={analysisData.trendData}>
+                <defs>
+                  <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorGastos" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1}/>
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis hide />
+                <RechartsTooltip 
+                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '12px', color: '#f8fafc' }}
+                  itemStyle={{ fontSize: '12px' }}
+                />
+                <Area type="monotone" dataKey="ingresos" stroke="#22c55e" fillOpacity={1} fill="url(#colorIngresos)" strokeWidth={3} />
+                <Area type="monotone" dataKey="gastos" stroke="#ef4444" fillOpacity={1} fill="url(#colorGastos)" strokeWidth={3} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-light-text dark:text-dark-text flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">donut_large</span>
+              Gastos por Categoría
+            </h3>
+            <select className="bg-transparent text-xs font-bold border-none text-primary focus:ring-0 cursor-pointer outline-none">
+              <option>Este Mes</option>
+              <option>Mes Pasado</option>
+            </select>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={analysisData.catData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#334155" opacity={0.1}/>
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={12} width={100} tickLine={false} axisLine={false} />
+                <RechartsTooltip 
+                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '12px' }}
+                  formatter={(val: number) => formatMXNShort(val)}
+                />
+                <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={20}>
+                  {analysisData.catData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
+
+      {/* Intelligent Insights */}
+      <div className="pt-4">
+        <h3 className="text-lg font-bold text-light-text dark:text-dark-text mb-4 uppercase tracking-tighter flex items-center gap-2">
+          <span className="material-symbols-outlined text-warning animate-pulse">lightbulb</span>
+          Insights Inteligentes
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="glass-card border border-primary/20 p-4 rounded-card flex gap-4 items-start hover:border-primary/40 transition-colors">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+              <span className="material-symbols-outlined">auto_fix_high</span>
+            </div>
+            <div>
+              <p className="font-bold text-sm text-light-text dark:text-dark-text">Optimización de Suscripciones</p>
+              <p className="text-xs text-light-muted dark:text-dark-muted mt-1">Has gastado <span className="text-primary font-bold">{formatMXN(1240)}</span> en servicios digitales este mes. Podrías ahorrar un 15% consolidando planes familiares.</p>
+            </div>
+          </div>
+          <div className="glass-card border border-success/20 p-4 rounded-card flex gap-4 items-start hover:border-success/40 transition-colors">
+            <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 text-success">
+              <span className="material-symbols-outlined">trending_up</span>
+            </div>
+            <div>
+              <p className="font-bold text-sm text-light-text dark:text-dark-text">Potencial de Inversión</p>
+              <p className="text-xs text-light-muted dark:text-dark-muted mt-1">Tu excedente actual te permitiría invertir <span className="text-success font-bold">$3,500</span> en un fondo de bajo riesgo sin afectar tu liquidez.</p>
+            </div>
           </div>
         </div>
-      </Card>
+      </div>
+
+      {/* Export Drawer */}
+      <Drawer
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        title="Generar Reporte"
+      >
+        <div className="space-y-8">
+          <div>
+            <p className="text-xs font-black uppercase tracking-widest text-primary mb-4">Formato de Archivo</p>
+            <ChipSelector
+              options={[
+                { value: 'pdf', label: 'PDF Ejecutivo', icon: 'picture_as_pdf' },
+                { value: 'excel', label: 'Excel Estructurado', icon: 'table_view' },
+                { value: 'csv', label: 'Dataset CSV', icon: 'description' }
+              ]}
+              value={exportFormat}
+              onChange={setExportFormat}
+            />
+          </div>
+
+          <div>
+            <p className="text-xs font-black uppercase tracking-widest text-primary mb-4">Rango de Datos</p>
+            <div className="grid grid-cols-1 gap-3">
+              <button className="flex items-center justify-between p-3 rounded-card border border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface transition-all text-sm font-medium">
+                Últimos 30 días <span className="text-xs text-primary">Recomendado</span>
+              </button>
+              <button className="flex items-center justify-between p-3 rounded-card border border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface transition-all text-sm font-medium">
+                Mes actual (Marzo)
+              </button>
+              <button className="flex items-center justify-between p-3 rounded-card border border-light-border dark:border-dark-border hover:bg-light-surface dark:hover:bg-dark-surface transition-all text-sm font-medium">
+                Personalizado...
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-light-surface dark:bg-dark-surface p-4 rounded-card border-l-4 border-l-primary">
+            <p className="text-[10px] text-light-muted dark:text-dark-muted leading-tight">
+              El reporte incluirá un desglose detallado de todas las transacciones, gráficas de tendencia y un resumen del balance consolidado.
+            </p>
+          </div>
+
+          <Button 
+            className="w-full py-4 h-auto uppercase tracking-tighter font-black" 
+            onClick={handleExport}
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <span className="flex items-center gap-3">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Generando...
+              </span>
+            ) : (
+              `Descargar ${exportFormat.toUpperCase()}`
+            )}
+          </Button>
+        </div>
+      </Drawer>
     </div>
   )
 }

@@ -1,229 +1,148 @@
-import { useMemo, useState } from 'react'
-import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip,
-} from 'recharts'
+import { useState } from 'react'
 import { useApp } from '../../context/AppContext'
-import { useNetWorth } from '../../hooks/useFinance'
-import { Card, Button, Drawer } from '../../components/ui'
-import { formatMXN, formatMXNShort, CATEGORY_ICONS, CATEGORY_COLORS } from '../../types'
+import { formatMXN, ACCOUNT_ICONS } from '../../types'
+import { Card, Button, Badge, Modal, Input, Drawer, EmptyState } from '../../components/ui'
 
 export default function Cuentas() {
-  const { accounts, transactions } = useApp()
-  const nw = useNetWorth()
-  const [selectedAcc, setSelectedAcc] = useState<string | null>(null)
+  const { accounts, totalBalance } = useApp()
+  const [selectedAccount, setSelectedAccount] = useState<any>(null)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
-  const acc = useMemo(() => accounts.find(a => a.id === selectedAcc), [accounts, selectedAcc])
-  const accTx = useMemo(() =>
-    selectedAcc ? transactions.filter(t => t.accountId === selectedAcc).slice(0, 10) : [],
-    [transactions, selectedAcc]
-  )
-
-  const chartData = useMemo(() => {
-    return accounts.filter(a => a.isActive && a.balance > 0).map(a => ({
-      name: a.bank,
-      value: a.balance,
-      color: a.color,
-    })).sort((a, b) => b.value - a.value)
-  }, [accounts])
-
-  const formatCardNumber = (num?: string) => {
-    if (!num) return '••••  ••••  ••••  ••••'
-    return `••••  ••••  ••••  ${num}`
+  const handleOpenDetail = (acc: any) => {
+    setSelectedAccount(acc)
+    setIsDetailOpen(true)
   }
 
   return (
-    <div className="p-4 lg:p-6 lg:max-w-5xl mx-auto space-y-6">
+    <div className="space-y-6 animate-fade-in pb-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">Cuentas y Patrimonio</h1>
-        <Button variant="secondary" size="sm">
-          <span className="material-symbols-outlined text-lg">add</span>
-          Nueva cuenta
+        <div>
+          <h1 className="text-2xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Mis Cuentas</h1>
+          <p className="text-light-text-2 dark:text-dark-text-2 text-sm mt-1">Gestiona tu capital, tarjetas y activos.</p>
+        </div>
+        <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 shadow-lg shadow-primary/20">
+          <span className="material-symbols-outlined text-xl">add</span>
+          Nueva Cuenta
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Net Worth Resumen */}
-        <Card className="lg:col-span-1 flex flex-col justify-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-xl" />
-          <p className="text-sm font-medium text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide mb-1">Patrimonio Neto</p>
-          <p className="text-4xl font-bold tabular-nums text-light-text dark:text-dark-text tracking-tight mb-6">
-            {formatMXN(nw.netWorth)}
-          </p>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-light-text dark:text-dark-text">Activos (Cuentas)</span>
-                <span className="font-semibold text-success tabular-nums">{formatMXNShort(nw.assets)}</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {accounts.length > 0 ? (
+          accounts.map(acc => (
+            <Card 
+              key={acc.id} 
+              clickable 
+              onClick={() => handleOpenDetail(acc)}
+              className="relative overflow-hidden group border-b-2 border-b-transparent hover:border-b-primary"
+            >
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="w-7 h-7 flex items-center justify-center rounded-full bg-light-surface/80 dark:bg-dark-surface/80 text-light-muted hover:text-primary">
+                  <span className="material-symbols-outlined text-sm">edit</span>
+                </button>
               </div>
-              <div className="h-1.5 w-full bg-light-surface dark:bg-dark-surface rounded-full overflow-hidden">
-                <div className="h-full bg-success rounded-full" style={{ width: `${(nw.assets / (nw.assets + nw.liabilities || 1)) * 100}%` }} />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-light-text dark:text-dark-text">Pasivos (Deudas)</span>
-                <span className="font-semibold text-danger tabular-nums">{formatMXNShort(nw.liabilities)}</span>
-              </div>
-              <div className="h-1.5 w-full bg-light-surface dark:bg-dark-surface rounded-full overflow-hidden">
-                <div className="h-full bg-danger rounded-full" style={{ width: `${(nw.liabilities / (nw.assets + nw.liabilities || 1)) * 100}%` }} />
-              </div>
-            </div>
-          </div>
-        </Card>
 
-        {/* Distribución chart */}
-        <Card className="lg:col-span-2 flex items-center">
-          <div className="w-1/2 h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80}
-                  paddingAngle={5} dataKey="value" stroke="none"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <RechartsTooltip
-                  formatter={(value: number) => formatMXNShort(value)}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="w-1/2 pl-6 space-y-3">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Distribución de liquidez</h3>
-            {chartData.slice(0, 4).map(d => (
-              <div key={d.name} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
-                  <span className="text-light-text-2 dark:text-dark-text-2">{d.name}</span>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-btn bg-primary/10 flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined">{ACCOUNT_ICONS[acc.type] || 'account_balance'}</span>
                 </div>
-                <span className="font-semibold tabular-nums text-light-text dark:text-dark-text">{formatMXNShort(d.value)}</span>
+                <div>
+                  <h3 className="font-bold text-light-text dark:text-dark-text leading-tight">{acc.name}</h3>
+                  <p className="text-[10px] text-light-muted dark:text-dark-muted font-bold tracking-widest uppercase">{acc.type}</p>
+                </div>
               </div>
-            ))}
+              
+              <div className="space-y-0.5">
+                <p className="text-[10px] font-bold text-light-muted dark:text-dark-muted uppercase tracking-tighter">Saldo Disponible</p>
+                <div className="text-xl font-black text-light-text dark:text-dark-text tabular-nums">
+                  {formatMXN(acc.balance)}
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-light-border/30 dark:border-dark-border/30 flex justify-between items-center">
+                <Badge variant={acc.balance > 0 ? 'success' : 'danger'}>
+                  {acc.balance > 0 ? 'Activa' : 'Sin fondo'}
+                </Badge>
+                <span className="text-[10px] text-light-muted dark:text-dark-muted font-medium">Auto-Sync</span>
+              </div>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-full">
+             <EmptyState 
+               icon="account_balance"
+               title="No hay cuentas"
+               description="Agrega tu primera cuenta bancaria o billetera para empezar a trackear tu efectivo."
+               action={<Button onClick={() => setIsAddModalOpen(true)}>Crear ahora</Button>}
+             />
           </div>
-        </Card>
+        )}
       </div>
 
-      {/* Grid de tarjetas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {accounts.filter(a => a.isActive).map(a => (
-          <div key={a.id} onClick={() => setSelectedAcc(a.id)}
-            className="rounded-2xl p-6 cursor-pointer relative overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group border border-white/10"
-            style={{
-              background: `linear-gradient(145deg, ${a.color}ee 0%, ${a.color}aa 100%)`,
-              color: 'white',
-              backdropFilter: 'blur(10px)'
-            }}>
-            {/* Elementos decorativos glassmorphism */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/20 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-transform group-hover:scale-110" />
-            <div className="absolute bottom-0 right-0 p-4 opacity-15 pointer-events-none transition-transform group-hover:rotate-12 group-hover:scale-110 duration-500">
-              <span className="material-symbols-outlined text-9xl transform rotate-12">{
-                a.type === 'credito' ? 'credit_card' : a.type === 'efectivo' ? 'payments' : 'account_balance'
-              }</span>
-            </div>
+      {/* Resumen Patrimonial Simple */}
+      <Card className="bg-primary/5 dark:bg-primary/5 border-primary/20 p-6 flex items-center justify-between">
+        <div>
+          <p className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-1">Capital Total Consolidado</p>
+          <div className="text-3xl font-black text-light-text dark:text-dark-text tabular-nums">{formatMXN(totalBalance)}</div>
+        </div>
+        <div className="hidden md:flex flex-col items-end">
+           <Badge variant="info" className="mb-2">Auditoría en curs</Badge>
+           <p className="text-[10px] text-light-muted dark:text-dark-muted italic">Última sincronización: Hace 2 min</p>
+        </div>
+      </Card>
 
-            <div className="flex justify-between items-start mb-10 relative z-10">
-              <div>
-                <p className="font-bold text-xl tracking-wide drop-shadow-sm">{a.bank}</p>
-                <p className="text-white/80 text-xs uppercase tracking-[0.2em] font-medium mt-1">{a.name}</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md shadow-inner">
-                <span className="material-symbols-outlined opacity-90">{a.type === 'efectivo' ? 'payments' : 'contactless'}</span>
-              </div>
-            </div>
-
-            <div className="space-y-4 relative z-10">
-              <p className="font-mono text-sm tracking-[0.25em] opacity-90 drop-shadow-sm">{formatCardNumber(a.lastFour)}</p>
-              <div>
-                <p className="text-xs text-white/80 uppercase tracking-widest mb-1 font-medium">{a.type === 'credito' ? 'Deuda actual' : 'Saldo disponible'}</p>
-                <p className="text-3xl font-extrabold tabular-nums tracking-tight drop-shadow-md">
-                  {formatMXN(a.balance)}
-                </p>
-                {a.type === 'credito' && a.creditLimit && (
-                  <p className="text-xs text-white/90 mt-2 font-medium bg-black/20 inline-block px-2 py-1 rounded-md backdrop-blur-sm">Límite: {formatMXNShort(a.creditLimit)}</p>
-                )}
-              </div>
+      {/* Modales y Drawers */}
+      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Nueva Cuenta">
+        <div className="space-y-4">
+          <Input label="Nombre de la Cuenta" placeholder="Ej. BBVA Débito" />
+          <div className="grid grid-cols-2 gap-4">
+            <Input label="Monto Inicial" placeholder="$0.00" type="number" />
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-light-text dark:text-dark-text">Tipo de Cuenta</label>
+              <select className="w-full bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-btn px-3 py-2.5 text-sm">
+                <option>Efectivo</option>
+                <option>Banco</option>
+                <option>Inversión</option>
+                <option>Crypto</option>
+              </select>
             </div>
           </div>
-        ))}
-      </div>
+          <Button className="w-full mt-2 py-3">Guardar Cuenta</Button>
+        </div>
+      </Modal>
 
-      {/* Drawer de detalle de cuenta */}
-      <Drawer isOpen={!!selectedAcc} onClose={() => setSelectedAcc(null)} title="Detalle de cuenta" width={400}>
-        {acc && (
-          <div className="space-y-6">
-            {/* Header Drawer */}
-            <div className="text-center pb-6 border-b border-light-border dark:border-dark-border">
-              <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-white text-xl font-bold mb-3 shadow-lg"
-                style={{ backgroundColor: acc.color }}>
-                {acc.bank.slice(0, 2)}
+      <Drawer isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} title="Detalles de Cuenta">
+        {selectedAccount && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 shadow-inner">
+                <span className="material-symbols-outlined text-4xl">{ACCOUNT_ICONS[selectedAccount.type]}</span>
               </div>
-              <h2 className="text-xl font-bold text-light-text dark:text-dark-text">{acc.name}</h2>
-              <p className="text-sm text-light-text-2 dark:text-dark-text-2 capitalize mb-4">{acc.type} · {acc.bank}</p>
-              <p className={`text-4xl font-bold tabular-nums tracking-tight ${acc.balance < 0 ? 'text-danger' : 'text-light-text dark:text-dark-text'}`}>
-                {formatMXN(acc.balance)}
-              </p>
+              <h2 className="text-xl font-bold text-light-text dark:text-dark-text">{selectedAccount.name}</h2>
+              <Badge variant="info" className="mt-2 text-[10px] uppercase font-bold tracking-widest">{selectedAccount.type}</Badge>
             </div>
 
-            {/* Acciones */}
-            <div className="flex gap-2">
-              <Button className="flex-1 justify-center" variant="secondary">
-                <span className="material-symbols-outlined text-lg">edit</span> Editar
-              </Button>
-              <Button className="flex-1 justify-center" variant="secondary">
-                <span className="material-symbols-outlined text-lg">sync</span> Sync
-              </Button>
+            <div className="grid grid-cols-1 gap-3">
+              <div className="p-4 rounded-card bg-light-surface dark:bg-dark-surface border border-light-border/30 dark:border-dark-border/30">
+                <p className="text-[10px] font-bold text-light-muted dark:text-dark-muted uppercase tracking-tighter mb-1">Saldo Real</p>
+                <div className="text-2xl font-black text-primary">{formatMXN(selectedAccount.balance)}</div>
+              </div>
             </div>
 
-            {/* Info addicional */}
-            {acc.type === 'credito' && acc.creditLimit && (
-              <div className="bg-light-surface dark:bg-dark-surface rounded-card p-4 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-light-text-2 dark:text-dark-text-2">Límite de crédito</span>
-                  <span className="font-semibold text-light-text dark:text-dark-text">{formatMXN(acc.creditLimit)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-light-text-2 dark:text-dark-text-2">Crédito disponible</span>
-                  <span className="font-semibold text-success tabular-nums">{formatMXN(acc.creditLimit + acc.balance)}</span>
-                </div>
-                <div className="w-full h-1.5 bg-light-border dark:bg-dark-border rounded-full overflow-hidden">
-                  <div className="h-full bg-danger rounded-full" style={{ width: `${(Math.abs(acc.balance) / acc.creditLimit) * 100}%` }} />
-                </div>
-              </div>
-            )}
-
-            {/* Movimientos de la cuenta */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-light-text dark:text-dark-text">Últimos movimientos</h3>
-              </div>
-              {accTx.length > 0 ? (
-                <div className="space-y-3">
-                  {accTx.map(tx => (
-                    <div key={tx.id} className="flex items-center gap-3 p-3 bg-light-surface dark:bg-dark-surface rounded-btn">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: `${CATEGORY_COLORS[tx.category]}20` }}>
-                        <span className="material-symbols-outlined text-base" style={{ color: CATEGORY_COLORS[tx.category] }}>
-                          {CATEGORY_ICONS[tx.category]}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-light-text dark:text-dark-text truncate">{tx.description}</p>
-                        <p className="text-[10px] text-light-text-2 dark:text-dark-text-2">
-                          {new Date(tx.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
-                        </p>
-                      </div>
-                      <p className={`text-sm font-semibold tabular-nums flex-shrink-0 ${tx.type === 'ingreso' ? 'text-success' : 'text-danger'}`}>
-                        {tx.type === 'ingreso' ? '+' : '-'}{formatMXNShort(tx.amount)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-sm text-light-text-2 dark:text-dark-text-2 py-8">No hay movimientos recientes.</p>
-              )}
+            <div className="space-y-3">
+              <h3 className="text-xs font-black uppercase tracking-widest text-light-text dark:text-dark-text mb-4">Acciones Rápidas</h3>
+              <Button variant="secondary" className="w-full justify-start gap-3">
+                <span className="material-symbols-outlined text-lg">history</span>
+                Ver Historial Completo
+              </Button>
+              <Button variant="secondary" className="w-full justify-start gap-3">
+                <span className="material-symbols-outlined text-lg">sync</span>
+                Sincronizar Manualmente
+              </Button>
+              <Button variant="outline" className="w-full justify-start gap-3 text-danger hover:bg-danger/5 border-danger/30">
+                <span className="material-symbols-outlined text-lg uppercase">delete</span>
+                Eliminar Registro
+              </Button>
             </div>
           </div>
         )}
