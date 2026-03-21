@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { useNetWorth } from '../../hooks/useFinance'
-import { Card, Button, Drawer, Accordion, Badge } from '../../components/ui'
+import { Card, Button, Drawer, Accordion, Badge, EmptyState } from '../../components/ui'
 import { formatMXN, formatMXNShort, CATEGORY_ICONS, CATEGORY_COLORS } from '../../types'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip } from 'recharts'
 
@@ -49,9 +49,8 @@ export default function Cuentas() {
   const totalWealth = groupedAssets.banks.total + groupedAssets.investments.total + groupedAssets.physical.total
 
   return (
-    <div className="p-4 lg:p-6 lg:max-w-6xl mx-auto space-y-8 animate-fade-in">
+    <div className="p-4 lg:p-8 lg:max-w-6xl mx-auto space-y-8 animate-fade-in">
       {/* Header Section */}
-      <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Mis Cuentas</h1>
@@ -108,16 +107,6 @@ export default function Cuentas() {
             ))}
           </div>
         </Card>
-        ) : (
-          <div className="col-span-full">
-             <EmptyState 
-               icon="account_balance"
-               title="No hay cuentas"
-               description="Agrega tu primera cuenta bancaria o billetera para empezar a trackear tu efectivo."
-               action={<Button onClick={() => setIsAddModalOpen(true)}>Crear ahora</Button>}
-             />
-          </div>
-        )}
       </div>
 
       {/* Grouped Assets List */}
@@ -129,24 +118,35 @@ export default function Cuentas() {
           defaultOpen={true}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-            {groupedAssets.banks.items.map(a => (
-              <div key={a.id} onClick={() => setSelectedAcc(a.id)}
-                className="relative p-5 rounded-2xl cursor-pointer overflow-hidden border border-light-border/10 dark:border-dark-border/10 transition-all hover:scale-[1.02] hover:shadow-xl group"
-                style={{ background: `linear-gradient(135deg, ${a.color}22 0%, ${a.color}11 100%)` }}>
-                <div className="flex justify-between items-start mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg font-bold backdrop-blur-md">
-                    {a.bank[0]}
-                  </div>
-                  <Badge variant={a.type === 'credito' ? 'danger' : 'success'}>
-                    {a.type === 'credito' ? 'Crédito' : 'Débito'}
-                  </Badge>
-                </div>
-                <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">{a.bank}</p>
-                <h4 className="font-bold text-light-text dark:text-dark-text mb-4">{a.name}</h4>
-                <p className="text-2xl font-black text-light-text dark:text-dark-text tabular-nums">{formatMXN(a.balance)}</p>
-                <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all" />
+            {groupedAssets.banks.items.length === 0 ? (
+              <div className="col-span-full">
+                <EmptyState
+                  icon="account_balance"
+                  title="No hay cuentas"
+                  description="Agrega tu primera cuenta bancaria o billetera para empezar a trackear tu efectivo."
+                  action={<Button onClick={() => setIsAddModalOpen(true)}>Crear ahora</Button>}
+                />
               </div>
-            ))}
+            ) : (
+              groupedAssets.banks.items.map(a => (
+                <div key={a.id} onClick={() => setSelectedAcc(a.id)}
+                  className="relative p-5 rounded-2xl cursor-pointer overflow-hidden border border-light-border/10 dark:border-dark-border/10 transition-all hover:scale-[1.02] hover:shadow-xl group"
+                  style={{ background: `linear-gradient(135deg, ${a.color}22 0%, ${a.color}11 100%)` }}>
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg font-bold backdrop-blur-md">
+                      {a.bank[0]}
+                    </div>
+                    <Badge variant={a.type === 'credito' ? 'danger' : 'success'}>
+                      {a.type === 'credito' ? 'Crédito' : 'Débito'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">{a.bank}</p>
+                  <h4 className="font-bold text-light-text dark:text-dark-text mb-4">{a.name}</h4>
+                  <p className="text-2xl font-black text-light-text dark:text-dark-text tabular-nums">{formatMXN(a.balance)}</p>
+                  <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all" />
+                </div>
+              ))
+            )}
           </div>
         </Accordion>
 

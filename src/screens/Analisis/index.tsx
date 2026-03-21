@@ -165,7 +165,7 @@ export default function Analisis() {
               <span className="material-symbols-outlined text-primary">analytics</span>
               Tendencia de Flujo
             </h3>
-            <Badge variant="outline">Últimos 6 meses</Badge>
+            <Badge variant="neutral">Últimos 6 meses</Badge>
           </div>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -200,7 +200,7 @@ export default function Analisis() {
                 <span className="material-symbols-outlined text-danger">pie_chart</span>
                 Gastos por Categoría
              </h3>
-             <Badge variant="primary">Este Mes</Badge>
+             <Badge variant="info">Este Mes</Badge>
           </div>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">

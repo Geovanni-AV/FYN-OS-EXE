@@ -269,18 +269,26 @@ export default function Dashboard() {
           <div className="w-9 h-9 bg-success/10 rounded-btn flex items-center justify-center flex-shrink-0">
             <span className="material-symbols-outlined text-success text-xl">psychology</span>
           </div>
-          <Card className="p-6 border-l-4 border-l-primary bg-primary/5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Gasto Total Mes</p>
-          <p className="text-3xl font-black text-light-text dark:text-dark-text mb-2">{formatMXN(analysisData.totalThis)}</p>
-          <div className={`flex items-center gap-1 text-xs font-bold ${analysisData.totalThis > analysisData.totalLast ? 'text-danger' : 'text-success'}`}>
-             <span className="material-symbols-outlined text-[14px]">
-               {analysisData.totalThis > analysisData.totalLast ? 'trending_up' : 'trending_down'}
-             </span>
-             {analysisData.totalLast > 0 ? (((analysisData.totalThis - analysisData.totalLast) / analysisData.totalLast) * 100).toFixed(1) : '0'}% vs mes ant.
+          <div className="flex-1 min-w-0 space-y-1">
+            <p className="text-sm font-semibold text-light-text dark:text-dark-text">
+              Sugerencias de Fyn IA
+            </p>
+            <p className="text-sm text-light-text-2 dark:text-dark-text-2">
+              Tus gastos en entretenimiento superaron el límite mensual. Cancelar
+              suscripciones no utilizadas te ahorraría{' '}
+              <span className="font-bold text-light-text dark:text-dark-text">
+                $488 MXN
+              </span>{' '}
+              al mes.
+            </p>
           </div>
-        </Card>  <button onClick={() => setAiBannerOpen(false)}
-            className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-light-surface dark:hover:bg-dark-surface flex-shrink-0 cursor-pointer transition-colors">
-            <span className="material-symbols-outlined text-lg text-light-muted dark:text-dark-muted">close</span>
+          <button
+            onClick={() => setAiBannerOpen(false)}
+            className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-light-surface dark:hover:bg-dark-surface flex-shrink-0 cursor-pointer transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg text-light-muted dark:text-dark-muted">
+              close
+            </span>
           </button>
         </div>
       )}

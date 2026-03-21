@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useApp } from '../../context/AppContext'
 import { useNetWorth } from '../../hooks/useFinance'
-import { Card, Skeleton } from '../../components/ui'
+import { Card, Skeleton, Button } from '../../components/ui'
 import { formatMXN, formatMXNShort } from '../../types'
 
 export default function NetWorth() {
