@@ -33,6 +33,7 @@ function InConstruction({ name }: { name: string }) {
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, loading, session } = useAuth()
+  const isDone = localStorage.getItem('fyn-onboarding-done')
   
   if (loading) return (
     <div className="h-screen w-screen flex items-center justify-center bg-dark-bg">
@@ -40,11 +41,12 @@ function RequireAuth({ children }: { children: JSX.Element }) {
     </div>
   )
 
+  // Si ya terminó el onboarding local, permitimos entrar (modo invitado/dev)
+  // aunque no haya sesión de Supabase aún.
+  if (isDone) return children
+
+  // Si no hay sesión y no ha terminado el onboarding, va a onboarding
   if (!user || !session) return <Navigate to="/onboarding" replace />
-  
-  // Por ahora mantenemos la lógica de onboarding en localStorage hasta migrar perfiles
-  const isDone = localStorage.getItem('fyn-onboarding-done')
-  if (!isDone && window.location.pathname !== '/onboarding') return <Navigate to="/onboarding" replace />
 
   return children
 }
