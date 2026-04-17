@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useApp } from '../../context/AppContext'
 import { Button, Card, ProgressBar, Modal, Input, Toggle, Badge, EmptyState } from '../../components/ui'
-import { formatMXN, CATEGORY_ICONS, CATEGORY_LABELS, getBudgetStatus, Budget } from '../../types'
+import { formatMXN, formatMXNShort, CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_COLORS, getBudgetStatus, Budget } from '../../types'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { useToast } from '../../context/ToastContext'
 
@@ -90,188 +90,206 @@ export default function Presupuestos() {
   }, [transactions, hormigaThreshold, hormigaDailyLimit, currentDay])
 
   return (
-    <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Presupuestos</h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">Control de gastos y límites por categoría.</p>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Auditoría de Egresos</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark">
+            Control de <br />
+            <span className="text-primary/40">Presupuestos.</span>
+          </h1>
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary">
+        <div className="flex gap-4">
+          <Button variant="secondary" className="!rounded-full !px-8 opacity-60 hover:opacity-100 transition-opacity">
+            Histórico
+          </Button>
+          <Button onClick={() => {}} className="!rounded-full !px-8 shadow-luster">
             <span className="material-symbols-outlined text-lg">add</span>
-            Nuevo
+            Nuevo Límite
           </Button>
         </div>
       </div>
 
-      {/* Resumen Global */}
-      <Card className="relative overflow-hidden group shadow-xl" padding={false}>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
-        <div className="p-6 relative z-10">
-          <p className="text-sm font-semibold text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide mb-5">Resumen del Mes</p>
-          <div className="flex flex-col md:flex-row gap-6 md:items-end mb-8">
-             <div className="flex-1">
-              <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase tracking-wider mb-2 font-medium">Gasto Total Acumulado</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold tabular-nums tracking-tight text-light-text dark:text-dark-text drop-shadow-sm">{formatMXN(totalSpent)}</span>
-                 <span className="text-sm font-semibold text-light-text-2 dark:text-dark-text-2">/ {formatMXN(totalLimit)}</span>
-              </div>
+      {/* Global Hero Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-5 space-y-8">
+          <div className="space-y-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Gasto Acumulado en Periodo</p>
+            <p className="text-6xl lg:text-7xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter tabular-nums">
+              {formatMXN(totalSpent)}
+            </p>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Límite Global</span>
+              <span className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark opacity-80">{formatMXN(totalLimit)}</span>
             </div>
-            <div className="md:w-48 glass bg-white/40 dark:bg-black/20 rounded-2xl p-4 border border-light-border/50 dark:border-dark-border/50 shadow-inner">
-               <p className="text-[10px] font-bold text-light-text-2 dark:text-dark-text-2 uppercase tracking-widest mb-1.5">Proyección fin de mes</p>
-               <p className={`text-xl font-extrabold tabular-nums drop-shadow-sm ${projectedSpent > totalLimit ? 'text-danger' : 'text-primary'}`}>
+            <div className="h-8 w-px bg-primary/10" />
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Proyección</span>
+              <span className={`text-lg font-bold tabular-nums ${projectedSpent > totalLimit ? 'text-danger' : 'text-primary'}`}>
                 {formatMXN(projectedSpent)}
-              </p>
-             </div>
-           </div>
-           <ProgressBar value={totalSpent} max={totalLimit} color={globalColor} ghost={projectedSpent} />
-         </div>
-       </Card>
+              </span>
+            </div>
+          </div>
+        </div>
 
-      {/* Categorías */}
-      <div>
-        <h2 className="text-lg font-bold text-light-text dark:text-dark-text mb-4">Por categoría</h2>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="lg:col-span-7 flex flex-col justify-end space-y-4">
+           <div className="flex justify-between items-end mb-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Rendimiento Presupuestal</span>
+              <span className="text-2xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums">{Math.round(globalPct * 100)}%</span>
+           </div>
+           <div className="h-4 w-full depth-1 rounded-full overflow-hidden p-1">
+             <div 
+               className="h-full rounded-full transition-all duration-1000 ease-out shadow-luster"
+               style={{ 
+                 width: `${Math.min(globalPct * 100, 100)}%`,
+                 backgroundColor: globalColor
+               }}
+             />
+           </div>
+           <p className="text-[10px] font-bold text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">
+             {projectedSpent > totalLimit ? 'Precaución: La proyección indica una desviación del presupuesto.' : 'Optimización: Los gastos se mantienen dentro de los parámetros esperados.'}
+           </p>
+        </div>
+      </div>
+
+      {/* Categorías List Layout */}
+      <div className="space-y-10 pt-8">
+        <h2 className="text-xs font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Desglose por División Técnica</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
           {budgets.map(b => {
             const status = getBudgetStatus(b)
             const color = status === 'ok' ? '#10B981' : status === 'warning' ? '#F59E0B' : '#EF4444'
             const pct = Math.min((b.spent / b.monthlyLimit) * 100, 100)
 
             return (
-              <Card key={b.id} onClick={() => handleOpenDetail(b)} clickable className="transition-all duration-300 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-16 -mt-16 opacity-10 pointer-events-none transition-transform group-hover:scale-110" style={{ backgroundColor: color }} />
-                <div className="flex items-center gap-4 mb-4 relative z-10">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm" style={{ backgroundColor: `${color}15`, color }}>
-                    <span className="material-symbols-outlined text-2xl">{CATEGORY_ICONS[b.category]}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-base text-light-text dark:text-dark-text tracking-tight capitalize">{CATEGORY_LABELS[b.category]}</h3>
-                    <p className="text-xs font-medium text-light-text-2 dark:text-dark-text-2 mt-1">
-                      {formatMXN(b.monthlyLimit - b.spent)} disponibles
-                    </p>
+              <div key={b.id} onClick={() => handleOpenDetail(b)} className="group cursor-pointer space-y-4 active:scale-[0.98] transition-all">
+                <div className="flex justify-between items-end">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full depth-1 flex items-center justify-center group-hover:depth-2 transition-all">
+                      <span className="material-symbols-outlined text-xl" style={{ color }}>{CATEGORY_ICONS[b.category]}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight uppercase">{CATEGORY_LABELS[b.category]}</h3>
+                      <p className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-40 mt-0.5">{formatMXNShort(b.monthlyLimit)} Límite</p>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-extrabold text-lg tabular-nums text-light-text dark:text-dark-text drop-shadow-sm">{formatMXN(b.spent)}</p>
-                    <p className="text-xs font-medium text-light-text-2 dark:text-dark-text-2 mt-1">de {formatMXN(b.monthlyLimit)}</p>
+                    <p className="text-lg font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">{formatMXNShort(b.spent)}</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest" style={{ color }}>{Math.round(pct)}% Utilizado</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className="flex-1">
-                    <ProgressBar value={b.spent} max={b.monthlyLimit} color={color} />
-                  </div>
-                  <span className="text-xs font-bold tabular-nums w-10 text-right" style={{ color }}>
-                    {Math.round(pct)}%
-                  </span>
+                <div className="h-1.5 w-full bg-atelier-bg-3-light dark:bg-atelier-bg-3-dark rounded-full overflow-hidden">
+                  <div 
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{ 
+                      width: `${pct}%`,
+                      backgroundColor: color,
+                      opacity: status === 'ok' ? 0.6 : 1
+                    }}
+                  />
                 </div>
-              </Card>
+              </div>
             )
           })}
         </div>
       </div>
 
-      {/* Gastos Anuales Amortizados */}
-      <Card className="group relative overflow-hidden">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">event_repeat</span>
-            <h2 className="text-lg font-bold text-light-text dark:text-dark-text">Gastos anuales amortizados</h2>
-          </div>
-          <Button variant="ghost" size="sm">+ Agregar</Button>
+      {/* Gastos Amortizados Editorial */}
+      <div className="space-y-8 pt-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Provisiones Anuales Amortizadas</h2>
+          <Button variant="secondary" className="!rounded-full !px-6 !text-[10px] uppercase font-black tracking-widest">+ Provisión</Button>
         </div>
         
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {[
-            { name: 'Predial', freq: 'Anual', amount: 3000, monthly: 250, next: '2027-01-15' },
-            { name: 'Seguro de auto', freq: 'Anual', amount: 8400, monthly: 700, next: '2026-08-10' },
-            { name: 'Seguro Médico (GMM)', freq: 'Semestral', amount: 9000, monthly: 1500, next: '2026-06-01' }
+            { name: 'Predial', freq: 'Anual', amount: 3000, monthly: 250, next: 'Ene 15' },
+            { name: 'Seguro Auto', freq: 'Anual', amount: 8400, monthly: 700, next: 'Ago 10' },
+            { name: 'Seguro Médico', freq: 'Semestral', amount: 9000, monthly: 1500, next: 'Jun 01' }
           ].map((gasto, i) => (
-            <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-3 rounded-card glass hover:bg-light-surface dark:hover:bg-dark-surface transition-colors border border-transparent hover:border-light-border dark:hover:border-dark-border">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-light-text dark:text-dark-text">{gasto.name}</span>
-                  <Badge variant="neutral">{gasto.freq}</Badge>
+            <Card key={i} className="group p-8 space-y-8 relative overflow-hidden !rounded-[2.5rem] hover:!depth-2">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <p className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{gasto.name}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary">{gasto.freq}</p>
                 </div>
-                <p className="text-xs text-light-text-2 dark:text-dark-text-2">Próximo: {gasto.next} • {formatMXN(gasto.amount)} total</p>
-              </div>
-              <div className="flex items-center gap-4 mt-3 md:mt-0">
-                <span className="text-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">= {formatMXN(gasto.monthly)}/mes</span>
                 <Toggle checked={true} onChange={() => {}} />
               </div>
-            </div>
+              
+              <div className="space-y-1">
+                <p className="text-[9px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Impacto Mensual</p>
+                <p className="text-3xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">{formatMXNShort(gasto.monthly)}</p>
+              </div>
+
+              <div className="pt-4 border-t border-primary/10 flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Próximo Pago:</span>
+                <span className="text-[10px] font-black text-atelier-text-main-light dark:text-atelier-text-main-dark uppercase tracking-widest">{gasto.next}</span>
+              </div>
+            </Card>
           ))}
         </div>
-        <div className="mt-4 pt-4 border-t border-light-border dark:border-dark-border flex justify-between items-center text-sm">
-          <span className="text-light-text-2 dark:text-dark-text-2">Total amortizado mensual:</span>
-          <span className="font-bold text-light-text dark:text-dark-text">{formatMXN(2450)}</span>
-        </div>
-      </Card>
+      </div>
 
-      {/* Control de Gastos Hormiga */}
-      <Card className="bg-warning/5 border border-warning/20">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="material-symbols-outlined text-warning">bug_report</span>
-          <h2 className="text-lg font-bold text-light-text dark:text-dark-text">Control de Gastos Hormiga</h2>
-        </div>
-        <p className="text-sm text-light-text-2 dark:text-dark-text-2 mb-6">
-          Gastos menores a {formatMXN(hormigaThreshold)} por transacción. Pequeños en monto, grandes en impacto acumulado.
-        </p>
-
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <label className="font-medium text-light-text dark:text-dark-text">Umbral por transacción</label>
-                <span className="text-light-text-2 dark:text-dark-text-2">{formatMXN(hormigaThreshold)}</span>
-              </div>
-              <input type="range" min="50" max="500" step="50" value={hormigaThreshold} onChange={(e) => setHormigaThreshold(Number(e.target.value))} className="w-full h-1.5 bg-light-border dark:bg-dark-border rounded-lg appearance-none cursor-pointer accent-warning" />
+      {/* Control Micro-Gastos (Hormiga) Technical Panel */}
+      <div className="pt-12">
+        <div className="depth-1 rounded-[3rem] p-12 space-y-12">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="space-y-2">
+              <h2 className="text-xs font-black uppercase tracking-[0.4em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Auditoría de Micro-Transacciones</h2>
+              <p className="text-sm text-atelier-text-main-light dark:text-atelier-text-main-dark font-medium italic opacity-60 max-w-md leading-relaxed">Control de fugas de capital menores a {formatMXN(hormigaThreshold)} por evento.</p>
             </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <label className="font-medium text-light-text dark:text-dark-text">Límite diario</label>
-                <span className="text-light-text-2 dark:text-dark-text-2">{formatMXN(hormigaDailyLimit)}</span>
-              </div>
-              <input type="range" min="100" max="1000" step="50" value={hormigaDailyLimit} onChange={(e) => setHormigaDailyLimit(Number(e.target.value))} className="w-full h-1.5 bg-light-border dark:bg-dark-border rounded-lg appearance-none cursor-pointer accent-warning" />
+            <div className="text-right space-y-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Acumulado Mes</p>
+              <p className="text-4xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">{formatMXNShort(hormigaData.monthTotal)}</p>
             </div>
           </div>
 
-          <div className="bg-light-card/80 dark:bg-dark-card/80 rounded-card p-4 border border-light-border dark:border-dark-border">
-            <h3 className="text-sm font-semibold mb-3">Hoy</h3>
-            <div className="flex justify-between items-end mb-1 text-sm">
-               <span className="font-bold text-light-text dark:text-dark-text">{formatMXN(hormigaData.todayTotal)}</span>
-               <span className="text-light-text-2 dark:text-dark-text-2">de {formatMXN(hormigaDailyLimit)}</span>
-            </div>
-            <ProgressBar value={hormigaData.todayTotal} max={hormigaDailyLimit} color={hormigaData.todayTotal > hormigaDailyLimit ? '#EF4444' : '#F59E0B'} />
-            
-            {hormigaData.todayTotal > hormigaDailyLimit && (
-              <div className="mt-3 bg-danger/10 text-danger text-xs px-2 py-1.5 rounded text-center animate-pulse font-medium">
-                Límite diario superado
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            {/* Parameters Control */}
+            <div className="space-y-10">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60 italic">Umbral por Evento</span>
+                  <span className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark">{formatMXN(hormigaThreshold)}</span>
+                </div>
+                <input type="range" min="50" max="500" step="50" value={hormigaThreshold} onChange={(e) => setHormigaThreshold(Number(e.target.value))} className="w-full h-1 bg-primary/10 rounded-full appearance-none cursor-pointer accent-primary" />
               </div>
-            )}
-            
-            <div className="mt-4 space-y-2">
-              {hormigaData.todayHormiga.length === 0 ? (
-                <p className="text-xs text-center text-success font-medium py-2">Sin gastos hormiga hoy 🎉</p>
-              ) : (
-                hormigaData.todayHormiga.slice(0, 3).map(t => (
-                  <div key={t.id} className="flex justify-between text-xs">
-                    <span className="text-light-text-2 dark:text-dark-text-2 truncate pr-2">{t.description}</span>
-                    <span className="text-light-text dark:text-dark-text font-medium">{formatMXN(t.amount)}</span>
-                  </div>
-                ))
-              )}
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60 italic">Cota Diaria Estimada</span>
+                  <span className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark">{formatMXN(hormigaDailyLimit)}</span>
+                </div>
+                <input type="range" min="100" max="1000" step="50" value={hormigaDailyLimit} onChange={(e) => setHormigaDailyLimit(Number(e.target.value))} className="w-full h-1 bg-primary/10 rounded-full appearance-none cursor-pointer accent-primary" />
+              </div>
+            </div>
+
+            {/* Performance Meter */}
+            <div className="space-y-6">
+               <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Consumo Hoy</span>
+                  <p className="text-xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums">{formatMXN(hormigaData.todayTotal)}</p>
+               </div>
+               <div className="h-2 w-full bg-primary/5 rounded-full overflow-hidden">
+                 <div 
+                   className="h-full rounded-full transition-all duration-700"
+                   style={{ 
+                     width: `${Math.min((hormigaData.todayTotal / hormigaDailyLimit) * 100, 100)}%`,
+                     backgroundColor: hormigaData.todayTotal > hormigaDailyLimit ? '#EF4444' : '#10B981',
+                     opacity: 0.8
+                   }}
+                 />
+               </div>
+               <div className="flex justify-between">
+                 <span className="text-[9px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-20 italic">0%</span>
+                 <span className="text-[9px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-20 italic">100% (Target)</span>
+               </div>
             </div>
           </div>
         </div>
-
-        <div className="border-t border-warning/20 pt-4 mt-2">
-           <div className="flex justify-between items-end mb-1 text-sm">
-             <span className="text-light-text-2 dark:text-dark-text-2 font-medium">Acumulado del mes</span>
-             <span><strong className="text-light-text dark:text-dark-text">{formatMXN(hormigaData.monthTotal)}</strong> <span className="text-xs text-light-text-2 dark:text-dark-text-2">vs {formatMXN(hormigaDailyLimit * 30)} equiv.</span></span>
-           </div>
-           <ProgressBar value={hormigaData.monthTotal} max={hormigaData.monthLimit} color={hormigaData.monthTotal > hormigaData.monthLimit ? '#EF4444' : '#F59E0B'} />
-        </div>
-      </Card>
+      </div>
 
       {/* MODAL DETALLE DE CATEGORÍA */}
       <Modal isOpen={!!selectedBudget} onClose={() => setSelectedBudget(null)} title="Detalle de Categoría" size="lg">

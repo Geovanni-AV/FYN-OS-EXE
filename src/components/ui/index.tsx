@@ -6,16 +6,16 @@ type BtnVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
 type BtnSize    = 'sm' | 'md' | 'lg'
 
 const BTN_VAR: Record<BtnVariant, string> = {
-  primary:   'bg-primary hover:bg-primary-hover text-white shadow-md shadow-primary/20 hover:shadow-primary/40',
-  secondary: 'glass border border-light-border dark:border-dark-border text-light-text dark:text-dark-text hover:bg-light-surface dark:hover:bg-dark-surface hover:text-primary transition-all',
-  ghost:     'text-primary hover:bg-primary/10',
-  outline:   'border border-primary text-primary hover:bg-primary/5',
-  danger:    'bg-danger hover:bg-red-600 text-white shadow-md shadow-danger/20',
+  primary:   'bg-primary text-white shadow-luster hover:bg-primary-hover active:scale-95',
+  secondary: 'depth-1 text-atelier-text-main-light dark:text-atelier-text-main-dark hover:depth-2 shadow-sm transition-all active:scale-95',
+  ghost:     'text-primary hover:bg-primary/10 active:scale-95',
+  outline:   'border border-primary/20 text-primary hover:bg-primary/5 active:scale-95',
+  danger:    'bg-danger text-white shadow-luster hover:opacity-90 active:scale-95',
 }
 const BTN_SIZE: Record<BtnSize, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-5 py-3 text-sm',
+  sm: 'px-4 py-1.5 text-xs',
+  md: 'px-6 py-2.5 text-sm',
+  lg: 'px-8 py-3.5 text-base',
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -24,7 +24,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Button({ variant = 'primary', size = 'md', className = '', children, iconOnly, ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-btn font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${BTN_VAR[variant]} ${BTN_SIZE[size]} ${iconOnly ? 'w-9 h-9 p-0' : ''} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-btn font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${BTN_VAR[variant]} ${BTN_SIZE[size]} ${iconOnly ? 'aspect-square !p-0' : ''} ${className}`}
       {...props}
     >
       {children}
@@ -36,7 +36,11 @@ export function Button({ variant = 'primary', size = 'md', className = '', child
 export function Card({ children, className = '', padding = true, clickable = false, onClick, style }:
   { children: ReactNode; className?: string; padding?: boolean; clickable?: boolean; onClick?: () => void; style?: React.CSSProperties }) {
   return (
-    <div onClick={onClick} style={style} className={`glass-card rounded-card shadow-card dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 ${padding ? 'p-5' : ''} ${clickable ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] border-opacity-50 hover:border-primary/30' : ''} ${className}`}>
+    <div 
+      onClick={onClick} 
+      style={style} 
+      className={`glass-card rounded-card shadow-luster dark:shadow-luster-dark transition-all duration-500 ${padding ? 'p-6' : ''} ${clickable ? 'cursor-pointer hover:shadow-2xl hover:-translate-y-1 active:scale-[0.99] group' : ''} ${className}`}
+    >
       {children}
     </div>
   )
@@ -45,11 +49,11 @@ export function Card({ children, className = '', padding = true, clickable = fal
 // ─── BADGE ────────────────────────────────────────────────────────────────────
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
 const BADGE: Record<BadgeVariant, string> = {
-  success: 'bg-success/15 text-success border border-success/20',
-  warning: 'bg-warning/15 text-warning border border-warning/20',
-  danger:  'bg-danger/15 text-danger border border-danger/20',
-  info:    'bg-primary/15 text-primary border border-primary/20',
-  neutral: 'bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 border border-light-border dark:border-dark-border',
+  success: 'bg-success/10 text-success',
+  warning: 'bg-warning/10 text-warning',
+  danger:  'bg-danger/10 text-danger',
+  info:    'bg-primary/10 text-primary',
+  neutral: 'depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark',
 }
 export function Badge({ variant = 'neutral', children, className = '' }:
   { variant?: BadgeVariant; children: ReactNode; className?: string }) {
@@ -128,12 +132,12 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className={`relative bg-light-card dark:bg-dark-card rounded-card shadow-2xl p-6 w-full ${widths[size]} animate-scale-in border border-light-border dark:border-dark-border`}>
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-light-text dark:text-dark-text">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-btn hover:bg-light-surface dark:hover:bg-dark-surface text-light-muted dark:text-dark-muted cursor-pointer transition-colors">
-            <span className="material-symbols-outlined text-xl">close</span>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+      <div className={`relative depth-2 glass rounded-[2rem] shadow-luster-dark p-8 w-full ${widths[size]} animate-scale-in`}>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold tracking-tight text-atelier-text-main-light dark:text-atelier-text-main-dark">{title}</h2>
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full depth-1 hover:depth-2 text-atelier-text-muted-light dark:text-atelier-text-muted-dark transition-all">
+            <span className="material-symbols-outlined text-2xl">close</span>
           </button>
         </div>
         {children}
@@ -166,13 +170,13 @@ export function Drawer({ isOpen, onClose, title, children, width = 380 }:
 export function Input({ label, error, className = '', ...props }:
   { label?: string; error?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div className="space-y-1.5">
-      {label && <label className="block text-sm font-medium text-light-text dark:text-dark-text">{label}</label>}
+    <div className="space-y-2">
+      {label && <label className="block text-xs font-bold uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark ml-1">{label}</label>}
       <input
-        className={`w-full bg-light-surface dark:bg-dark-surface border rounded-btn px-3 py-2.5 text-sm text-light-text dark:text-dark-text placeholder:text-light-muted dark:placeholder:text-dark-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 transition-colors duration-150 ${error ? 'border-danger' : 'border-light-border dark:border-dark-border'} ${className}`}
+        className={`w-full depth-1 rounded-2xl px-4 py-3 text-sm text-atelier-text-main-light dark:text-atelier-text-main-dark placeholder:text-atelier-text-muted-light/50 dark:placeholder:text-atelier-text-muted-dark/30 focus:outline-none focus:depth-2 focus:shadow-luster transition-all duration-300 border-2 ${error ? 'border-danger/50' : 'border-transparent focus:border-primary/20'} ${className}`}
         {...props}
       />
-      {error && <p className="text-xs text-danger flex items-center gap-1"><span className="material-symbols-outlined text-sm">error</span>{error}</p>}
+      {error && <p className="text-xs text-danger flex items-center gap-1.5 font-medium ml-1"><span className="material-symbols-outlined text-sm">error</span>{error}</p>}
     </div>
   )
 }
@@ -310,22 +314,22 @@ export function Accordion({ title, icon, defaultOpen = false, children, badge }:
   const [isOpen, setIsOpen] = useState(defaultOpen)
   
   return (
-    <div className="border border-light-border dark:border-dark-border rounded-card overflow-hidden bg-light-card dark:bg-dark-card transition-all duration-200">
+    <div className="rounded-card overflow-hidden transition-all duration-500 glass-card">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 hover:bg-light-surface dark:hover:bg-dark-surface transition-colors focus:outline-none"
+        className="w-full flex items-center justify-between p-5 hover:depth-1 transition-colors focus:outline-none"
       >
-        <div className="flex items-center gap-3">
-          {icon && <span className="material-symbols-outlined text-primary">{icon}</span>}
-          <span className="font-semibold text-light-text dark:text-dark-text">{title}</span>
+        <div className="flex items-center gap-4">
+          {icon && <span className="material-symbols-outlined text-primary text-2xl">{icon}</span>}
+          <span className="font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark">{title}</span>
           {badge && <Badge variant="neutral">{badge}</Badge>}
         </div>
-        <span className={`material-symbols-outlined text-light-muted dark:text-dark-muted transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+        <span className={`material-symbols-outlined text-atelier-text-muted-light dark:text-atelier-text-muted-dark transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`}>
           expand_more
         </span>
       </button>
-      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="p-4 pt-0 border-t border-light-border dark:border-dark-border mt-1">
+      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="p-5 pt-0 mt-2">
           {children}
         </div>
       </div>

@@ -6,25 +6,25 @@ export default function Topbar() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="lg:hidden sticky top-0 z-30 bg-light-card/80 dark:bg-dark-card/80 backdrop-blur-md border-b border-light-border dark:border-dark-border px-4 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-primary rounded-btn flex items-center justify-center flex-shrink-0">
-          <span className="material-symbols-outlined text-white text-lg">account_balance_wallet</span>
+    <header className="lg:hidden sticky top-0 z-30 glass px-6 py-4 flex items-center justify-between mx-4 mt-4 rounded-full shadow-luster transition-all duration-500">
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+          <span className="material-symbols-outlined text-white text-xl font-light">account_balance_wallet</span>
         </div>
-        <span className="text-sm font-bold text-light-text dark:text-dark-text leading-tight">Fyn Finance</span>
+        <span className="text-base font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">FYN</span>
       </div>
       
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button 
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="p-1.5 rounded-full bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 hover:text-primary transition-colors focus:ring-2 focus:ring-primary/50"
+          className="w-9 h-9 flex items-center justify-center rounded-full depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark hover:text-primary transition-all active:scale-90"
           title="Cambiar tema"
         >
-          <span className="material-symbols-outlined text-xl">
+          <span className="material-symbols-outlined text-2xl font-light">
             {theme === 'light' ? 'dark_mode' : 'light_mode'}
           </span>
         </button>
-        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold border border-primary/30">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold ring-2 ring-primary/20">
           {profile.name.slice(0, 2).toUpperCase()}
         </div>
       </div>

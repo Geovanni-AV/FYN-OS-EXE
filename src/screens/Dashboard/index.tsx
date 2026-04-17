@@ -5,7 +5,7 @@ import {
 } from 'recharts'
 import { useApp } from '../../context/AppContext'
 import { useDashboardKPIs, useRecentTransactions } from '../../hooks/useFinance'
-import { Card, Badge, ProgressBar, GoalGauge } from '../../components/ui'
+import { Card, Badge, ProgressBar, GoalGauge, Button } from '../../components/ui'
 import {
   formatMXN, formatMXNShort, formatPercent,
   CATEGORY_ICONS, CATEGORY_LABELS, CATEGORY_COLORS,
@@ -59,72 +59,87 @@ export default function Dashboard() {
   const healthLabel = kpis.porcentajeGastado < 0.7 ? 'Salud financiera: Buena' : kpis.porcentajeGastado < 0.9 ? 'Atención' : 'Alerta'
 
   return (
-    <div className="p-4 lg:p-6 space-y-6">
+    <div className="space-y-12 animate-fade-in pb-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">
-            {greeting}, {profile.name.split(' ')[0]}
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Panorama General</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark">
+            {greeting},<br />
+            <span className="text-primary/40">{profile.name.split(' ')[0]}.</span>
           </h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">{today}</p>
         </div>
-        <div className="flex gap-2">
-          <Link to="/alertas">
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border hover:text-primary transition-all cursor-pointer">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-          </Link>
+        <div className="flex flex-col items-start md:items-end gap-2">
+          <p className="text-sm font-semibold text-atelier-text-muted-light dark:text-atelier-text-muted-dark italic opacity-60 uppercase tracking-widest leading-none">{today}</p>
+          <div className="h-px w-12 bg-primary/20 mt-2" />
         </div>
       </div>
 
-      {/* Hero Card */}
-      <Card className="relative overflow-hidden group" padding={false}>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-        <div className="p-8 relative z-10">
-          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Balance total</p>
-          <p className="text-5xl font-black tabular-nums tracking-tighter text-light-text dark:text-dark-text">
-            {formatMXN(kpis.totalBalance)}
-          </p>
-          <div className="flex items-center gap-3 mt-4">
-            <Badge variant={healthColor}>{healthLabel}</Badge>
-            <span className="text-[10px] text-light-text-2 dark:text-dark-text-2 font-bold uppercase tracking-wider">
-              {accounts.filter(a => a.isActive).length} cuentas activas
-            </span>
+      {/* Hero Section: The Golden Number */}
+      <div className="relative group">
+        <div className="absolute -inset-4 bg-primary/5 rounded-[3rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="relative">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark mb-4">Capital Total Neto</p>
+          <div className="flex flex-col lg:flex-row lg:items-end gap-6 lg:gap-12">
+            <p className="text-6xl lg:text-8xl font-black tabular-nums tracking-tighter text-atelier-text-main-light dark:text-atelier-text-main-dark">
+              {formatMXN(kpis.totalBalance)}
+            </p>
+            <div className="flex flex-col gap-3 pb-2">
+              <div className="flex items-center gap-3">
+                <Badge variant={healthColor} className="px-4 py-1 rounded-full uppercase text-[10px] tracking-widest font-black">
+                  {healthLabel}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-bold uppercase tracking-widest">
+                Sincronizado: hace 4 min
+              </p>
+            </div>
           </div>
         </div>
-        {/* Sparkline */}
-        <div className="h-28 px-0 mt-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="heroGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2965ff" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#2965ff" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2965ff', strokeWidth: 1, strokeDasharray: '4 4' }} />
-              <Area type="monotone" dataKey="netWorth" stroke="#2965ff" strokeWidth={3} fill="url(#heroGrad)" dot={false} activeDot={{ r: 6, fill: '#2965ff', stroke: '#fff', strokeWidth: 2 }} animationDuration={1000} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+      </div>
 
-      {/* 4 KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* Sparkline Editorial */}
+      <div className="w-full h-32 -mx-4 lg:-mx-10 opacity-60 hover:opacity-100 transition-opacity duration-700">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 0, right: 40, left: 40, bottom: 0 }}>
+            <defs>
+              <linearGradient id="heroGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--chart-label)" stopOpacity={0.1} />
+                <stop offset="100%" stopColor="var(--chart-label)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <Area 
+              type="monotone" 
+              dataKey="netWorth" 
+              stroke="var(--chart-label)" 
+              strokeWidth={1.5} 
+              fill="url(#heroGrad)" 
+              dot={false} 
+              activeDot={{ r: 4, fill: '#0058bc' }} 
+              animationDuration={1500} 
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Layered KPIs Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Ingresos', value: kpis.ingresos, icon: 'trending_up', color: 'text-success', bg: 'bg-success/10' },
-          { label: 'Gastos',   value: kpis.gastos,   icon: 'trending_down', color: 'text-danger', bg: 'bg-danger/10' },
-          { label: 'Ahorro',   value: kpis.ahorro,   icon: 'savings', color: 'text-primary', bg: 'bg-primary/10' },
-          { label: 'Tasa ahorro', value: null, pct: kpis.tasaAhorro, icon: 'percent', color: 'text-warning', bg: 'bg-warning/10' },
+          { label: 'Ingresos', value: kpis.ingresos, icon: 'keyboard_double_arrow_up', color: 'text-success' },
+          { label: 'Gastos',   value: kpis.gastos,   icon: 'keyboard_double_arrow_down', color: 'text-danger' },
+          { label: 'Inversiones', value: kpis.ahorro, icon: 'account_balance', color: 'text-primary' },
+          { label: 'Eficiencia', value: null, pct: kpis.tasaAhorro, icon: 'monitoring', color: 'text-primary' },
         ].map(kpi => (
-          <Card key={kpi.label} padding={false} className="p-4">
-            <div className={`w-8 h-8 rounded-btn ${kpi.bg} flex items-center justify-center mb-3`}>
-              <span className={`material-symbols-outlined text-lg ${kpi.color}`}>{kpi.icon}</span>
+          <Card key={kpi.label} padding={false} className="p-8 hover:!depth-2">
+            <div className="flex flex-col gap-6">
+              <span className={`material-symbols-outlined text-3xl font-light ${kpi.color}`}>{kpi.icon}</span>
+              <div className="space-y-1">
+                <p className="text-[10px] text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-[0.2em] font-black">{kpi.label}</p>
+                <p className="text-3xl font-bold tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">
+                  {kpi.pct !== undefined ? formatPercent(kpi.pct) : formatMXNShort(kpi.value!)}
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide font-medium mb-1">{kpi.label}</p>
-            <p className="text-xl font-bold tabular-nums text-light-text dark:text-dark-text">
-              {kpi.pct !== undefined ? formatPercent(kpi.pct) : formatMXNShort(kpi.value!)}
-            </p>
           </Card>
         ))}
       </div>
@@ -152,87 +167,90 @@ export default function Dashboard() {
         </div>
       </Card>
 
-      {/* Movimientos recientes + Cuentas mini */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      {/* No-Line Lists: Transactions & Accounts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Movimientos */}
-        <Card className="lg:col-span-3" padding={false}>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-light-border dark:border-dark-border">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text">Movimientos recientes</h3>
-            <Link to="/analisis" className="text-xs text-primary font-medium hover:underline">Ver todos</Link>
+        <div className="lg:col-span-2 space-y-8">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Movimientos Editoriales</h3>
+            <Link to="/analisis" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:opacity-70 transition-opacity">Ver registro completo</Link>
           </div>
-          <div className="divide-y divide-light-border dark:divide-dark-border">
+          <div className="space-y-1">
             {recent.map(tx => (
-              <div key={tx.id} className="flex items-center gap-3 px-5 py-3 hover:bg-light-surface dark:hover:bg-dark-surface transition-colors">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${CATEGORY_COLORS[tx.category]}20` }}>
-                  <span className="material-symbols-outlined text-lg" style={{ color: CATEGORY_COLORS[tx.category] }}>
+              <div key={tx.id} className="flex items-center gap-6 p-4 rounded-2xl hover:depth-1 transition-all group active:scale-[0.99]">
+                <div className="w-12 h-12 rounded-full depth-1 flex items-center justify-center flex-shrink-0 group-hover:depth-2 group-hover:shadow-sm transition-all">
+                  <span className="material-symbols-outlined text-2xl font-light" style={{ color: CATEGORY_COLORS[tx.category] }}>
                     {CATEGORY_ICONS[tx.category]}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-light-text dark:text-dark-text truncate">{tx.description}</p>
-                  <p className="text-xs text-light-text-2 dark:text-dark-text-2">
+                  <p className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark truncate tracking-tight">{tx.description}</p>
+                  <p className="text-[11px] text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest font-black mt-0.5 opacity-60">
                     {new Date(tx.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
                   </p>
                 </div>
-                <p className={`text-sm font-semibold tabular-nums flex-shrink-0 ${tx.type === 'ingreso' ? 'text-success' : 'text-danger'}`}>
+                <p className={`text-base font-bold tabular-nums flex-shrink-0 tracking-tighter ${tx.type === 'ingreso' ? 'text-success' : 'text-atelier-text-main-light dark:text-atelier-text-main-dark'}`}>
                   {tx.type === 'ingreso' ? '+' : '-'}{formatMXNShort(tx.amount)}
                 </p>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         {/* Cuentas mini */}
-        <Card className="lg:col-span-2" padding={false}>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-light-border dark:border-dark-border">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text">Mis cuentas</h3>
-            <Link to="/cuentas" className="text-xs text-primary font-medium hover:underline">Ver todas</Link>
+        <div className="space-y-8">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Cartera de Activos</h3>
+            <Link to="/cuentas" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:opacity-70 transition-opacity">Ver carteras</Link>
           </div>
-          <div className="divide-y divide-light-border dark:divide-dark-border">
+          <div className="space-y-4">
             {accounts.filter(a => a.isActive).slice(0, 4).map(acc => (
-              <div key={acc.id} className="flex items-center gap-3 px-5 py-3">
-                <div className="w-8 h-8 rounded-btn flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
-                  style={{ backgroundColor: acc.color }}>
-                  {acc.bank.slice(0, 2)}
+              <Card key={acc.id} padding={false} className="p-5 hover:!depth-2 !rounded-3xl">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-black shadow-sm"
+                    style={{ backgroundColor: acc.color }}>
+                    {acc.bank.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark truncate tracking-tight">{acc.name}</p>
+                    <p className="text-[10px] text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest font-medium opacity-60">Institución: {acc.bank}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-black tabular-nums tracking-tight text-atelier-text-main-light dark:text-atelier-text-main-dark">
+                      {formatMXNShort(acc.balance)}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-light-text dark:text-dark-text truncate">{acc.name}</p>
-                  {acc.lastFour && <p className="text-xs text-light-text-2 dark:text-dark-text-2">••••{acc.lastFour}</p>}
-                </div>
-                <p className={`text-sm font-semibold tabular-nums flex-shrink-0 ${acc.balance < 0 ? 'text-danger' : 'text-light-text dark:text-dark-text'}`}>
-                  {formatMXNShort(acc.balance)}
-                </p>
-              </div>
+              </Card>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* Presupuestos semáforo + Meta destacada */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Top presupuestos */}
-        <Card className="lg:col-span-2" padding={false}>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-light-border dark:border-dark-border">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text">Presupuestos por categoría</h3>
-            <Link to="/presupuestos" className="text-xs text-primary font-medium hover:underline">Gestionar</Link>
+      {/* Presupuestos & Goals */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-8">
+        {/* Presupuestos */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Eficiencia Presupuestal</h3>
+            <Link to="/presupuestos" className="text-[10px] font-bold text-primary uppercase tracking-widest hover:opacity-70 transition-opacity">Optimizar Presupuestos</Link>
           </div>
-          <div className="px-5 py-3 space-y-4">
+          <div className="space-y-6">
             {budgets.slice(0, 5).map(b => {
               const pct = b.monthlyLimit > 0 ? b.spent / b.monthlyLimit : 0
               const status = getBudgetStatus(b)
-              const color = status === 'ok' ? '#10B981' : status === 'warning' ? '#F59E0B' : '#EF4444'
+              const color = status === 'ok' ? '#006e28' : status === 'warning' ? '#bc6c00' : '#bc000a'
               return (
-                <div key={b.id}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-base" style={{ color }}>
+                <div key={b.id} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-lg" style={{ color }}>
                         {CATEGORY_ICONS[b.category]}
                       </span>
-                      <span className="text-sm text-light-text dark:text-dark-text">{CATEGORY_LABELS[b.category]}</span>
+                      <span className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{CATEGORY_LABELS[b.category]}</span>
                     </div>
-                    <span className="text-xs text-light-text-2 dark:text-dark-text-2 tabular-nums">
-                      {formatMXNShort(b.spent)} / {formatMXNShort(b.monthlyLimit)}
+                    <span className="text-[11px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest tabular-nums font-secondary">
+                      {formatMXNShort(b.spent)} <span className="opacity-30">/</span> {formatMXNShort(b.monthlyLimit)}
                     </span>
                   </div>
                   <ProgressBar value={b.spent} max={b.monthlyLimit} color={color} />
@@ -240,56 +258,49 @@ export default function Dashboard() {
               )
             })}
           </div>
-        </Card>
+        </div>
 
-        {/* Meta destacada */}
+        {/* Goal Highlight */}
         {topGoal && (
-          <Card className="flex flex-col items-center text-center">
-            <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide font-medium mb-3">Meta destacada</p>
-            <GoalGauge
-              percentage={(topGoal.currentAmount / topGoal.targetAmount) * 100}
-              color={topGoal.color}
-              size={96}
-            />
-            <p className="mt-3 font-semibold text-light-text dark:text-dark-text">{topGoal.name}</p>
-            <p className="text-sm text-light-text-2 dark:text-dark-text-2 tabular-nums mt-1">
-              {formatMXNShort(topGoal.currentAmount)} / {formatMXNShort(topGoal.targetAmount)}
-            </p>
-            <p className="text-xs text-light-text-2 dark:text-dark-text-2 mt-1">
-              Aporte: {formatMXNShort(topGoal.monthlyContribution)}/mes
-            </p>
-            <Link to="/metas" className="mt-4 text-xs text-primary font-medium hover:underline">Ver todas las metas</Link>
-          </Card>
+          <div className="space-y-8">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Meta Maestra</h3>
+            <Card className="flex flex-col items-center text-center p-8 !rounded-[2.5rem] !depth-2">
+              <GoalGauge
+                percentage={(topGoal.currentAmount / topGoal.targetAmount) * 100}
+                color={topGoal.color}
+                size={120}
+              />
+              <p className="mt-8 text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{topGoal.name}</p>
+              <div className="h-0.5 w-8 bg-primary/20 my-4" />
+              <p className="text-sm font-black tabular-nums text-primary tracking-widest uppercase">
+                {formatMXNShort(topGoal.currentAmount)} <span className="opacity-30">/</span> {formatMXNShort(topGoal.targetAmount)}
+              </p>
+              <Link to="/metas" className="mt-8 text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-[0.2em] hover:text-primary transition-colors">Portafolio Completo</Link>
+            </Card>
+          </div>
         )}
       </div>
 
-      {/* Banner IA */}
+      {/* Banner IA Editorial */}
       {aiBannerOpen && (
-        <div className="bg-success/5 border border-success/20 rounded-card p-4 flex items-start gap-4 animate-fade-in-up">
-          <div className="w-9 h-9 bg-success/10 rounded-btn flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-outlined text-success text-xl">psychology</span>
+        <div className="glass depth-2 p-8 !rounded-[2.5rem] flex items-start gap-8 animate-fade-in-up relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-primary/10 transition-colors" />
+          <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-luster">
+            <span className="material-symbols-outlined text-white text-3xl font-light">auto_awesome</span>
           </div>
-          <div className="flex-1 min-w-0 space-y-1">
-            <p className="text-sm font-semibold text-light-text dark:text-dark-text">
-              Sugerencias de Fyn IA
+          <div className="flex-1 min-w-0 space-y-4 relative z-10">
+            <p className="text-[10px] font-black tracking-[0.4em] text-primary uppercase">Asistente de Capital</p>
+            <p className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark leading-snug tracking-tight">
+              Análisis de suscripciones terminado.
+              <span className="block text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-medium mt-2">
+                Detectamos redundancias en entretenimiento. Cancelar servicios duplicados optimizaría tu flujo en <span className="text-success font-black tabular-nums">$488 MXN</span> mensuales.
+              </span>
             </p>
-            <p className="text-sm text-light-text-2 dark:text-dark-text-2">
-              Tus gastos en entretenimiento superaron el límite mensual. Cancelar
-              suscripciones no utilizadas te ahorraría{' '}
-              <span className="font-bold text-light-text dark:text-dark-text">
-                $488 MXN
-              </span>{' '}
-              al mes.
-            </p>
+            <div className="flex gap-4">
+              <Button size="sm" className="!px-6 !py-2.5">Optimizar Ahora</Button>
+              <button onClick={() => setAiBannerOpen(false)} className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark hover:text-atelier-text-main-light transition-colors">Ignorar</button>
+            </div>
           </div>
-          <button
-            onClick={() => setAiBannerOpen(false)}
-            className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-light-surface dark:hover:bg-dark-surface flex-shrink-0 cursor-pointer transition-colors"
-          >
-            <span className="material-symbols-outlined text-lg text-light-muted dark:text-dark-muted">
-              close
-            </span>
-          </button>
         </div>
       )}
     </div>

@@ -140,20 +140,30 @@ export default function Registro() {
   ]
 
   return (
-    <div className="p-4 lg:p-8 lg:max-w-4xl mx-auto space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Registrar Movimiento</h1>
-        <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">Añade transacciones manuales o estados de cuenta.</p>
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Ingesta de Datos</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark">
+            Registrar <br />
+            <span className="text-primary/40">Movimiento.</span>
+          </h1>
+        </div>
+        <div className="hidden md:block">
+          <p className="text-sm font-semibold text-atelier-text-muted-light dark:text-atelier-text-muted-dark italic opacity-60 uppercase tracking-widest leading-none">Portal de Captura v1.0</p>
+          <div className="h-px w-12 bg-primary/20 mt-2 ml-auto" />
+        </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex gap-1 bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-md rounded-card p-1.5 shadow-inner border border-light-border/50 dark:border-dark-border/50">
+      {/* Glass Tab System */}
+      <div className="flex gap-2 p-1 lg:p-2 glass !rounded-full max-w-2xl mx-auto shadow-luster">
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-btn text-sm font-semibold transition-all duration-300 cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-2.5 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 cursor-pointer ${
               tab === t.id
-                ? 'glass shadow-md text-primary scale-[1.02]'
-                : 'text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text hover:bg-light-surface/50 dark:hover:bg-dark-surface/50'
+                ? 'bg-primary text-white shadow-lg scale-[1.05] z-10'
+                : 'text-atelier-text-muted-light dark:text-atelier-text-muted-dark hover:text-atelier-text-main-light dark:hover:text-atelier-text-main-dark hover:bg-black/5 dark:hover:bg-white/5'
             }`}>
             <span className="material-symbols-outlined text-lg">{t.icon}</span>
             <span className="hidden sm:inline">{t.label}</span>
@@ -164,103 +174,120 @@ export default function Registro() {
       {/* Manual */}
       {tab === 'manual' && (
         <Card className="space-y-6">
-          {/* Type toggle */}
-          <div className="flex gap-1 bg-light-surface/50 dark:bg-dark-surface/50 backdrop-blur-sm rounded-btn p-1.5 border border-light-border/30 dark:border-dark-border/30">
+          {/* Type Toggle Editorial */}
+          <div className="flex gap-2 p-1.5 depth-1 rounded-3xl max-w-md mx-auto">
             {(['gasto', 'ingreso', 'transferencia'] as TransactionType[]).map(t => (
               <button key={t} onClick={() => setTxType(t)}
-                className={`flex-1 py-2.5 rounded-btn text-sm font-bold capitalize transition-all duration-300 cursor-pointer ${
-                  txType === t ? `${TYPE_BG[t]} text-white shadow-md scale-[1.02]` : 'text-light-text-2 dark:text-dark-text-2 hover:bg-white/50 dark:hover:bg-black/20'
+                className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-400 cursor-pointer ${
+                  txType === t ? `${TYPE_BG[t]} text-white shadow-lg` : 'text-atelier-text-muted-light dark:text-atelier-text-muted-dark hover:bg-black/5 dark:hover:bg-white/5'
                 }`}>
                 {t}
               </button>
             ))}
           </div>
 
-          {/* Amount */}
-          <div className="text-center py-6">
-            <p className="text-xs font-semibold text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide mb-3">Monto de transacción</p>
-            <div className="relative inline-flex items-center justify-center">
-              <span className={`text-3xl font-bold mr-1 ${TYPE_COLORS[txType].split(' ')[0]}`}>$</span>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-                placeholder="0.00"
-                className={`text-6xl font-extrabold tabular-nums w-48 bg-transparent border-b-2 text-center focus:outline-none transition-all ${TYPE_COLORS[txType]} placeholder:text-light-muted dark:placeholder:text-dark-muted shadow-sm`}
-              />
-              <span className="text-xl font-medium text-light-text-2 dark:text-dark-text-2 ml-2">MXN</span>
+          {/* Amount: The Golden Input */}
+          <div className="text-center py-12">
+            <p className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-[0.4em] mb-6">Monto del Movimiento</p>
+            <div className="relative inline-flex flex-col items-center">
+              <div className="flex items-center justify-center">
+                <span className={`text-2xl font-black mr-2 opacity-40 ${txType === 'ingreso' ? 'text-success' : 'text-atelier-text-main-light dark:text-atelier-text-main-dark'}`}>$</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={e => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className={`text-6xl lg:text-8xl font-black tabular-nums w-64 bg-transparent border-none text-center focus:outline-none transition-all ${txType === 'ingreso' ? 'text-success' : 'text-atelier-text-main-light dark:text-atelier-text-main-dark'} placeholder:opacity-10 tracking-tighter`}
+                />
+              </div>
+              <div className="h-0.5 w-16 bg-primary/20 mt-4" />
+              <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em] mt-4">Pesos Mexicanos (MXN)</p>
             </div>
           </div>
 
-          {/* Categories */}
-          <div>
-            <p className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Categoría</p>
-            <div className="grid grid-cols-4 gap-3">
+          {/* Categories Grid */}
+          <div className="space-y-6">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Clasificación Editorial</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {CATEGORIES.map(cat => (
                 <button key={cat} onClick={() => setCategory(cat)}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all duration-300 cursor-pointer text-center ${
+                  className={`flex flex-col items-center justify-center gap-4 p-6 rounded-[2rem] transition-all duration-500 cursor-pointer group ${
                     category === cat
-                      ? 'glass border-primary/40 text-primary shadow-md scale-105'
-                      : 'bg-transparent border border-transparent hover:glass hover:border-light-border/50 text-light-text-2 dark:text-dark-text-2 hover:text-light-text dark:hover:text-dark-text'
+                      ? 'depth-2 ring-1 ring-primary/20 scale-105 bg-primary/5'
+                      : 'depth-0 hover:depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark'
                   }`}>
-                  <span className="material-symbols-outlined text-2xl">{CATEGORY_ICONS[cat]}</span>
-                  <span className="text-[10px] font-semibold tracking-wider leading-tight uppercase">{CATEGORY_LABELS[cat].slice(0, 10)}</span>
+                  <span className={`material-symbols-outlined text-3xl font-light transition-colors ${category === cat ? 'text-primary' : 'opacity-40'}`}>
+                    {CATEGORY_ICONS[cat]}
+                  </span>
+                  <span className={`text-[9px] font-black tracking-widest uppercase transition-colors ${category === cat ? 'text-atelier-text-main-light dark:text-atelier-text-main-dark' : 'opacity-60'}`}>
+                    {CATEGORY_LABELS[cat]}
+                  </span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Account */}
-          <div>
-            <p className="text-sm font-medium text-light-text dark:text-dark-text mb-2">Cuenta</p>
-            <select
-              value={accountId} onChange={e => setAccountId(e.target.value)}
-              className="w-full bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-btn px-3 py-2.5 text-sm text-light-text dark:text-dark-text focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer">
-              {accounts.filter(a => a.isActive).map(a => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <Input label="Descripción" placeholder="Ej: Despensa Walmart" value={description} onChange={e => setDescription(e.target.value)} />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Fecha" type="date" value={date} onChange={e => setDate(e.target.value)} />
-            <div />
-          </div>
-
-          {/* Recurring */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-light-text dark:text-dark-text">¿Es recurrente?</p>
-              <p className="text-xs text-light-text-2 dark:text-dark-text-2">Renta, suscripción, etc.</p>
-            </div>
-            <button onClick={() => setRecurring(r => !r)}
-              className={`relative w-10 h-6 rounded-full transition-colors duration-200 cursor-pointer ${recurring ? 'bg-primary' : 'bg-light-muted dark:bg-dark-surface'}`}>
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${recurring ? 'translate-x-5' : 'translate-x-1'}`} />
-            </button>
-          </div>
-          {recurring && (
-            <div className="animate-fade-in-up">
-              <p className="text-sm font-medium text-light-text dark:text-dark-text mb-2">Periodicidad</p>
-              <div className="flex flex-wrap gap-2">
-                {RECURRENCE.map(r => (
-                  <button key={r} onClick={() => setPeriod(r)}
-                    className={`px-3 py-1.5 rounded-btn text-xs font-medium capitalize cursor-pointer transition-all ${
-                      period === r ? 'bg-primary text-white' : 'bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 border border-light-border dark:border-dark-border'
-                    }`}>{r}</button>
-                ))}
+          {/* Secondary Details Editorial */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8">
+            <div className="space-y-8">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Origen y Temporalidad</h3>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark mb-2 ml-1">Cuenta de Cargo</p>
+                  <select
+                    value={accountId} onChange={e => setAccountId(e.target.value)}
+                    className="w-full bg-transparent border-b border-primary/20 py-3 px-1 text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none cursor-pointer">
+                    {accounts.filter(a => a.isActive).map(a => (
+                      <option key={a.id} value={a.id}>{a.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <Input label="Descripción Técnica" placeholder="Concepto del movimiento..." value={description} onChange={e => setDescription(e.target.value)} />
+                <Input label="Timestamp" type="date" value={date} onChange={e => setDate(e.target.value)} />
               </div>
             </div>
-          )}
 
-          <Input label="Notas (opcional)" placeholder="Detalles adicionales..." value={notes} onChange={e => setNotes(e.target.value)} />
+            <div className="space-y-8">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Configuración Avanzada</h3>
+              <div className="space-y-6">
+                <div className="p-6 depth-1 rounded-[2rem] flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-main-light dark:text-atelier-text-main-dark mb-1">Recurrencia Automática</p>
+                    <p className="text-[9px] font-bold text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-60">Programar como cargo fijo</p>
+                  </div>
+                  <button onClick={() => setRecurring(r => !r)}
+                    className={`relative w-12 h-6 rounded-full transition-colors duration-400 cursor-pointer ${recurring ? 'bg-primary' : 'depth-2'}`}>
+                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-400 ${recurring ? 'translate-x-7' : 'translate-x-1'}`} />
+                  </button>
+                </div>
 
-          <Button className="w-full justify-center py-3" onClick={handleSubmit}>
-            <span className="material-symbols-outlined text-lg">check</span>
-            Registrar movimiento
-          </Button>
+                {recurring && (
+                  <div className="animate-fade-in-up space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark ml-1">Frecuencia del Ciclo</p>
+                    <div className="flex flex-wrap gap-2">
+                      {RECURRENCE.map(r => (
+                        <button key={r} onClick={() => setPeriod(r)}
+                          className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest cursor-pointer transition-all ${
+                            period === r ? 'bg-primary text-white shadow-md' : 'depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark'
+                          }`}>{r}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="pt-2">
+                  <Input label="Anotaciones Privadas" placeholder="Detalles de auditoría..." value={notes} onChange={e => setNotes(e.target.value)} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-12">
+            <Button className="w-full justify-center py-5 !rounded-full text-xs font-black uppercase tracking-[0.3em] shadow-luster" onClick={handleSubmit}>
+              Ejecutar Registro
+            </Button>
+          </div>
         </Card>
       )}
 
@@ -285,50 +312,54 @@ export default function Registro() {
       {/* PDF */}
       {tab === 'pdf' && (
         <Card className="space-y-6">
-          {/* Step indicator */}
-          <div className="flex items-center justify-center gap-2">
-            {['Subir', 'Analizando', 'Revisar', 'Confirmar', 'Listo'].map((s, i) => (
-              <div key={s} className="flex items-center gap-2">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                  i < pdfStep ? 'bg-success text-white' :
-                  i === pdfStep ? 'bg-primary text-white' : 'bg-light-surface dark:bg-dark-surface text-light-muted dark:text-dark-muted'
-                }`}>{i < pdfStep ? '✓' : i + 1}</div>
-                {i < 4 && <div className={`w-8 h-0.5 ${i < pdfStep ? 'bg-success' : 'bg-light-border dark:border-dark-border'}`} />}
-              </div>
+          {/* Technical Step Indicator */}
+          <div className="flex items-center justify-between max-w-lg mx-auto mb-12">
+            {['Origen', 'Análisis', 'Validación', 'Carga'].map((s, i) => (
+              <React.Fragment key={s}>
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-700 ${
+                    i < pdfStep ? 'bg-success text-white' :
+                    i === pdfStep ? 'bg-primary text-white shadow-luster' : 'depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40'
+                  }`}>{i < pdfStep ? '✓' : `0${i + 1}`}</div>
+                  <p className={`text-[8px] font-black uppercase tracking-widest ${i === pdfStep ? 'text-primary' : 'opacity-40'}`}>{s}</p>
+                </div>
+                {i < 3 && <div className={`flex-1 h-px mx-2 mb-5 ${i < pdfStep ? 'bg-success' : 'bg-primary/10'}`} />}
+              </React.Fragment>
             ))}
           </div>
 
           {pdfStep === 0 && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-light-text dark:text-dark-text mb-2">Banco emisor</p>
+            <div className="space-y-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark ml-1">Institución Emisora</p>
                   <select value={detectedBank} onChange={e => setDetectedBank(e.target.value)}
-                    className="w-full bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-btn px-3 py-2 text-sm">
+                    className="w-full bg-transparent border-b border-primary/20 py-3 px-1 text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none cursor-pointer">
                     <option value="bbva">BBVA</option>
                     <option value="nu">Nu México</option>
                     <option value="santander">Santander</option>
                   </select>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-light-text dark:text-dark-text mb-2">Cuenta destino</p>
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark ml-1">Cuenta de Destino</p>
                   <select value={accountId} onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-btn px-3 py-2 text-sm">
+                    className="w-full bg-transparent border-b border-primary/20 py-3 px-1 text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none cursor-pointer">
                     {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                   </select>
                 </div>
               </div>
 
-              <label className="block border-2 border-dashed border-light-border dark:border-dark-border rounded-card p-10 text-center space-y-4 hover:border-primary/50 transition-colors cursor-pointer group">
+              <label className="block depth-1 !rounded-[3rem] p-16 text-center space-y-6 hover:depth-2 transition-all cursor-pointer group border border-transparent hover:border-primary/10">
                 <input type="file" accept=".pdf" onChange={handleFileChange} className="hidden" />
-                <span className="material-symbols-outlined text-5xl text-light-muted dark:text-dark-muted group-hover:text-primary transition-colors">upload_file</span>
-                <div>
-                  <p className="font-medium text-light-text dark:text-dark-text">Selecciona o arrastra tu estado de cuenta</p>
-                  <p className="text-sm text-light-text-2 dark:text-dark-text-2">Solo archivos PDF (BBVA, Nu...)</p>
+                <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-700">
+                  <span className="material-symbols-outlined text-4xl text-primary font-light">terminal</span>
                 </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-bold group-hover:bg-primary group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined text-base">add_circle</span>
-                  Elegir archivo
+                <div>
+                  <p className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">Cargar Archivo de Origen</p>
+                  <p className="text-[11px] font-medium text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-60 mt-2">Solo protocolos PDF (BBVA, Nu, Santander...)</p>
+                </div>
+                <div className="inline-flex items-center gap-3 px-8 py-3 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-luster">
+                  Seleccionar Documento
                 </div>
               </label>
             </div>
@@ -421,33 +452,41 @@ export default function Registro() {
         </Card>
       )}
 
-      {/* Sync */}
+      {/* Financial Sync Network */}
       {tab === 'sync' && (
-        <Card className="space-y-4">
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2">Conecta tu banco para sincronización automática de movimientos.</p>
-          {[
-            { bank: 'BBVA', color: '#004A9F', connected: true },
-            { bank: 'Nu', color: '#820AD1', connected: false },
-            { bank: 'Klar', color: '#00C4B3', connected: false },
-            { bank: 'Santander', color: '#CC0000', connected: false },
-            { bank: 'HSBC', color: '#DB0011', connected: false },
-            { bank: 'Openbank', color: '#E3000F', connected: false },
-          ].map(item => (
-            <div key={item.bank} className="flex items-center gap-4 p-4 bg-light-surface dark:bg-dark-surface rounded-btn">
-              <div className="w-10 h-10 rounded-btn flex items-center justify-center text-white text-xs font-bold"
-                style={{ backgroundColor: item.color }}>{item.bank.slice(0, 2)}</div>
-              <div className="flex-1">
-                <p className="font-medium text-light-text dark:text-dark-text">{item.bank}</p>
-                <p className="text-xs text-light-text-2 dark:text-dark-text-2">
-                  {item.connected ? 'Conectado · Última sync: hace 5 min' : 'Sin conectar'}
-                </p>
-              </div>
-              <Button size="sm" variant={item.connected ? 'secondary' : 'primary'}>
-                {item.connected ? 'Sincronizar' : 'Conectar'}
-              </Button>
-            </div>
-          ))}
-        </Card>
+        <div className="space-y-8 animate-fade-in">
+          <div className="p-8 glass !rounded-[2.5rem]">
+            <p className="text-[11px] font-black text-primary uppercase tracking-[0.4em] mb-4">Sincronización Bancaria</p>
+            <p className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">Conexión con Instituciones Financieras</p>
+            <p className="text-sm text-atelier-text-muted-light dark:text-atelier-text-muted-dark mt-2 font-medium opacity-60">Consolida tus activos conectando tus cuentas de forma segura mediante protocolos de encriptación bancaria.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { bank: 'BBVA', color: '#004A9F', connected: true },
+              { bank: 'Nu México', color: '#820AD1', connected: false },
+              { bank: 'Klar', color: '#00C4B3', connected: false },
+              { bank: 'Santander', color: '#CC0000', connected: false },
+              { bank: 'Inversiones GBM', color: '#000000', connected: false },
+            ].map(item => (
+              <Card key={item.bank} padding={false} className="p-6 hover:!depth-2 !rounded-[2rem]">
+                <div className="flex items-center gap-6">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-[10px] font-black shadow-luster"
+                    style={{ backgroundColor: item.color }}>{item.bank.slice(0, 2).toUpperCase()}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{item.bank}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark mt-1 opacity-60">
+                      {item.connected ? 'En Línea · Sync 5m' : 'Protocolo: Pendiente'}
+                    </p>
+                  </div>
+                  <Button size="sm" variant={item.connected ? 'secondary' : 'primary'} className="!px-5 !py-2.5 !rounded-full !text-[9px] font-black uppercase tracking-widest">
+                    {item.connected ? 'Refrescar' : 'Conectar'}
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )

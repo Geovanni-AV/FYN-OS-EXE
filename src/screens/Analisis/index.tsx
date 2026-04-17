@@ -102,143 +102,152 @@ export default function Analisis() {
     : 0
 
   return (
-    <div className="p-4 lg:p-6 lg:max-w-6xl mx-auto space-y-8 animate-fade-in shadow-2xl shadow-black/5">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Análisis y Reportes</h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">Inteligencia financiera para mejores decisiones.</p>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Inteligencia y Proyección</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark leading-[0.9]">
+            Análisis de <br />
+            <span className="text-primary/40 text-[0.8em]">Tendencias.</span>
+          </h1>
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" size="lg">
-             <span className="material-symbols-outlined">filter_list</span>
+        <div className="flex gap-4">
+          <Button variant="secondary" size="lg" className="!rounded-full !px-8">
+             <span className="material-symbols-outlined text-lg">filter_list</span>
              Filtros
           </Button>
-          <Button onClick={() => setIsExportOpen(true)} size="lg" className="shadow-lg shadow-primary/20">
-             <span className="material-symbols-outlined">ios_share</span>
+          <Button onClick={() => setIsExportOpen(true)} size="lg" className="!rounded-full !px-8 shadow-luster">
+             <span className="material-symbols-outlined text-lg">ios_share</span>
              Exportar
           </Button>
         </div>
       </div>
 
-      {/* Main KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 border-l-4 border-l-primary bg-primary/5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Gasto Total Mes</p>
-          <p className="text-3xl font-black text-light-text dark:text-dark-text mb-2">{formatMXN(analysisData.totalThis)}</p>
-          <div className={`flex items-center gap-1 text-xs font-bold ${analysisData.totalThis > analysisData.totalLast ? 'text-danger' : 'text-success'}`}>
-             <span className="material-symbols-outlined text-[14px]">
-               {analysisData.totalThis > analysisData.totalLast ? 'trending_up' : 'trending_down'}
-             </span>
-             {analysisData.totalLast > 0 ? (((analysisData.totalThis - analysisData.totalLast) / analysisData.totalLast) * 100).toFixed(1) : '0'}% vs mes ant.
+      {/* Technical KPIs Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="depth-1 p-8 rounded-[2.5rem] space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Gasto Mensual</p>
+          <p className="text-4xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">
+            {formatMXN(analysisData.totalThis)}
+          </p>
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${analysisData.totalThis > analysisData.totalLast ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'}`}>
+              {analysisData.totalLast > 0 ? (((analysisData.totalThis - analysisData.totalLast) / analysisData.totalLast) * 100).toFixed(1) : '0'}%
+            </span>
+            <p className="text-[10px] uppercase font-bold text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 tracking-widest">vs mes anterior</p>
           </div>
-        </Card>
+        </div>
         
-        <Card className="p-6 border-l-4 border-l-success bg-success/5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-success mb-1">Balance Consolidado</p>
-          <p className="text-3xl font-black text-light-text dark:text-dark-text mb-2">
+        <div className="depth-1 p-8 rounded-[2.5rem] space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Balance Neto</p>
+          <p className="text-4xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">
             {formatMXN(analysisData.totalBalance)}
           </p>
-          <p className="text-xs font-bold text-light-text-2 dark:text-dark-text-2 italic">
-            Suma de todas tus cuentas activas
-          </p>
-        </Card>
+          <p className="text-[10px] uppercase font-black text-success tracking-widest opacity-60">Consolidado Activo</p>
+        </div>
 
-        <Card className="p-6 border-l-4 border-l-warning bg-warning/5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-warning mb-1">Ahorro Proyectado</p>
-          <p className="text-3xl font-black text-light-text dark:text-dark-text mb-2">
+        <div className="depth-1 p-8 rounded-[2.5rem] space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Potencial de Ahorro</p>
+          <p className="text-4xl font-black text-primary tabular-nums tracking-tighter">
             {formatMXN(12500)}
           </p>
-          <p className="text-xs font-bold text-success flex items-center gap-1">
-             <span className="material-symbols-outlined text-[14px]">check_circle</span>
-             Superando meta por $4,200
-          </p>
-        </Card>
+          <p className="text-[10px] font-bold text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic leading-tight">Meta base superada en 15%</p>
+        </div>
       </div>
 
-      {/* Main Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Trend Area Chart */}
-        <Card className="p-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="font-black text-light-text dark:text-dark-text flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">analytics</span>
-              Tendencia de Flujo
-            </h3>
-            <Badge variant="neutral">Últimos 6 meses</Badge>
+      {/* Technical Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Trend Area Chart Editorial */}
+        <div className="lg:col-span-7 depth-1 p-10 rounded-[3rem] space-y-10">
+          <div className="flex items-end justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">Evolución de Flujo</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Dinámica Histórica Semestral</p>
+            </div>
+            <Badge variant="neutral" className="!rounded-full px-4 py-1 text-[9px] font-black uppercase tracking-widest">H1 2026</Badge>
           </div>
-          <div className="h-72 w-full">
+          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={analysisData.trendData}>
                 <defs>
                   <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#22C55E" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#22C55E" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorGastos" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(128,128,128,0.1)" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#CBD5E1" opacity={0.1} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 900, fill: '#94A3B8' }} />
                 <YAxis hide />
                 <RechartsTooltip 
-                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', background: 'white' }}
+                   contentStyle={{ background: '#000', border: 'none', borderRadius: '16px', fontSize: '10px', color: '#fff', padding: '12px' }}
+                   itemStyle={{ color: '#fff', fontWeight: 'bold' }}
                 />
-                <Area type="monotone" dataKey="ingresos" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorIngresos)" />
-                <Area type="monotone" dataKey="gastos" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorGastos)" />
+                <Area type="monotone" dataKey="ingresos" stroke="#22C55E" strokeWidth={3} fillOpacity={1} fill="url(#colorIngresos)" animationDuration={1000} />
+                <Area type="monotone" dataKey="gastos" stroke="#EF4444" strokeWidth={3} fillOpacity={1} fill="url(#colorGastos)" animationDuration={1000} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </div>
 
-        {/* Expenses by Category Bar */}
-        <Card className="p-8 space-y-6">
-          <div className="flex items-center justify-between">
-             <h3 className="font-black text-light-text dark:text-dark-text flex items-center gap-2">
-                <span className="material-symbols-outlined text-danger">pie_chart</span>
-                Gastos por Categoría
-             </h3>
-             <Badge variant="info">Este Mes</Badge>
+        {/* Expenses by Category Editorial List */}
+        <div className="lg:col-span-5 depth-1 p-10 rounded-[3rem] space-y-10">
+          <div className="space-y-1">
+            <h3 className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">Desglose de Capital</h3>
+            <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Distribución por Identidad de Gasto</p>
           </div>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analysisData.catData} layout="vertical" margin={{ left: -20 }}>
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700 }} width={100} />
-                <RechartsTooltip cursor={{ fill: 'transparent' }} />
-                <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={24}>
-                  {analysisData.catData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.8} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="space-y-6">
+            {analysisData.catData.slice(0, 5).map((cat, i) => (
+              <div key={cat.id} className="space-y-3">
+                 <div className="flex justify-between items-end">
+                    <div className="flex items-center gap-3">
+                       <span className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30">0{i+1}</span>
+                       <span className="text-xs font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark uppercase tracking-widest">{cat.name}</span>
+                    </div>
+                    <span className="text-sm font-black tabular-nums tracking-tighter">{formatMXNShort(cat.amount)}</span>
+                 </div>
+                 <div className="h-1.5 w-full bg-atelier-bg-3-light dark:bg-atelier-bg-3-dark rounded-full overflow-hidden">
+                    <div className="h-full rounded-full opacity-60 transition-all duration-1000 ease-out"
+                      style={{ width: `${(cat.amount / analysisData.totalThis) * 100}%`, backgroundColor: cat.color }} />
+                 </div>
+              </div>
+            ))}
           </div>
-        </Card>
+          <button className="w-full py-4 text-[9px] font-black uppercase tracking-[0.3em] opacity-40 hover:opacity-100 transition-opacity border-t border-primary/5 pt-8">
+            Ver Distribución Completa
+          </button>
+        </div>
       </div>
 
-      {/* Insights Section */}
-      <h3 className="text-xl font-black text-light-text dark:text-dark-text px-1 uppercase tracking-tighter">Insights Inteligentes</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-6 rounded-3xl bg-light-surface/40 dark:bg-dark-surface/40 border border-light-border/10 dark:border-dark-border/10 flex gap-4 transition-all hover:bg-light-surface/60 dark:hover:bg-dark-surface/60">
-           <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-             <span className="material-symbols-outlined text-2xl">lightbulb</span>
-           </div>
-           <div>
-             <h4 className="font-black text-light-text dark:text-dark-text mb-1 italic">Optimización de Suscripciones</h4>
-             <p className="text-sm text-light-text-2 dark:text-dark-text-2 leading-relaxed">Detectamos 3 suscripciones no utilizadas el último mes. Cancelarlas te ahorraría <span className="font-bold text-light-text dark:text-dark-text">$540 MXN</span> mensuales.</p>
-           </div>
+      {/* Advisory Section */}
+      <div className="space-y-8 pt-8">
+        <div className="flex items-center gap-6">
+          <h3 className="text-xs font-black uppercase tracking-[0.4em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Portfolio Advisory</h3>
+          <div className="h-px flex-1 bg-primary/10" />
         </div>
-        <div className="p-6 rounded-3xl bg-light-surface/40 dark:bg-dark-surface/40 border border-light-border/10 dark:border-dark-border/10 flex gap-4 transition-all hover:bg-light-surface/60 dark:hover:bg-dark-surface/60">
-           <div className="w-12 h-12 rounded-2xl bg-success/10 text-success flex items-center justify-center flex-shrink-0">
-             <span className="material-symbols-outlined text-2xl">rocket_launch</span>
-           </div>
-           <div>
-             <h4 className="font-black text-light-text dark:text-dark-text mb-1 italic">Potencial de Inversión</h4>
-             <p className="text-sm text-light-text-2 dark:text-dark-text-2 leading-relaxed">Mantienes un excedente de <span className="font-bold text-light-text dark:text-dark-text">$12,000 MXN</span> en cuenta de débito. Moverlo a CETES generaría intereses inmediatos.</p>
-           </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="p-8 rounded-[3rem] depth-1 flex gap-8 transition-all hover:depth-2 group">
+             <div className="w-16 h-16 rounded-[1.5rem] bg-primary/5 text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+               <span className="material-symbols-outlined text-3xl font-light">tips_and_updates</span>
+             </div>
+             <div className="space-y-3">
+               <h4 className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight italic line-clamp-1">Eficiencia de Flujo</h4>
+               <p className="text-xs text-atelier-text-muted-light dark:text-atelier-text-muted-dark leading-relaxed opacity-60">Detectamos un volumen atípico en suscripciones digitales. Reducir el gasto hormiga en este sector liberaría <span className="font-black text-primary">$540 MXN</span> este ciclo.</p>
+             </div>
+          </div>
+          <div className="p-8 rounded-[3rem] depth-1 flex gap-8 transition-all hover:depth-2 group">
+             <div className="w-16 h-16 rounded-[1.5rem] bg-success/5 text-success flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+               <span className="material-symbols-outlined text-3xl font-light">monitoring</span>
+             </div>
+             <div className="space-y-3">
+               <h4 className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight italic line-clamp-1">Optimización de Liquidez</h4>
+               <p className="text-xs text-atelier-text-muted-light dark:text-atelier-text-muted-dark leading-relaxed opacity-60">El flujo de caja proyectado para el próximo trimestre permite una asignación adicional a <span className="font-black text-success">CETES 28</span> sin comprometer la operatividad.</p>
+             </div>
+          </div>
         </div>
       </div>
 

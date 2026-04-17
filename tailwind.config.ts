@@ -9,56 +9,81 @@ export default {
         sans: ['Inter', 'sans-serif'],
       },
       colors: {
-        primary: { DEFAULT: '#2965ff', hover: '#1e4dd8', light: '#eff6ff', dark: '#1e3a8a' },
-        success: { DEFAULT: '#10b981', light: '#d1fae5' },
-        warning: { DEFAULT: '#f59e0b', light: '#fef3c7' },
-        danger:  { DEFAULT: '#ef4444', light: '#fee2e2' },
-        dark: {
-          bg:       '#09090b', // Deep rich black
-          card:     '#18181b', // Slightly elevated zinc
-          surface:  '#27272a', // Higher elevation
-          border:   '#3f3f46', // Subtle border
-          muted:    '#a1a1aa', // Muted text
-          text:     '#fafafa', // Primary text
-          'text-2': '#d4d4d8', // Secondary text
+        primary: { 
+          DEFAULT: '#0058bc', 
+          hover: '#004493', 
+          light: '#d8e2ff', 
+          dark: '#69daff' 
         },
+        success: { DEFAULT: '#006e28', light: '#e1ffec' },
+        warning: { DEFAULT: '#bc6c00', light: '#fff4e5' },
+        danger:  { DEFAULT: '#bc000a', light: '#ffdad5' },
+        atelier: {
+          bg: {
+            light: '#faf9fe',
+            dark: '#0e0e0f'
+          },
+          surface: {
+            light: '#f4f3f8',
+            dark: '#131314'
+          },
+          card: {
+            light: '#ffffff',
+            dark: '#1c1c1e'
+          },
+          'text-main': {
+            light: '#1a1b1f',
+            dark: '#ffffff'
+          },
+          'text-muted': {
+            light: '#717786',
+            dark: '#adaaab'
+          }
+        },
+        // Mantenemos compatibilidad con clases antiguas mapeando a los nuevos tokens
         light: {
-          bg:       '#f8fafc', // Clean off-white bg
-          card:     '#ffffff', // Pure white card
-          surface:  '#f1f5f9', // Slate surface
-          border:   '#e2e8f0', // Soft border
-          muted:    '#94a3b8', // Muted text
-          text:     '#0f172a', // Dark slate text
-          'text-2': '#475569', // Secondary text
+          bg:       '#faf9fe',
+          card:     '#ffffff',
+          surface:  '#f4f3f8',
+          border:   'transparent', 
+          muted:    '#717786',
+          text:     '#1a1b1f',
+          'text-2': '#414755',
+        },
+        dark: {
+          bg:       '#0e0e0f',
+          card:     '#1c1c1e',
+          surface:  '#131314',
+          border:   'transparent',
+          muted:    '#adaaab',
+          text:     '#ffffff',
+          'text-2': '#adaaab',
         },
       },
       borderRadius: {
-        card:  '12px',
-        btn:   '8px',
-        badge: '6px',
+        card:  '16px',
+        btn:   '999px',
+        badge: '999px',
       },
       boxShadow: {
-        card:      '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
-        'card-dark': '0 1px 3px rgba(0,0,0,0.4)',
+        'luster': '0 40px 80px -20px rgba(0,0,0,0.04)',
+        'luster-dark': '0 40px 80px -20px rgba(0,0,0,0.4)',
+        card:      '0 4px 24px -2px rgba(0,0,0,0.04)',
+        'card-dark': '0 4px 24px -2px rgba(0,0,0,0.3)',
       },
       keyframes: {
         'fade-in-up': {
-          from: { opacity: '0', transform: 'translateY(8px)' },
+          from: { opacity: '0', transform: 'translateY(12px)' },
           to:   { opacity: '1', transform: 'translateY(0)' },
         },
         'scale-in': {
-          from: { opacity: '0', transform: 'scale(0.95)' },
+          from: { opacity: '0', transform: 'scale(0.98)' },
           to:   { opacity: '1', transform: 'scale(1)' },
-        },
-        'slide-in-right': {
-          from: { transform: 'translateX(100%)' },
-          to:   { transform: 'translateX(0)' },
         },
       },
       animation: {
-        'fade-in-up':     'fade-in-up 0.2s ease-out both',
-        'scale-in':       'scale-in 0.15s ease-out both',
-        'slide-in-right': 'slide-in-right 0.2s ease-out',
+        'fade-in-up': 'fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'scale-in':   'scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
       },
     },
   },

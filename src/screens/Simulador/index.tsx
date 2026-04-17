@@ -92,139 +92,156 @@ export default function Simulador() {
   }
 
   return (
-    <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Simulador Financiero</h1>
-        <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">Proyecta tu futuro con herramientas de precisión.</p>
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Herramientas de Precisión</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark leading-[0.9]">
+            Laboratorio <br />
+            <span className="text-primary/40 text-[0.8em]">de Proyección.</span>
+          </h1>
+        </div>
       </div>
 
-      <Tabs tabs={tabs} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
+      <div className="flex gap-2 p-1.5 bg-atelier-bg-3-light/50 dark:bg-atelier-bg-3-dark/50 rounded-full w-fit">
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`flex items-center gap-3 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+              tab === t.id ? 'bg-white dark:bg-atelier-bg-2-dark shadow-luster text-primary' : 'text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 hover:opacity-100'
+            }`}>
+            <span className="material-symbols-outlined text-base font-light">{t.icon}</span>
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       {/* ── CRÉDITO ──────────────────────────────────────────────────────────── */}
       {tab === 'credito' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          <Card className="lg:col-span-5 space-y-5">
-            <h3 className="font-semibold text-light-text dark:text-dark-text flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">tune</span> Parámetros
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <label className="text-sm font-medium text-light-text dark:text-dark-text">Monto del crédito</label>
-                  <span className="text-primary font-bold tabular-nums">{formatMXN(principal)}</span>
-                </div>
-                <input type="range" min={5000} max={500000} step={5000} value={principal}
-                  onChange={e => setPrincipal(Number(e.target.value))} className="w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-5 space-y-8">
+            <div className="depth-1 p-10 rounded-[3rem] space-y-10 border border-primary/5">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Parámetros de Entrada</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Configuración Técnica del Préstamo</p>
               </div>
-              <div>
-                <div className="flex justify-between mb-2">
-                  <label className="text-sm font-medium text-light-text dark:text-dark-text">Tasa anual (TNA)</label>
-                  <span className="text-primary font-bold">{annualRate}%</span>
-                </div>
-                <input type="range" min={0} max={100} step={0.5} value={annualRate}
-                  onChange={e => setAnnualRate(Number(e.target.value))} className="w-full" />
-              </div>
-              <div>
-                <div className="flex justify-between mb-2">
-                  <label className="text-sm font-medium text-light-text dark:text-dark-text">Plazo</label>
-                  <span className="text-primary font-bold">{termMonths} meses</span>
-                </div>
-                <input type="range" min={1} max={60} step={1} value={termMonths}
-                  onChange={e => setTermMonths(Number(e.target.value))} className="w-full" />
+
+              <div className="space-y-8">
+                {[
+                  { label: 'Capital Solicitado', value: principal, setter: setPrincipal, min: 5000, max: 500000, step: 5000, fmt: formatMXN },
+                  { label: 'Tasa Anual (TNA)', value: annualRate, setter: setAnnualRate, min: 0, max: 100, step: 0.5, fmt: (v: number) => `${v}%` },
+                  { label: 'Plazo del Crédito', value: termMonths, setter: setTermMonths, min: 1, max: 60, step: 1, fmt: (v: number) => `${v} MESES` },
+                ].map(r => (
+                  <div key={r.label} className="space-y-4">
+                    <div className="flex justify-between items-end">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">{r.label}</label>
+                      <span className="text-lg font-black text-primary tabular-nums tracking-tighter">{r.fmt(r.value)}</span>
+                    </div>
+                    <input type="range" min={r.min} max={r.max} step={r.step} value={r.value}
+                      onChange={e => r.setter(Number(e.target.value))} className="w-full accent-primary h-1.5 bg-primary/10 rounded-full appearance-none cursor-pointer" />
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="border border-light-border dark:border-dark-border rounded-card overflow-hidden">
-              <div className="px-4 py-3 border-b border-light-border dark:border-dark-border flex justify-between items-center">
-                <p className="text-xs font-bold uppercase text-light-text-2 dark:text-dark-text-2 tracking-wider">Amortización</p>
-                <button onClick={() => setShowFullAmort(s => !s)} className="text-primary text-xs font-medium cursor-pointer hover:underline">
-                  {showFullAmort ? 'Ver menos' : 'Ver completa'}
+            <div className="depth-1 rounded-[3rem] overflow-hidden border border-primary/5">
+              <div className="px-10 py-6 border-b border-primary/5 flex justify-between items-center bg-primary/[0.02]">
+                <p className="text-[9px] font-black uppercase text-atelier-text-muted-light dark:text-atelier-text-muted-dark tracking-[0.3em] opacity-40 italic">Tabla de Amortización</p>
+                <button onClick={() => setShowFullAmort(s => !s)} className="text-primary text-[9px] font-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">
+                  {showFullAmort ? 'Contraer' : 'Expandir Todo'}
                 </button>
               </div>
-              <div className="max-h-[180px] overflow-y-auto no-scrollbar">
-                <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 bg-light-card dark:bg-dark-card shadow-sm z-10">
-                    <tr className="text-[10px] uppercase text-light-muted dark:text-dark-muted border-b border-light-border dark:border-dark-border">
-                      <th className="px-4 py-2 font-bold">Mes</th>
-                      <th className="px-4 py-2 font-bold text-right">Pago</th>
-                      <th className="px-4 py-2 font-bold text-right">Interés</th>
-                      <th className="px-4 py-2 font-bold text-right">Saldo</th>
+              <div className="max-h-[300px] overflow-y-auto scrollbar-hide">
+                <table className="w-full text-left">
+                  <thead className="sticky top-0 bg-white dark:bg-atelier-bg-2-dark z-10">
+                    <tr className="text-[8px] uppercase text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-black tracking-[0.2em] border-b border-primary/5">
+                      <th className="px-10 py-4">Mes</th>
+                      <th className="px-10 py-4 text-right">Pago</th>
+                      <th className="px-10 py-4 text-right">Interés</th>
+                      <th className="px-10 py-4 text-right">Saldo</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {(showFullAmort ? creditCalc.amort : creditCalc.amort.slice(0, 3)).map(row => (
-                      <tr key={row.month} className="border-b border-light-border dark:border-dark-border last:border-0 hover:bg-light-surface dark:hover:bg-dark-surface transition-colors">
-                        <td className="px-4 py-2 text-[11px] font-medium text-light-text dark:text-dark-text">{row.month}</td>
-                        <td className="px-4 py-2 text-[11px] text-right tabular-nums text-light-text-2 dark:text-dark-text-2">{formatMXNShort(row.payment)}</td>
-                        <td className="px-4 py-2 text-[11px] text-right tabular-nums text-danger">{formatMXNShort(row.interest)}</td>
-                        <td className="px-4 py-2 text-[11px] text-right tabular-nums text-light-text dark:text-dark-text font-medium">{formatMXNShort(row.balance)}</td>
+                  <tbody className="divide-y divide-primary/5">
+                    {(showFullAmort ? creditCalc.amort : creditCalc.amort.slice(0, 4)).map(row => (
+                      <tr key={row.month} className="hover:bg-primary/5 transition-colors">
+                        <td className="px-10 py-5 text-[10px] font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark">M {row.month}</td>
+                        <td className="px-10 py-5 text-[10px] text-right tabular-nums text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-medium">{formatMXNShort(row.payment)}</td>
+                        <td className="px-10 py-5 text-[10px] text-right tabular-nums text-danger font-black">{formatMXNShort(row.interest)}</td>
+                        <td className="px-10 py-5 text-[10px] text-right tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark font-black tracking-tighter">{formatMXNShort(row.balance)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             </div>
-          </Card>
+          </div>
 
-          <div className="lg:col-span-7 space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="bg-primary/10 border-primary/30">
-                <p className="text-sm text-primary font-medium mb-1">Pago mensual</p>
-                <p className="text-3xl font-black text-light-text dark:text-dark-text tabular-nums">
+          <div className="lg:col-span-7 space-y-8">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="depth-1 p-10 rounded-[3rem] space-y-2 border border-primary/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 italic">Mensualidad Calculada</p>
+                <p className="text-5xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter tabular-nums leading-none">
                   {formatMXN(creditCalc.monthlyPmt)}
                 </p>
-              </Card>
-              <Card>
-                <p className="text-sm text-light-text-2 dark:text-dark-text-2 font-medium mb-1">CAT aprox.</p>
-                <p className="text-2xl font-bold text-light-text dark:text-dark-text tabular-nums">
-                  {creditCalc.cat.toFixed(1)}% <span className="text-xs font-normal text-light-text-2 dark:text-dark-text-2">sin IVA</span>
-                </p>
-              </Card>
+              </div>
+              <div className="depth-1 p-10 rounded-[3rem] space-y-2 border border-primary/5 bg-primary/5">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 italic">Tasa Real (CAT)</p>
+                <div className="flex items-end gap-2">
+                  <p className="text-4xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter tabular-nums leading-none">
+                    {creditCalc.cat.toFixed(1)}%
+                  </p>
+                  <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1">Sin IVA</span>
+                </div>
+              </div>
             </div>
 
-            <Card>
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="relative w-44 h-44 flex-shrink-0">
-                  <PieChart width={176} height={176}>
-                    <Pie data={pieData} cx={88} cy={88} innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" animationDuration={600}>
+            <div className="depth-1 p-10 rounded-[3rem] border border-primary/5">
+              <div className="flex flex-col md:flex-row items-center gap-12">
+                <div className="relative w-56 h-56 flex-shrink-0 group">
+                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-[80px] group-hover:bg-primary/30 transition-colors duration-1000" />
+                  <PieChart width={224} height={224}>
+                    <Pie data={pieData} cx={112} cy={112} innerRadius={75} outerRadius={105} paddingAngle={4} dataKey="value" stroke="none">
                       {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                     </Pie>
                   </PieChart>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <span className="text-xs text-light-text-2 dark:text-dark-text-2 font-medium">Total</span>
-                    <span className="text-xl font-bold tabular-nums text-light-text dark:text-dark-text">{formatMXNShort(creditCalc.totalPmt)}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30">Costo Total</span>
+                    <span className="text-2xl font-black tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter leading-none mt-1">{formatMXNShort(creditCalc.totalPmt)}</span>
                   </div>
                 </div>
-                <div className="flex-1 space-y-3 w-full">
-                  <h3 className="font-semibold text-light-text dark:text-dark-text">Resumen del préstamo</h3>
-                  {[
-                    { label: 'Capital solicitado', value: formatMXN(principal), color: '#2563EB' },
-                    { label: 'Total intereses',    value: formatMXN(creditCalc.totalInterest), color: '#6366F1' },
-                  ].map(r => (
-                    <div key={r.label} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: r.color }} />
-                        <span className="text-light-text-2 dark:text-dark-text-2">{r.label}</span>
+                <div className="flex-1 space-y-8 w-full">
+                  <h3 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Composición de Capital</h3>
+                  <div className="space-y-6">
+                    {[
+                      { label: 'Capital Solicitado', value: formatMXN(principal), color: '#2563EB' },
+                      { label: 'Carga por Intereses', value: formatMXN(creditCalc.totalInterest), color: '#6366F1' },
+                    ].map(r => (
+                      <div key={r.label} className="flex items-end justify-between border-b border-primary/5 pb-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-5 h-5 rounded-[0.6em]" style={{ background: r.color }} />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark italic opacity-40">{r.label}</span>
+                        </div>
+                        <span className="text-xl font-black tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">{r.value}</span>
                       </div>
-                      <span className="font-bold tabular-nums text-light-text dark:text-dark-text">{r.value}</span>
-                    </div>
-                  ))}
-                  <div className="border-t border-light-border dark:border-dark-border pt-2 flex justify-between">
-                    <span className="font-medium text-light-text dark:text-dark-text">Total a pagar</span>
-                    <span className="font-black text-primary text-lg tabular-nums">{formatMXN(creditCalc.totalPmt)}</span>
+                    ))}
+                  </div>
+                  <div className="flex justify-between items-end pt-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-primary">Saldo Total Estimado</span>
+                    <span className="text-4xl font-black text-primary tracking-tighter tabular-nums leading-none">{formatMXN(creditCalc.totalPmt)}</span>
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
 
-            <div className="bg-primary/5 border border-primary/20 rounded-card p-4 flex gap-3">
-              <div className="w-9 h-9 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-primary text-lg">lightbulb</span>
+            <div className="depth-1 p-8 rounded-[2.5rem] bg-atelier-bg-3-light/30 dark:bg-atelier-bg-3-dark/30 flex gap-6 items-center border border-primary/5 shadow-luster">
+              <div className="w-14 h-14 bg-white dark:bg-atelier-bg-2-dark rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm border border-primary/5">
+                <span className="material-symbols-outlined text-primary text-3xl font-light">tips_and_updates</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-primary text-sm mb-1">Tip de Fyn</p>
-                <p className="text-sm text-light-text-2 dark:text-dark-text-2">
-                  Aumentar tu mensualidad un 12% reduce considerablemente el tiempo y costo total del crédito.
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] leading-none">Insight del Atelier</p>
+                <p className="text-xs font-medium text-atelier-text-main-light dark:text-atelier-text-main-dark leading-relaxed">
+                  Incrementar la mensualidad en un <span className="text-primary font-black">12.5%</span> colapsa el horizonte de tiempo y reduce la carga financiera en un <span className="text-primary font-black">18.4%</span>.
                 </p>
               </div>
             </div>
@@ -234,122 +251,167 @@ export default function Simulador() {
 
       {/* ── AHORRO ───────────────────────────────────────────────────────────── */}
       {tab === 'ahorro' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          <Card className="lg:col-span-4 space-y-5">
-            <h3 className="font-semibold text-light-text dark:text-dark-text">Parámetros de ahorro</h3>
-            {[
-              { label: 'Monto inicial', value: savInitial, setter: setSavInitial, min: 0, max: 100000, step: 1000, fmt: formatMXN },
-              { label: 'Aportación mensual', value: savMonthly, setter: setSavMonthly, min: 0, max: 20000, step: 500, fmt: formatMXN },
-              { label: 'Tasa anual', value: savRate, setter: setSavRate, min: 0, max: 20, step: 0.5, fmt: (v: number) => `${v}%` },
-              { label: 'Plazo (meses)', value: savTerm, setter: setSavTerm, min: 6, max: 60, step: 1, fmt: (v: number) => `${v} meses` },
-            ].map(r => (
-              <div key={r.label}>
-                <div className="flex justify-between mb-2">
-                  <label className="text-sm font-medium text-light-text dark:text-dark-text">{r.label}</label>
-                  <span className="text-primary font-bold tabular-nums">{r.fmt(r.value)}</span>
-                </div>
-                <input type="range" min={r.min} max={r.max} step={r.step} value={r.value}
-                  onChange={e => r.setter(Number(e.target.value))} className="w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-4 space-y-8">
+            <div className="depth-1 p-10 rounded-[3rem] space-y-10 border border-primary/5">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Parámetros de Capitalización</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Simulación de Interés Compuesto</p>
               </div>
-            ))}
-            {savFinal && (
-              <div className="border-t border-light-border dark:border-dark-border pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-light-text-2 dark:text-dark-text-2">Total aportado</span>
-                  <span className="font-bold tabular-nums text-light-text dark:text-dark-text">{formatMXN(savFinal.contributions)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-light-text-2 dark:text-dark-text-2">Rendimientos</span>
-                  <span className="font-bold tabular-nums text-success">{formatMXN(Math.max(0, savFinal.interest))}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-light-text dark:text-dark-text">Total final</span>
-                  <span className="font-black text-primary text-lg tabular-nums">{formatMXN(savFinal.balance)}</span>
-                </div>
+
+              <div className="space-y-8">
+                {[
+                  { label: 'Capital Inicial', value: savInitial, setter: setSavInitial, min: 0, max: 100000, step: 1000, fmt: formatMXN },
+                  { label: 'Aportación Recurrente', value: savMonthly, setter: setSavMonthly, min: 0, max: 20000, step: 500, fmt: formatMXN },
+                  { label: 'Tasa Anual Esperada', value: savRate, setter: setSavRate, min: 0, max: 20, step: 0.5, fmt: (v: number) => `${v}%` },
+                  { label: 'Horizonte de Tiempo', value: savTerm, setter: setSavTerm, min: 6, max: 60, step: 1, fmt: (v: number) => `${v} MESES` },
+                ].map(r => (
+                  <div key={r.label} className="space-y-4">
+                    <div className="flex justify-between items-end">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">{r.label}</label>
+                      <span className="text-lg font-black text-primary tabular-nums tracking-tighter">{r.fmt(r.value)}</span>
+                    </div>
+                    <input type="range" min={r.min} max={r.max} step={r.step} value={r.value}
+                      onChange={e => r.setter(Number(e.target.value))} className="w-full accent-primary h-1.5 bg-primary/10 rounded-full appearance-none cursor-pointer" />
+                  </div>
+                ))}
               </div>
-            )}
-          </Card>
-          <Card className="lg:col-span-8">
-            <h3 className="font-semibold text-light-text dark:text-dark-text mb-4">Proyección de crecimiento</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={savCalc.map(r => ({ ...r, month: `M${r.month}` }))}>
-                <defs>
-                  <linearGradient id="contribGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2} /><stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="intGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} /><stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={0.3} />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--chart-label)' }} interval={Math.floor(savTerm / 6)} />
-                <YAxis tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: 'var(--chart-label)' }} />
-                <Tooltip formatter={(v: number, name: string) => [formatMXN(v), name === 'contributions' ? 'Aportaciones' : 'Balance total']} />
-                <Area type="monotone" dataKey="contributions" stackId="1" stroke="#2563EB" fill="url(#contribGrad)" strokeWidth={2} dot={false} animationDuration={600} />
-                <Area type="monotone" dataKey="balance" stroke="#10B981" fill="url(#intGrad)" strokeWidth={2} dot={false} animationDuration={600} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </Card>
+
+              {savFinal && (
+                <div className="pt-10 border-t border-primary/5 space-y-6">
+                  <div className="flex justify-between items-end">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Capital Aportado</span>
+                    <span className="text-lg font-black tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">{formatMXN(savFinal.contributions)}</span>
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-success opacity-40">Plusvalía Generada</span>
+                    <span className="text-lg font-black tabular-nums text-success tracking-tighter">{formatMXN(Math.max(0, savFinal.interest))}</span>
+                  </div>
+                  <div className="flex justify-between items-end pt-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-primary">Saldo Final Estimado</span>
+                    <span className="text-4xl font-black text-primary tracking-tighter tabular-nums leading-none">{formatMXN(savFinal.balance)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="lg:col-span-8 depth-1 p-10 rounded-[3rem] flex flex-col space-y-10 border border-primary/5">
+            <div>
+              <h3 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter flex items-center gap-4">
+                <span className="material-symbols-outlined text-primary font-light text-3xl">trending_up</span>
+                Curva de Acumulación
+              </h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Trayectoria del Patrimonio en el Tiempo</p>
+            </div>
+            
+            <div className="flex-1 min-h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={savCalc.map(r => ({ ...r, month: `M${r.month}` }))}>
+                  <defs>
+                    <linearGradient id="contribGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} /><stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="intGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.15} /><stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="0" stroke="var(--chart-grid)" vertical={false} opacity={0.05} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: 'var(--chart-label)', fontWeight: 900 }} interval={Math.floor(savTerm / 6)} />
+                  <YAxis axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 9, fill: 'var(--chart-label)', fontWeight: 900 }} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(var(--depth-2), 1)', borderRadius: '24px', border: 'none', padding: '20px', boxShadow: 'var(--shadow-luster)', backdropFilter: 'blur(20px)' }}
+                    itemStyle={{ fontSize: '10px', fontWeight: '900', textTransform: 'uppercase' }}
+                    formatter={(v: number, name: string) => [formatMXN(v), name === 'contributions' ? 'Principal' : 'Patrimonio Total']} />
+                  <Area type="monotone" dataKey="contributions" stackId="1" stroke="#2563EB" fill="url(#contribGrad)" strokeWidth={4} dot={false} animationDuration={1000} />
+                  <Area type="monotone" dataKey="balance" stroke="#10B981" fill="url(#intGrad)" strokeWidth={4} dot={false} animationDuration={1000} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       )}
 
       {/* ── DEUDAS ───────────────────────────────────────────────────────────── */}
       {tab === 'deudas' && (
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase font-medium mb-1">Deuda total</p>
-              <p className="text-2xl font-bold tabular-nums text-danger">{formatMXN(debts.reduce((s, d) => s + d.balance, 0))}</p>
-            </Card>
-            <Card>
-              <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase font-medium mb-1">Pago mínimo</p>
-              <p className="text-2xl font-bold tabular-nums text-light-text dark:text-dark-text">{formatMXN(debts.reduce((s, d) => s + d.minimumPayment, 0))}</p>
-            </Card>
-            <Card>
-               <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase font-medium mb-1">Pago extra</p>
-               <p className="text-2xl font-bold tabular-nums text-primary">{formatMXN(extraPmt)}</p>
-            </Card>
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="depth-1 p-10 rounded-[3rem] space-y-2 border border-primary/5 border-l-4 border-l-danger">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-danger opacity-40 italic">Pasivo Acumulado</p>
+              <p className="text-4xl font-black tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">
+                {formatMXN(debts.reduce((s, d) => s + d.balance, 0))}
+              </p>
+            </div>
+            <div className="depth-1 p-10 rounded-[3rem] space-y-2 border border-primary/5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 italic">Carga de Servicio</p>
+              <p className="text-4xl font-black tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">
+                {formatMXN(debts.reduce((s, d) => s + d.minimumPayment, 0))}
+              </p>
+            </div>
+            <div className="depth-1 p-10 rounded-[3rem] space-y-2 border border-primary/5 bg-primary/5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary opacity-40 italic">Inyección Excedente</p>
+              <p className="text-4xl font-black tabular-nums text-primary tracking-tighter">
+                {formatMXN(extraPmt)}
+              </p>
+            </div>
           </div>
 
-          <Card className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-light-text dark:text-dark-text">Estrategia</h3>
-              <div className="flex gap-1 bg-light-surface dark:bg-dark-surface rounded-btn p-0.5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-4 depth-1 p-10 rounded-[3rem] space-y-10 border border-primary/5">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h3 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Vector de Ataque</h3>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Algoritmo de Priorización</p>
+                </div>
+              </div>
+              <div className="flex gap-2 p-1.5 bg-atelier-bg-3-light/50 dark:bg-atelier-bg-3-dark/50 rounded-full">
                 {(['avalancha', 'bola_de_nieve'] as const).map(s => (
                   <button key={s} onClick={() => setDebtStrategy(s)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-btn capitalize cursor-pointer transition-colors ${
-                      debtStrategy === s ? 'bg-primary text-white' : 'text-light-text-2 dark:text-dark-text-2'
+                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-full transition-all ${
+                      debtStrategy === s ? 'bg-white dark:bg-atelier-bg-2-dark shadow-luster text-primary' : 'text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 hover:opacity-100'
                     }`}>
                     {s.replace('_', ' ')}
                   </button>
                 ))}
               </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <label className="text-sm font-medium text-light-text dark:text-dark-text">Pago extra mensual</label>
-                <span className="text-primary font-bold tabular-nums">{formatMXN(extraPmt)}</span>
+              <div className="space-y-6 pt-4">
+                <div className="flex justify-between items-end">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Empuje Mensual</label>
+                  <span className="text-2xl font-black text-primary tabular-nums tracking-tighter">{formatMXN(extraPmt)}</span>
+                </div>
+                <input type="range" min={0} max={10000} step={500} value={extraPmt}
+                  onChange={e => setExtraPmt(Number(e.target.value))} className="w-full accent-primary h-1.5 bg-primary/10 rounded-full appearance-none cursor-pointer" />
               </div>
-              <input type="range" min={0} max={10000} step={500} value={extraPmt}
-                onChange={e => setExtraPmt(Number(e.target.value))} className="w-full" />
             </div>
-          </Card>
 
-          <Card>
-            <h3 className="font-semibold text-light-text dark:text-dark-text mb-4">Proyección de saldos (18 meses)</h3>
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={debtProjection}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={0.3} />
-                <XAxis dataKey="mes" tick={{ fontSize: 11, fill: 'var(--chart-label)' }} />
-                <YAxis tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: 'var(--chart-label)' }} />
-                <Tooltip formatter={(v: number, name: string) => [formatMXN(v), name]} />
-                <Legend />
-                {debts.map((d, i) => (
-                  <Line key={d.id} type="monotone" dataKey={d.name} stroke={DEBT_COLORS[i % DEBT_COLORS.length]} strokeWidth={2} dot={false} animationDuration={600} />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
+            <div className="lg:col-span-8 depth-1 p-10 rounded-[3rem] border border-primary/5 flex flex-col space-y-10">
+              <div>
+                <h3 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter flex items-center gap-4">
+                  <span className="material-symbols-outlined text-primary font-light text-3xl">query_stats</span>
+                  Simulación de Desapalancamiento
+                </h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Horizonte de Ejecución (18 Meses)</p>
+              </div>
+              
+              <div className="flex-1 min-h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={debtProjection}>
+                    <CartesianGrid strokeDasharray="0" stroke="var(--chart-grid)" vertical={false} opacity={0.05} />
+                    <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: 'var(--chart-label)', fontWeight: 900 }} />
+                    <YAxis axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 9, fill: 'var(--chart-label)', fontWeight: 900 }} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(var(--depth-2), 1)', borderRadius: '24px', border: 'none', padding: '20px', boxShadow: 'var(--shadow-luster)', backdropFilter: 'blur(20px)' }}
+                      itemStyle={{ fontSize: '10px', fontWeight: '900', textTransform: 'uppercase' }}
+                      formatter={(v: number, name: string) => [formatMXN(v), name]} />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '2px', paddingTop: '30px', opacity: 0.6 }} />
+                    {debts.map((d, i) => (
+                      <Line key={d.id} type="stepAfter" dataKey={d.name} stroke={DEBT_COLORS[i % DEBT_COLORS.length]} strokeWidth={4} dot={false} animationDuration={1000} />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

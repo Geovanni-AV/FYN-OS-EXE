@@ -49,261 +49,241 @@ export default function Cuentas() {
   const totalWealth = groupedAssets.banks.total + groupedAssets.investments.total + groupedAssets.physical.total
 
   return (
-    <div className="p-4 lg:p-8 lg:max-w-6xl mx-auto space-y-8 animate-fade-in">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Mis Cuentas</h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">Gestiona tus activos y vehículos financieros.</p>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Patrimonio y Liquidez</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark">
+            Cartera de <br />
+            <span className="text-primary/40">Activos Netos.</span>
+          </h1>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setIsAddModalOpen(true)}>
+        <div className="flex gap-4">
+          <Button onClick={() => setIsAddModalOpen(true)} className="!rounded-full !px-8 shadow-luster">
             <span className="material-symbols-outlined text-lg">add</span>
-            Nueva Cuenta
+            Añadir Activo
           </Button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Main NW Card */}
-        <Card className="lg:col-span-4 p-8 flex flex-col justify-center bg-primary/5 border-primary/10 relative overflow-hidden group">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-colors" />
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-2">Net Worth</p>
-          <p className="text-5xl font-black text-light-text dark:text-dark-text tracking-tighter mb-2">
+      {/* Summary Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Main NW Hero */}
+        <div className="lg:col-span-5 space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Valor Neto de Cartera</p>
+          <p className="text-6xl lg:text-7xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter tabular-nums">
             {formatMXN(nw.netWorth + groupedAssets.physical.total)}
           </p>
-          <div className="flex items-center gap-2 text-success">
-            <span className="material-symbols-outlined text-sm">trending_up</span>
-            <span className="text-sm font-bold">+2.4% este mes</span>
+          <div className="flex items-center gap-4">
+            <Badge variant="success" className="px-4 py-1 rounded-full uppercase text-[9px] tracking-widest font-black">
+              Crecimiento +2.4%
+            </Badge>
+            <p className="text-[11px] font-bold text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 uppercase tracking-widest">Performance Mensual</p>
           </div>
-        </Card>
+        </div>
 
-        {/* Wealth Distribution */}
-        <Card className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 p-1 overflow-hidden">
-          <div className="h-56 md:h-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={chartData} cx="50%" cy="50%" innerRadius={70} outerRadius={90} paddingAngle={8} dataKey="value" stroke="none">
-                  {chartData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                </Pie>
-                <RechartsTooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="p-6 md:p-8 flex flex-col justify-center space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-widest text-light-muted dark:text-dark-muted mb-2">Distribución</h3>
-            {chartData.map(d => (
-              <div key={d.name} className="flex items-center justify-between group cursor-default">
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: d.color }} />
-                  <span className="text-sm font-medium text-light-text-2 dark:text-dark-text-2 group-hover:text-light-text dark:group-hover:text-dark-text transition-colors">{d.name}</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-light-text dark:text-dark-text">{formatMXNShort(d.value)}</p>
-                  <p className="text-[10px] text-light-text-2 dark:text-dark-text-2 font-bold">{((d.value / totalWealth) * 100).toFixed(1)}%</p>
-                </div>
+        {/* Wealth Distribution Stats */}
+        <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {chartData.map(d => (
+            <div key={d.name} className="p-6 depth-1 rounded-[2rem] space-y-4 hover:depth-2 transition-all group">
+              <div className="w-8 h-8 rounded-full shadow-sm" style={{ backgroundColor: d.color }} />
+              <div className="space-y-1">
+                <p className="text-[9px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60 group-hover:opacity-100 transition-opacity">{d.name}</p>
+                <p className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tight">{formatMXNShort(d.value)}</p>
               </div>
-            ))}
-          </div>
-        </Card>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Grouped Assets List */}
       <div className="grid grid-cols-1 gap-6">
         {/* BANCOS */}
-        <Accordion 
-          title="Cuentas Bancarias y Efectivo" 
-          badge={formatMXNShort(groupedAssets.banks.total)}
-          defaultOpen={true}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-            {groupedAssets.banks.items.length === 0 ? (
-              <div className="col-span-full">
-                <EmptyState
-                  icon="account_balance"
-                  title="No hay cuentas"
-                  description="Agrega tu primera cuenta bancaria o billetera para empezar a trackear tu efectivo."
-                  action={<Button onClick={() => setIsAddModalOpen(true)}>Crear ahora</Button>}
-                />
-              </div>
-            ) : (
-              groupedAssets.banks.items.map(a => (
-                <div key={a.id} onClick={() => setSelectedAcc(a.id)}
-                  className="relative p-5 rounded-2xl cursor-pointer overflow-hidden border border-light-border/10 dark:border-dark-border/10 transition-all hover:scale-[1.02] hover:shadow-xl group"
-                  style={{ background: `linear-gradient(135deg, ${a.color}22 0%, ${a.color}11 100%)` }}>
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg font-bold backdrop-blur-md">
-                      {a.bank[0]}
+        <div className="space-y-8">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Instituciones de Liquidez</h3>
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest tabular-nums">{formatMXNShort(groupedAssets.banks.total)}</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {groupedAssets.banks.items.map(a => (
+              <Card key={a.id} onClick={() => setSelectedAcc(a.id)} padding={false} 
+                className="p-8 hover:!depth-2 !rounded-[2.5rem] cursor-pointer group active:scale-[0.98] transition-all relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
+                <div className="relative z-10 space-y-8">
+                  <div className="flex justify-between items-center">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-xs font-black shadow-sm bg-white/5 border border-white/10"
+                      style={{ color: a.color }}>
+                      {a.bank.slice(0, 2).toUpperCase()}
                     </div>
-                    <Badge variant={a.type === 'credito' ? 'danger' : 'success'}>
-                      {a.type === 'credito' ? 'Crédito' : 'Débito'}
+                    <Badge variant={a.type === 'credito' ? 'danger' : 'success'} className="!rounded-full px-3 py-1 text-[8px] font-black uppercase tracking-widest">
+                      {a.type}
                     </Badge>
                   </div>
-                  <p className="text-xs font-bold text-light-muted dark:text-dark-muted uppercase tracking-widest mb-1">{a.bank}</p>
-                  <h4 className="font-bold text-light-text dark:text-dark-text mb-4">{a.name}</h4>
-                  <p className="text-2xl font-black text-light-text dark:text-dark-text tabular-nums">{formatMXN(a.balance)}</p>
-                  <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all" />
-                </div>
-              ))
-            )}
-          </div>
-        </Accordion>
-
-        {/* INVERSIONES */}
-        <Accordion 
-          title="Portafolio de Inversión" 
-          badge={formatMXNShort(groupedAssets.investments.total)}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-            {groupedAssets.investments.items.map(a => (
-              <div key={a.id} className="p-5 rounded-2xl border border-light-border/20 dark:border-dark-border/20 bg-light-surface/30 dark:bg-dark-surface/30 backdrop-blur-md">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-lg bg-success/10 text-success">
-                    <span className="material-symbols-outlined text-xl">trending_up</span>
-                  </div>
                   <div>
-                    <h4 className="font-bold text-light-text dark:text-dark-text leading-tight">{a.name}</h4>
-                    <p className="text-xs text-light-text-2 dark:text-dark-text-2">{a.bank}</p>
+                    <h4 className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{a.name}</h4>
+                    <p className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-60 mt-1">{a.bank}</p>
                   </div>
+                  <p className="text-3xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter tabular-nums">{formatMXNShort(a.balance)}</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-2xl font-black text-light-text dark:text-dark-text">{formatMXN(a.balance)}</p>
-                  <p className="text-xs font-bold text-success flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[10px]">arrow_upward</span> 
-                    +8.2% anual est.
-                  </p>
-                </div>
-              </div>
+              </Card>
             ))}
-            {groupedAssets.investments.items.length === 0 && (
-              <div className="col-span-full py-12 flex flex-col items-center justify-center text-light-muted dark:text-dark-muted bg-light-surface/10 dark:bg-dark-surface/10 rounded-3xl border-2 border-dashed border-light-border/20 dark:border-dark-border/20">
-                <span className="material-symbols-outlined text-4xl mb-2 opacity-20">show_chart</span>
-                <p className="text-sm font-medium">No hay inversiones registradas</p>
-              </div>
-            )}
           </div>
-        </Accordion>
+        </div>
 
-        {/* ACTIVOS FÍSICOS */}
-        <Accordion 
-          title="Activos Físicos y Bienes" 
-          badge={formatMXNShort(groupedAssets.physical.total)}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-            {groupedAssets.physical.items.map(a => (
-              <div key={a.id} className="group p-5 rounded-2xl border border-light-border/20 dark:border-dark-border/20 bg-light-surface/30 dark:bg-dark-surface/30 hover:bg-light-surface/50 dark:hover:bg-dark-surface/50 transition-all cursor-pointer">
-                <div className="flex justify-between mb-4">
-                  <span className="material-symbols-outlined text-3xl text-primary opacity-50">
-                    {a.type === 'inmueble' ? 'home_work' : 'directions_car'}
-                  </span>
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase text-light-muted dark:text-dark-muted">{a.bank}</p>
-                    <p className="text-xs font-bold text-light-text dark:text-dark-text">{(a as any).location || (a as any).km}</p>
+        {/* INVERSIONES & ACTIVOS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-8">
+          {/* INVERSIONES */}
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Portafolios de Capital</h3>
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest tabular-nums">{formatMXNShort(groupedAssets.investments.total)}</span>
+            </div>
+            <div className="space-y-4">
+              {groupedAssets.investments.items.map(a => (
+                <Card key={a.id} padding={false} className="p-6 hover:!depth-2 !rounded-3xl">
+                  <div className="flex items-center gap-6">
+                    <div className="w-10 h-10 rounded-full depth-1 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-lg text-success">monitoring</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{a.name}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Rendimiento Estimado: +8.2%</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-base font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">{formatMXNShort(a.balance)}</p>
+                    </div>
                   </div>
-                </div>
-                <h4 className="font-bold text-light-text dark:text-dark-text mb-1">{a.name}</h4>
-                <p className="text-2xl font-black text-light-text dark:text-dark-text">{formatMXN(a.balance)}</p>
-              </div>
-            ))}
+                </Card>
+              ))}
+            </div>
           </div>
-        </Accordion>
+
+          {/* ACTIVOS FÍSICOS */}
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Activos de Capital Fijo</h3>
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest tabular-nums">{formatMXNShort(groupedAssets.physical.total)}</span>
+            </div>
+            <div className="space-y-4">
+              {groupedAssets.physical.items.map(a => (
+                <Card key={a.id} padding={false} className="p-6 hover:!depth-2 !rounded-3xl">
+                  <div className="flex items-center gap-6">
+                    <div className="w-10 h-10 rounded-2xl depth-1 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl opacity-40">
+                        {a.type === 'inmueble' ? 'home_work' : 'directions_car'}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{a.name}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">{a.bank} · {(a as any).location || (a as any).km}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-base font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">{formatMXNShort(a.balance)}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Drawer: Detalles */}
-      <Drawer isOpen={!!selectedAcc} onClose={() => setSelectedAcc(null)} title="Detalle de Cuenta" width={420}>
+      {/* Drawer: Detalles Editorial */}
+      <Drawer isOpen={!!selectedAcc} onClose={() => setSelectedAcc(null)} title="Detalle de Cartera" width={480}>
         {acc && (
-          <div className="space-y-8">
-             <div className="relative p-8 rounded-3xl overflow-hidden text-center"
-                style={{ background: `linear-gradient(135deg, ${acc.color}dd 0%, ${acc.color}88 100%)` }}>
-                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-                <div className="relative z-10 text-white">
-                  <p className="text-xs font-black uppercase tracking-[0.3em] opacity-70 mb-2">{acc.bank}</p>
-                  <h2 className="text-2xl font-black mb-6">{acc.name}</h2>
-                  <p className="text-4xl font-black tabular-nums tracking-tighter drop-shadow-lg">{formatMXN(acc.balance)}</p>
+          <div className="space-y-12 pb-12">
+             <div className="relative p-12 rounded-[3rem] overflow-hidden text-center depth-2"
+                style={{ backgroundColor: acc.color }}>
+                <div className="absolute inset-0 bg-black/20" />
+                <div className="relative z-10 text-white space-y-8">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-60">{acc.bank}</p>
+                  <h2 className="text-3xl font-black tracking-tight">{acc.name}</h2>
+                  <div className="h-px w-12 bg-white/20 mx-auto" />
+                  <p className="text-5xl font-black tabular-nums tracking-tighter">{formatMXN(acc.balance)}</p>
                 </div>
              </div>
 
-             <div className="grid grid-cols-2 gap-3">
-               <Button variant="secondary" className="justify-center py-4"><span className="material-symbols-outlined">edit</span>Editar</Button>
-               <Button variant="secondary" className="justify-center py-4 text-danger"><span className="material-symbols-outlined">delete</span>Eliminar</Button>
+             <div className="flex gap-4">
+               <Button variant="secondary" className="flex-1 justify-center py-4 !rounded-full !text-[10px] uppercase font-black tracking-widest">Gestionar Activo</Button>
+               <button className="flex-1 text-[10px] font-black uppercase tracking-widest text-danger hover:opacity-100 opacity-60 transition-opacity">Dar de Baja</button>
              </div>
 
-             <div>
-               <h3 className="text-sm font-black uppercase tracking-widest text-light-muted dark:text-dark-muted mb-4 px-1">Últimos Movimientos</h3>
-               <div className="space-y-2">
+             <div className="space-y-8">
+               <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Registro de Auditoría</h3>
+               <div className="space-y-1">
                  {accTx.map(tx => (
-                   <div key={tx.id} className="flex items-center gap-4 p-4 rounded-2xl bg-light-surface/50 dark:bg-dark-surface/50 border border-light-border/10 dark:border-dark-border/10">
-                     <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${CATEGORY_COLORS[tx.category]}20` }}>
-                       <span className="material-symbols-outlined" style={{ color: CATEGORY_COLORS[tx.category] }}>{CATEGORY_ICONS[tx.category]}</span>
+                   <div key={tx.id} className="flex items-center gap-6 p-5 rounded-[2rem] hover:depth-1 transition-all group">
+                     <div className="w-10 h-10 rounded-full depth-1 flex items-center justify-center flex-shrink-0 group-hover:depth-2 transition-all">
+                       <span className="material-symbols-outlined text-xl font-light" style={{ color: CATEGORY_COLORS[tx.category] }}>{CATEGORY_ICONS[tx.category]}</span>
                      </div>
                      <div className="flex-1 min-w-0">
-                       <p className="text-sm font-bold text-light-text dark:text-dark-text truncate">{tx.description}</p>
-                       <p className="text-[10px] font-bold text-light-muted dark:text-dark-muted">{new Date(tx.date).toLocaleDateString()}</p>
+                       <p className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark truncate tracking-tight">{tx.description}</p>
+                       <p className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-40 mt-1">{new Date(tx.date).toLocaleDateString()}</p>
                      </div>
-                     <p className={`text-sm font-black ${tx.type === 'ingreso' ? 'text-success' : 'text-danger'}`}>
+                     <p className={`text-base font-bold tabular-nums tracking-tighter ${tx.type === 'ingreso' ? 'text-success' : 'text-atelier-text-main-light dark:text-atelier-text-main-dark'}`}>
                         {tx.type === 'ingreso' ? '+' : '-'}{formatMXNShort(tx.amount)}
                      </p>
                    </div>
                  ))}
+                 {accTx.length === 0 && (
+                   <p className="text-center py-12 text-sm italic opacity-30">No hay movimientos recientes registrados.</p>
+                 )}
                </div>
              </div>
           </div>
         )}
       </Drawer>
 
-      {/* Drawer: Agregar Activo */}
-      <Drawer isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Agregar Nuevo Activo" width={420}>
-        <div className="space-y-6">
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2">Selecciona el tipo de patrimonio que deseas registrar para tener una visión completa de tu salud financiera.</p>
+      {/* Drawer: Agregar Activo Editorial */}
+      <Drawer isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Originación de Activo" width={480}>
+        <div className="space-y-12 pb-12">
+          <p className="text-sm text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-medium leading-relaxed opacity-60">Integra un nuevo componente a tu ecosistema financiero para una auditoría patrimonial completa.</p>
           
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {[
-              { id: 'banco', icon: 'account_balance', label: 'Bancos' },
-              { id: 'inversion', icon: 'trending_up', label: 'Inversión' },
-              { id: 'inmueble', icon: 'home_work', label: 'Inmueble' },
-              { id: 'vehiculo', icon: 'directions_car', label: 'Vehículo' },
-              { id: 'otro', icon: 'category', label: 'Otro' },
+              { id: 'banco', icon: 'account_balance', label: 'Liquidez' },
+              { id: 'inversion', icon: 'monitoring', label: 'Especulación' },
+              { id: 'inmueble', icon: 'house', label: 'Real Estate' },
+              { id: 'vehiculo', icon: 'speed', label: 'Movilidad' },
             ].map(type => (
               <button 
                 key={type.id}
                 onClick={() => setNewAssetType(type.id as AssetType)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${newAssetType === type.id ? 'border-primary bg-primary/5 text-primary' : 'border-transparent bg-light-surface dark:bg-dark-surface hover:bg-light-surface/80 dark:hover:bg-dark-surface/80 text-light-muted dark:text-dark-muted'}`}>
-                <span className="material-symbols-outlined text-2xl">{type.icon}</span>
-                <span className="text-[10px] font-black uppercase tracking-wider">{type.label}</span>
+                className={`flex flex-col items-start gap-4 p-6 rounded-[2rem] transition-all duration-500 cursor-pointer ${
+                  newAssetType === type.id 
+                    ? 'depth-2 ring-1 ring-primary/20 bg-primary/5 text-primary' 
+                    : 'depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60 hover:opacity-100'
+                }`}>
+                <span className="material-symbols-outlined text-2xl font-light">{type.icon}</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.2em]">{type.label}</span>
               </button>
             ))}
           </div>
 
-          <div className="space-y-4 pt-4 border-t border-light-border/20 dark:border-dark-border/20">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-light-muted dark:text-dark-muted ml-1">Nombre del Activo</label>
-              <input type="text" className="w-full h-12 px-4 rounded-xl bg-light-surface dark:bg-dark-surface border-none focus:ring-2 focus:ring-primary/50 outline-none font-bold" placeholder="Eje: Casa en Cuernavaca" />
-            </div>
-            
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-light-muted dark:text-dark-muted ml-1">Valor Estimado / Saldo</label>
-              <input type="number" className="w-full h-12 px-4 rounded-xl bg-light-surface dark:bg-dark-surface border-none focus:ring-2 focus:ring-primary/50 outline-none font-black text-xl" placeholder="$ 0.00" />
-            </div>
+          <div className="space-y-8">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark">Especificaciones Técnicas</h3>
+            <div className="space-y-10">
+              <input type="text" className="w-full bg-transparent border-b border-primary/20 py-4 px-1 text-base font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none placeholder:opacity-20 transition-all focus:border-primary" placeholder="Identificador del Activo" />
+              
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark ml-1 italic opacity-40 text-right">Monto Nominal (MXN)</p>
+                <input type="number" className="w-full bg-transparent border-none py-2 text-4xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none placeholder:opacity-10 text-right tracking-tighter" placeholder="0.00" />
+              </div>
 
-            {newAssetType === 'vehiculo' && (
-               <div className="space-y-1.5 animate-fade-in-up">
-                 <label className="text-[10px] font-black uppercase tracking-widest text-light-muted dark:text-dark-muted ml-1">Kilometraje</label>
-                 <input type="text" className="w-full h-12 px-4 rounded-xl bg-light-surface dark:bg-dark-surface border-none focus:ring-2 focus:ring-primary/50 outline-none font-bold" placeholder="Eje: 25,000 km" />
-               </div>
-            )}
+              {newAssetType === 'vehiculo' && (
+                 <input type="text" className="w-full bg-transparent border-b border-primary/20 py-4 px-1 text-base font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none transition-all animate-fade-in-up" placeholder="Lectura de Odómetro" />
+              )}
 
-            {newAssetType === 'inmueble' && (
-               <div className="space-y-1.5 animate-fade-in-up">
-                 <label className="text-[10px] font-black uppercase tracking-widest text-light-muted dark:text-dark-muted ml-1">Ubicación / Ciudad</label>
-                 <input type="text" className="w-full h-12 px-4 rounded-xl bg-light-surface dark:bg-dark-surface border-none focus:ring-2 focus:ring-primary/50 outline-none font-bold" placeholder="Eje: CDMX, Polanco" />
-               </div>
-            )}
+              {newAssetType === 'inmueble' && (
+                 <input type="text" className="w-full bg-transparent border-b border-primary/20 py-4 px-1 text-base font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none transition-all animate-fade-in-up" placeholder="Geolocalización / Referencia" />
+              )}
+            </div>
           </div>
 
           <div className="pt-6">
-            <Button size="lg" className="w-full justify-center shadow-xl shadow-primary/20" onClick={() => setIsAddModalOpen(false)}>
-              Guardar Activo
+            <Button size="lg" className="w-full justify-center !rounded-full py-5 text-[10px] font-black uppercase tracking-[0.3em] shadow-luster" onClick={() => setIsAddModalOpen(false)}>
+              Confirmar Originación
             </Button>
           </div>
         </div>

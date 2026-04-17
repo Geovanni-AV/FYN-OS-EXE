@@ -187,3 +187,21 @@ export const CATEGORY_COLORS: Record<CategoryId, string> = {
   servicios: '#F97316', nomina: '#10B981', freelance: '#6366F1',
   inversiones: '#14B8A6', otros: '#94A3B8',
 }
+
+export const BANKS: { name: BankName; icon: string; color: string }[] = [
+  { name: 'BBVA', icon: 'account_balance', color: '#004481' },
+  { name: 'Santander', icon: 'account_balance', color: '#EC0000' },
+  { name: 'Nu', icon: 'credit_card', color: '#820AD1' },
+  { name: 'Klar', icon: 'credit_card', color: '#FF4D4D' },
+  { name: 'Openbank', icon: 'account_balance', color: '#E30613' },
+  { name: 'HSBC', icon: 'account_balance', color: '#DB0011' },
+  { name: 'Otra', icon: 'help', color: '#666666' },
+]
+
+export const CATEGORY_BUDGET: { id: CategoryId; label: string; limit: number }[] = [
+  { id: 'alimentacion', label: 'Alimentación', limit: 5000 },
+  { id: 'transporte', label: 'Transporte', limit: 2000 },
+  { id: 'entretenimiento', label: 'Entretenimiento', limit: 1500 },
+  { id: 'servicios', label: 'Servicios', limit: 3000 },
+  { id: 'hogar', label: 'Hogar', limit: 2500 },
+]

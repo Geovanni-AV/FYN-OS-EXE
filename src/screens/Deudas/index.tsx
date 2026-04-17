@@ -81,131 +81,139 @@ export default function Deudas() {
   )
 
   return (
-    <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Deudas y Créditos</h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">Monitorea y optimiza el pago de tus compromisos financieros.</p>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Pasivos y Apalancamiento</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark leading-[0.9]">
+            Deudas y <br />
+            <span className="text-primary/40 text-[0.8em]">Estrategia.</span>
+          </h1>
         </div>
-        <div className="flex gap-2">
-          <Button variant="primary">
-            <span className="material-symbols-outlined text-lg">add</span> Agregar Deuda
+        <div className="flex gap-4">
+          <Button className="!rounded-full px-8 py-4 !text-[10px] font-black uppercase tracking-widest shadow-luster">
+            <span className="material-symbols-outlined text-base font-light mr-2">add</span> Nueva Obligación
           </Button>
         </div>
       </div>
 
       {/* Primary Row: Calendar and Next Dues */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none transition-transform duration-1000 group-hover:scale-110" />
-          <div className="flex items-center justify-between mb-6 relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-8 depth-1 p-10 rounded-[3rem] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+          <div className="flex items-center justify-between mb-10 relative z-10">
             <div>
-              <h2 className="text-xl font-bold text-light-text dark:text-dark-text">Calendario de Pagos</h2>
-              <p className="text-xs text-light-text-2 dark:text-dark-text-2">Vencimientos y fechas de corte del mes</p>
+              <h2 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Cronograma de Vencimientos</h2>
+              <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Calendario Táctico del Mes</p>
             </div>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-danger" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-light-muted dark:text-dark-muted">Pago</span>
+            <div className="flex gap-6">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-danger shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Pago</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-warning" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-light-muted dark:text-dark-muted">Corte</span>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-warning shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Corte</span>
               </div>
             </div>
           </div>
-          <div className="relative z-10">
+          <div className="relative z-10 bg-atelier-bg-3-light/10 dark:bg-atelier-bg-3-dark/10 rounded-[2.5rem] p-6">
             <CalendarGrid 
               year={2026}
               month={2}
               events={events} 
               onDayClick={setSelectedDay}
-              className="bg-light-surface/30 dark:bg-dark-surface/30 p-4 rounded-2xl border border-light-border/20 dark:border-dark-border/20"
             />
           </div>
-        </Card>
+        </div>
 
-        <Card className="flex flex-col h-full bg-primary/5 border-primary/10 overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 to-primary/10" />
-          <div className="p-5 border-b border-primary/5">
-            <h3 className="font-bold text-light-text dark:text-dark-text flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">event_upcoming</span>
-              Próximos Vencimientos
+        <div className="lg:col-span-4 depth-1 rounded-[3rem] overflow-hidden flex flex-col border border-primary/5 shadow-luster">
+          <div className="p-8 border-b border-primary/5 bg-primary/5">
+            <h3 className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary font-light">event_upcoming</span>
+              Próximos Pagos
             </h3>
           </div>
-          <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-hide max-h-[500px]">
             {nextDueDebts.map((d, i) => {
               const daysLeft = d.dueDay - new Date().getDate()
               return (
-                <div key={d.id} className="flex items-center gap-4 p-4 hover:bg-white/40 dark:hover:bg-black/40 rounded-xl transition-all group">
-                  <div className="w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-white flex-shrink-0 shadow-lg transition-transform group-hover:scale-105"
+                <div key={d.id} className="flex items-center gap-5 p-5 hover:bg-white/40 dark:hover:bg-black/40 rounded-[2rem] transition-all group">
+                  <div className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center text-white flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
                     style={{ backgroundColor: DEBT_COLORS[i % DEBT_COLORS.length] }}>
-                    <span className="text-[9px] font-black uppercase opacity-80 leading-none mb-0.5">Día</span>
-                    <span className="text-lg font-black leading-none">{d.dueDay}</span>
+                    <span className="text-[9px] font-black uppercase opacity-60 leading-none mb-0.5 tracking-widest">Día</span>
+                    <span className="text-xl font-black leading-none">{d.dueDay}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-light-text dark:text-dark-text truncate">{d.name}</p>
-                    <p className={`text-[11px] font-medium ${daysLeft <= 3 ? 'text-danger' : 'text-light-text-2 dark:text-dark-text-2'}`}>
-                      {daysLeft < 0 ? 'Vencido' : daysLeft === 0 ? '¡Hoy es el día!' : `Faltan ${daysLeft} días`}
+                    <p className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark truncate tracking-tight">{d.name}</p>
+                    <p className={`text-[10px] font-black uppercase tracking-widest ${daysLeft <= 3 ? 'text-danger' : 'text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic'}`}>
+                      {daysLeft < 0 ? 'Vencido' : daysLeft === 0 ? '¡Hoy!' : `${daysLeft} DÍAS REST.`}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black tabular-nums text-light-text dark:text-dark-text">{formatMXNShort(d.minimumPayment)}</p>
-                    <p className="text-[10px] text-light-muted dark:text-dark-muted">Mínimo</p>
+                    <p className="text-sm font-black tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark">{formatMXNShort(d.minimumPayment)}</p>
+                    <p className="text-[9px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 uppercase tracking-widest">Mínimo</p>
                   </div>
                 </div>
               )
             })}
           </div>
-          <div className="p-4 bg-white/40 dark:bg-black/40 border-t border-primary/5">
-            <div className="flex justify-between items-center text-sm font-bold">
-              <span className="text-light-text-2 dark:text-dark-text-2">Total del mes</span>
-              <span className="text-primary text-base underline decoration-primary/30 underline-offset-4">{formatMXN(totalMinPayment)}</span>
+          <div className="p-8 bg-primary/5 border-t border-primary/5">
+            <div className="flex justify-between items-end">
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 mb-1">Carga Mensual</p>
+                <p className="text-2xl font-black text-primary tracking-tighter tabular-nums">{formatMXN(totalMinPayment)}</p>
+              </div>
+              <Button size="sm" variant="ghost" className="!rounded-full px-6 py-2 !text-[9px] font-black uppercase tracking-widest">Historial</Button>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <KPIItem title="Deuda Total" value={formatMXN(totalDebt)} icon="account_balance" color="text-danger" bg="bg-danger/10" trend="+2.4%" />
-        <KPIItem title="Intereses (mes)" value={formatMXN(totalInterestsMonthly)} icon="percent" color="text-warning" bg="bg-warning/10" />
+      {/* KPI       {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPIItem title="Pasivo Total" value={formatMXN(totalDebt)} icon="account_balance" color="text-danger" bg="bg-danger/10" trend="+2.4%" />
+        <KPIItem title="Costo Financiero" value={formatMXN(totalInterestsMonthly)} icon="percent" color="text-warning" bg="bg-warning/10" />
         <KPIItem title="Capacidad de Pago" value="65%" icon="insights" color="text-success" bg="bg-success/10" />
         <KPIItem title="Tasa Promedio" value="24.5%" icon="auto_graph" color="text-primary" bg="bg-primary/10" />
       </div>
 
       {/* Diagnosis Table */}
-      <Card padding={false} className="overflow-hidden">
-        <div className="px-6 py-5 border-b border-light-border dark:border-dark-border flex items-center justify-between bg-light-surface/20 dark:bg-dark-surface/20">
-          <h2 className="text-lg font-bold text-light-text dark:text-dark-text">Estado de Créditos</h2>
-          <Button variant="ghost" size="sm">Historial Completo</Button>
+      <div className="depth-1 rounded-[3rem] overflow-hidden">
+        <div className="px-10 py-8 border-b border-primary/5 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Inventario de Apalancamiento</h2>
+            <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Desglose Técnico de Tasas y Saldos</p>
+          </div>
+          <Button variant="ghost" className="!rounded-full px-8 py-3 !text-[9px] font-black uppercase tracking-widest">Auditoría Completa</Button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-light-surface/50 dark:bg-dark-surface/50 text-light-muted dark:text-dark-muted font-bold uppercase tracking-widest text-[10px]">
-                <th className="px-6 py-4 text-left">Institución / Crédito</th>
-                <th className="px-6 py-4 text-right">Saldo Actual</th>
-                <th className="px-6 py-4 text-center">Tasa (Anual)</th>
-                <th className="px-6 py-4 text-right">Pago Mínimo</th>
-                <th className="px-6 py-4 text-center">Salud</th>
-                <th className="px-6 py-4"></th>
+              <tr className="text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-black uppercase tracking-[0.2em] text-[9px] bg-primary/[0.02]">
+                <th className="px-10 py-6 text-left">Institución / Crédito</th>
+                <th className="px-10 py-6 text-right">Saldo Vigente</th>
+                <th className="px-10 py-6 text-center">Tasa Anual</th>
+                <th className="px-10 py-6 text-right">Carga Mensual</th>
+                <th className="px-10 py-6 text-center">Health Check</th>
+                <th className="px-10 py-6"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-light-border/50 dark:divide-dark-border/50">
+            <tbody className="divide-y divide-primary/5">
               {debts.map(d => {
                 const { label, variant } = getDiagnostic(d.interestRate)
                 return (
-                  <tr key={d.id} className="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
-                    <td className="px-6 py-4 font-bold text-light-text dark:text-dark-text">{d.name}</td>
-                    <td className="px-6 py-4 text-right font-black tabular-nums text-danger">{formatMXNShort(d.balance)}</td>
-                    <td className="px-6 py-4 text-center tabular-nums text-light-text-2 dark:text-dark-text-2">
+                  <tr key={d.id} className="hover:bg-primary/5 transition-all">
+                    <td className="px-10 py-8 font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{d.name}</td>
+                    <td className="px-10 py-8 text-right font-black tabular-nums text-danger tracking-tighter text-lg">{formatMXNShort(d.balance)}</td>
+                    <td className="px-10 py-8 text-center tabular-nums font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark">
                       {d.interestRate > 0 ? `${(d.interestRate * 100).toFixed(1)}%` : '0%'}
                     </td>
-                    <td className="px-6 py-4 text-right tabular-nums text-light-text-2 dark:text-dark-text-2">{formatMXNShort(d.minimumPayment)}</td>
-                    <td className="px-6 py-4 text-center"><Badge variant={variant}>{label}</Badge></td>
-                    <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="sm" iconOnly><span className="material-symbols-outlined text-base">more_vert</span></Button>
+                    <td className="px-10 py-8 text-right tabular-nums text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-medium">{formatMXNShort(d.minimumPayment)}</td>
+                    <td className="px-10 py-8 text-center sm:px-4"><Badge variant={variant} className="!rounded-full px-4 py-1 !text-[9px] uppercase font-black tracking-widest">{label}</Badge></td>
+                    <td className="px-10 py-8 text-right">
+                      <button className="material-symbols-outlined text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 hover:opacity-100 transition-opacity">more_vert</button>
                     </td>
                   </tr>
                 )
@@ -213,81 +221,88 @@ export default function Deudas() {
             </tbody>
           </table>
         </div>
-      </Card>
-
-      {/* Row: Strategy & Projection */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-light-text dark:text-dark-text">Acelerador de Deuda</h2>
-            <div className="bg-light-surface dark:bg-dark-surface p-1 rounded-xl flex">
+      </div>
+       {/* Row: Strategy & Projection */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="depth-1 p-10 rounded-[3rem] space-y-10 relative overflow-hidden group">
+          <div className="flex items-center justify-between relative z-10">
+            <div>
+              <h2 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Acelerador Táctico</h2>
+              <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Optimización de Cascada de Pagos</p>
+            </div>
+            <div className="flex gap-2 bg-atelier-bg-3-light/50 dark:bg-atelier-bg-3-dark/50 p-1.5 rounded-full">
               {(['bola_de_nieve', 'avalancha'] as Strategy[]).map(s => (
                 <button key={s} onClick={() => setStrategy(s)}
-                  className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                    strategy === s ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text'
+                  className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-full transition-all ${
+                    strategy === s ? 'bg-primary text-white shadow-luster' : 'text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 hover:opacity-100'
                   }`}>
-                  {s.replace('_', ' ').toUpperCase()}
+                  {s.replace('_', ' ')}
                 </button>
               ))}
             </div>
           </div>
           
-          <div className="bg-primary/5 rounded-2xl p-5 border border-primary/10">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <p className="text-sm font-bold text-light-text dark:text-dark-text">Pago Extra Mensual</p>
-                <p className="text-xs text-light-text-2 dark:text-dark-text-2">Se aplicará primero a {sortedDebts[0]?.name}</p>
+          <div className="depth-2 rounded-[2.5rem] p-10 space-y-8">
+            <div className="flex justify-between items-center">
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight italic">Excedente de Capital Mensual</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary leading-none opacity-60">Impacto directo en {sortedDebts[0]?.name}</p>
               </div>
-              <span className="text-2xl font-black text-primary tabular-nums">{formatMXN(extraPayment)}</span>
+              <span className="text-4xl font-black text-primary tabular-nums tracking-tighter">{formatMXN(extraPayment)}</span>
             </div>
             
-            <input type="range" min={0} max={10000} step={250} value={extraPayment}
-              onChange={e => setExtraPayment(Number(e.target.value))}
-              className="w-full accent-primary h-2 bg-light-border dark:bg-dark-border rounded-lg appearance-none cursor-pointer" />
-            
-            <div className="flex justify-between mt-3 text-[10px] font-black uppercase text-light-muted dark:text-dark-muted tracking-widest">
-              <span>Mínimo</span>
-              <span>Recomendado</span>
-              <span>Agresivo</span>
+            <div className="relative pt-4">
+              <input type="range" min={0} max={10000} step={250} value={extraPayment}
+                onChange={e => setExtraPayment(Number(e.target.value))}
+                className="w-full accent-primary h-2 bg-primary/10 rounded-full appearance-none cursor-pointer" />
+              <div className="flex justify-between mt-6 text-[9px] font-black uppercase text-atelier-text-muted-light dark:text-atelier-text-muted-dark tracking-[0.3em] opacity-40">
+                <span>Modesto</span>
+                <span>Proyectado</span>
+                <span>Agresivo</span>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-success/10 border border-success/20 rounded-2xl">
-              <p className="text-[10px] font-black uppercase tracking-widest text-success opacity-80 mb-1">Intereses Ahorrados</p>
-              <p className="text-xl font-black text-success tabular-nums">{formatMXN(extraPayment * 1.5 * 12)}</p>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="p-8 rounded-[2.5rem] bg-success/[0.03] border border-success/10 space-y-2">
+              <p className="text-[9px] font-black uppercase tracking-widest text-success opacity-80 italic">Intereses Evitados</p>
+              <p className="text-3xl font-black text-success tabular-nums tracking-tighter">{formatMXN(extraPayment * 1.5 * 12)}</p>
             </div>
-            <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl">
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary opacity-80 mb-1">Meses Adelantados</p>
-              <p className="text-xl font-black text-primary tabular-nums">14 Meses</p>
+            <div className="p-8 rounded-[2.5rem] bg-primary/[0.03] border border-primary/10 space-y-2">
+              <p className="text-[9px] font-black uppercase tracking-widest text-primary opacity-80 italic">Contracción de Tiempo</p>
+              <p className="text-3xl font-black text-primary tabular-nums tracking-tighter">-14 Meses</p>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Projection Chart */}
-        <Card className="flex flex-col">
-          <h3 className="text-xl font-bold text-light-text dark:text-dark-text mb-6 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">analytics</span>
-            Proyección de Libertad Financiera
-          </h3>
-          <div className="flex-1 min-h-[300px]">
+        <div className="depth-1 p-10 rounded-[3rem] flex flex-col space-y-10">
+          <div>
+            <h3 className="text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter flex items-center gap-4">
+              <span className="material-symbols-outlined text-primary font-light text-3xl">analytics</span>
+              Libertad Financiera Proyectada
+            </h3>
+            <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Simulación Térmica de Saldos</p>
+          </div>
+          <div className="flex-1 min-h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={projectionData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} opacity={0.2} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--chart-label)', fontWeight: 600 }} />
-                <YAxis axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: 'var(--chart-label)', fontWeight: 600 }} />
+              <LineChart data={projectionData}>
+                <CartesianGrid strokeDasharray="0" stroke="var(--chart-grid)" vertical={false} opacity={0.05} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: 'var(--chart-label)', fontWeight: 900 }} />
+                <YAxis axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 9, fill: 'var(--chart-label)', fontWeight: 900 }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', backdropFilter: 'blur(10px)' }}
+                  contentStyle={{ backgroundColor: 'rgba(var(--depth-2), 1)', borderRadius: '24px', border: 'none', padding: '20px', boxShadow: 'var(--shadow-luster)', backdropFilter: 'blur(20px)' }}
+                  itemStyle={{ fontSize: '10px', fontWeight: '900', textTransform: 'uppercase' }}
                   formatter={(v: number, name: string) => [formatMXN(v), name]} 
                 />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '1px', paddingTop: '20px' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', fontWeight: 900, letterSpacing: '2px', paddingTop: '30px', opacity: 0.6 }} />
                 {debts.map((d, i) => (
-                  <Line key={d.id} type="monotone" dataKey={d.name} stroke={DEBT_COLORS[i % DEBT_COLORS.length]} strokeWidth={3} dot={false} animationDuration={1000} />
+                  <Line key={d.id} type="stepAfter" dataKey={d.name} stroke={DEBT_COLORS[i % DEBT_COLORS.length]} strokeWidth={4} dot={false} animationDuration={2000} />
                 ))}
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   )
@@ -295,19 +310,20 @@ export default function Deudas() {
 
 function KPIItem({ title, value, icon, color, bg, trend }: { title: string; value: string; icon: string; color: string; bg: string; trend?: string }) {
   return (
-    <Card padding={false} className="p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
-      <div className="flex items-start justify-between mb-4">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner transition-transform group-hover:rotate-12 ${bg}`}>
-          <span className={`material-symbols-outlined text-2xl ${color}`}>{icon}</span>
+    <div className="depth-1 p-8 rounded-[2.5rem] transition-all duration-500 hover:depth-2 group relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-primary/10 transition-colors" />
+      <div className="flex items-start justify-between mb-8 relative z-10">
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner transition-all duration-700 group-hover:scale-110 group-hover:rotate-[15deg] ${bg}`}>
+          <span className={`material-symbols-outlined text-3xl font-light ${color}`}>{icon}</span>
         </div>
         {trend && (
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${trend.startsWith('+') ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'}`}>
+          <span className={`text-[10px] font-black px-4 py-1.5 rounded-full shadow-luster ${trend.startsWith('+') ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'}`}>
             {trend}
           </span>
         )}
       </div>
-      <p className="text-[11px] font-black text-light-muted dark:text-dark-muted uppercase tracking-[0.2em] mb-1">{title}</p>
-      <p className={`text-2xl font-black tabular-nums tracking-tighter text-light-text dark:text-dark-text`}>{value}</p>
-    </Card>
+      <p className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-[0.3em] mb-2 opacity-40 italic">{title}</p>
+      <p className={`text-3xl font-black tabular-nums tracking-tighter text-atelier-text-main-light dark:text-atelier-text-main-dark leading-none`}>{value}</p>
+    </div>
   )
 }

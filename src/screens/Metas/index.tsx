@@ -71,184 +71,225 @@ export default function Metas() {
   }
 
   return (
-    <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-12 animate-fade-in pb-12">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Mis Metas</h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">Visualiza y gestiona tus objetivos financieros.</p>
+          <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 opacity-80">Proyección y Aspiración</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark">
+            Metas de <br />
+            <span className="text-primary/40">Acumulación.</span>
+          </h1>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowModal(true)}>
-            <span className="material-symbols-outlined text-lg">add</span> Nueva Meta
+        <div className="flex gap-4">
+          <Button onClick={() => setShowModal(true)} className="!rounded-full !px-8 shadow-luster">
+            <span className="material-symbols-outlined text-lg">add</span>
+            Nueva Meta
           </Button>
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card padding={false} className="p-4">
-          <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide font-medium mb-1">Ahorro total</p>
-          <p className="text-2xl font-bold tabular-nums text-light-text dark:text-dark-text">{formatMXNShort(totalSaved)}</p>
-        </Card>
-        <Card padding={false} className="p-4">
-          <p className="text-xs text-light-text-2 dark:text-dark-text-2 uppercase tracking-wide font-medium mb-1">Metas activas</p>
-          <p className="text-2xl font-bold text-light-text dark:text-dark-text">{goals.length}</p>
-        </Card>
+      {/* Portfolio Savings Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-5 space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Capital Acumulado en Metas</p>
+          <p className="text-6xl lg:text-7xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter tabular-nums">
+            {formatMXN(totalSaved)}
+          </p>
+          <div className="flex items-center gap-4">
+            <Badge variant="success" className="px-4 py-1 rounded-full uppercase text-[9px] font-black tracking-widest">Ahorro Activo</Badge>
+            <p className="text-[11px] font-bold text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 uppercase tracking-widest">{goals.length} Objetivos Identificados</p>
+          </div>
+        </div>
+        <div className="lg:col-span-7 flex flex-col justify-end space-y-4">
+           <div className="h-px w-full bg-primary/10" />
+           <p className="text-sm text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-medium italic opacity-60 max-w-lg leading-relaxed">
+             La persistencia en el flujo de capital hacia tus metas es el factor determinante en la salud de tu patrimonio futuro. Mantén tus aportes programados.
+           </p>
+        </div>
       </div>
 
-      {/* Goals grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* Goals grid Editorial */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
         {goals.map(g => {
           const pct = Math.min((g.currentAmount / g.targetAmount) * 100, 100)
           const { label, variant } = getGoalStatus(g)
           return (
-            <Card key={g.id} className="hover:border-primary/30 transition-colors cursor-pointer" clickable
-              onClick={() => setActiveGoal(g)}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 rounded-btn flex items-center justify-center" style={{ backgroundColor: `${g.color}20` }}>
-                  <span className="material-symbols-outlined text-2xl" style={{ color: g.color }}>{g.icon}</span>
+            <Card key={g.id} padding={false} onClick={() => setActiveGoal(g)}
+              className="group p-8 space-y-8 hover:!depth-2 !rounded-[3rem] cursor-pointer transition-all active:scale-[0.98] relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
+              
+              <div className="flex justify-between items-start relative z-10">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm bg-white/5 border border-white/10"
+                  style={{ color: g.color }}>
+                  <span className="material-symbols-outlined text-2xl font-light">{g.icon}</span>
                 </div>
-                <GoalGauge percentage={pct} color={g.color} size={56} />
+                <Badge variant={variant} className="!rounded-full px-3 py-1 text-[8px] font-black uppercase tracking-widest">
+                  {label}
+                </Badge>
               </div>
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-light-text dark:text-dark-text leading-tight">{g.name}</h3>
-                  <Badge variant={variant} className="flex-shrink-0">{label}</Badge>
-                </div>
-                <p className="text-xs text-light-text-2 dark:text-dark-text-2">
-                  Meta: {new Date(g.targetDate).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}
+
+              <div className="space-y-1 relative z-10">
+                <h3 className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{g.name}</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">
+                  Target: {new Date(g.targetDate).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}
                 </p>
               </div>
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-light-text-2 dark:text-dark-text-2">Ahorrado</span>
-                  <span className="font-semibold tabular-nums text-light-text dark:text-dark-text">
-                    {formatMXNShort(g.currentAmount)} / {formatMXNShort(g.targetAmount)}
-                  </span>
+
+              <div className="space-y-4 relative z-10">
+                <div className="flex justify-between items-end">
+                  <p className="text-2xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums tracking-tighter">{formatMXNShort(g.currentAmount)}</p>
+                  <p className="text-[11px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 uppercase tracking-widest">de {formatMXNShort(g.targetAmount)}</p>
                 </div>
-                <div className="h-2 w-full bg-light-surface dark:bg-dark-surface rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-500"
+                <div className="h-2 w-full bg-atelier-bg-3-light dark:bg-atelier-bg-3-dark rounded-full overflow-hidden p-0.5">
+                  <div className="h-full rounded-full transition-all duration-1000 ease-out shadow-luster"
                     style={{ width: `${pct}%`, backgroundColor: g.color }} />
                 </div>
               </div>
-              <div className="flex justify-between items-center pt-3 border-t border-light-border dark:border-dark-border">
-                <div>
-                  <p className="text-[10px] uppercase text-light-muted dark:text-dark-muted font-bold">Aporte mensual</p>
-                  <p className="font-bold tabular-nums text-light-text dark:text-dark-text">{formatMXNShort(g.monthlyContribution)}</p>
+
+              <div className="pt-6 border-t border-primary/10 flex justify-between items-center relative z-10">
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">Compromiso Mensual</p>
+                  <p className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums">{formatMXNShort(g.monthlyContribution)}</p>
                 </div>
-                <button className="text-primary text-sm font-medium flex items-center gap-0.5 hover:underline cursor-pointer">
-                  Detalles <span className="material-symbols-outlined text-sm">chevron_right</span>
-                </button>
+                <span className="text-lg font-black text-primary tabular-nums tracking-tighter">{Math.round(pct)}%</span>
               </div>
             </Card>
           )
         })}
 
-        {/* Add card */}
+        {/* Add goal editorial link */}
         <button onClick={() => setShowModal(true)}
-          className="rounded-card border-2 border-dashed border-light-border dark:border-dark-border flex flex-col items-center justify-center gap-2 p-8 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer min-h-[200px]">
-          <span className="material-symbols-outlined text-3xl text-light-muted dark:text-dark-muted">add_circle</span>
-          <span className="text-sm font-medium text-light-muted dark:text-dark-muted">Nueva meta</span>
+          className="rounded-[3rem] depth-1 border-2 border-dashed border-primary/10 flex flex-col items-center justify-center gap-4 p-8 hover:border-primary/40 hover:depth-2 transition-all cursor-pointer min-h-[300px] group">
+          <div className="w-16 h-16 rounded-full depth-1 flex items-center justify-center group-hover:depth-2 transition-all">
+            <span className="material-symbols-outlined text-3xl font-light text-primary">add</span>
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Nuevo Objetivo</span>
         </button>
       </div>
 
-      {/* Modal nueva meta */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Nueva meta de ahorro" size="md">
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-medium text-light-text dark:text-dark-text mb-2">Tipo de meta</p>
-            <div className="flex flex-wrap gap-2">
+      {/* Modal Nueva Meta Editorial */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Originación de Objetivo" size="md">
+        <div className="space-y-12 pb-8">
+          <p className="text-sm text-atelier-text-muted-light dark:text-atelier-text-muted-dark font-medium italic opacity-60">Define un nuevo horizonte de acumulación para tu portafolio.</p>
+
+          <div className="space-y-8">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Categorización</h3>
+            <div className="grid grid-cols-4 gap-3">
               {GOAL_TYPES.map(t => (
                 <button key={t.value} onClick={() => setNewType(t.value)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium cursor-pointer transition-all border ${
+                  className={`flex flex-col items-center gap-3 p-4 rounded-2xl transition-all ${
                     newType === t.value
-                      ? 'bg-primary/10 text-primary border-primary/30'
-                      : 'bg-light-surface dark:bg-dark-surface text-light-text-2 dark:text-dark-text-2 border-light-border dark:border-dark-border'
+                      ? 'depth-2 bg-primary/10 text-primary'
+                      : 'depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 hover:opacity-100'
                   }`}>
-                  <span className="material-symbols-outlined text-sm">{t.icon}</span>
-                  {t.label}
+                  <span className="material-symbols-outlined text-xl font-light">{t.icon}</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest">{t.label}</span>
                 </button>
               ))}
             </div>
           </div>
-          <Input label="Nombre de la meta" placeholder="Ej: Vacaciones Japón" value={newName} onChange={e => setNewName(e.target.value)} />
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Monto objetivo" type="number" placeholder="0.00" value={newTarget} onChange={e => setNewTarget(e.target.value)} />
-            <Input label="Fecha límite" type="date" value={newDate} onChange={e => setNewDate(e.target.value)} />
-          </div>
-          <Input label="Aportación mensual" type="number" placeholder="0.00" value={newContrib} onChange={e => setNewContrib(e.target.value)} />
-          <div>
-            <div className="flex justify-between mb-2">
-              <p className="text-sm font-medium text-light-text dark:text-dark-text">Tasa de rendimiento anual</p>
-              <span className="text-primary font-bold text-sm">{sliderRate}%</span>
+
+          <div className="space-y-8">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">Parámetros Técnicos</h3>
+            <div className="space-y-10">
+              <input type="text" className="w-full bg-transparent border-b border-primary/20 py-4 px-1 text-base font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none placeholder:opacity-20 transition-all focus:border-primary" 
+                placeholder="Identificador del Objetivo" value={newName} onChange={e => setNewName(e.target.value)} />
+              
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Monto Target</p>
+                  <input type="number" className="w-full bg-transparent border-none py-2 text-3xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none placeholder:opacity-10 tracking-tighter" 
+                    placeholder="0.00" value={newTarget} onChange={e => setNewTarget(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic text-right">Horizonte</p>
+                  <input type="date" className="w-full bg-transparent border-none py-2 text-base font-black text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none text-right" 
+                    value={newDate} onChange={e => setNewDate(e.target.value)} />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 italic">Aportación Periódica Mensual</p>
+                <input type="number" className="w-full bg-transparent border-none py-2 text-2xl font-black text-primary focus:outline-none placeholder:opacity-10 tracking-tighter" 
+                  placeholder="0.00" value={newContrib} onChange={e => setNewContrib(e.target.value)} />
+              </div>
+
+              <div className="space-y-6 pt-4">
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">
+                  <span>Rendimiento Anual Target</span>
+                  <span className="text-primary">{sliderRate}%</span>
+                </div>
+                <input type="range" min={0} max={15} step={0.5} value={sliderRate}
+                  onChange={e => setSliderRate(Number(e.target.value))} className="w-full h-1 bg-primary/10 rounded-full appearance-none cursor-pointer accent-primary" />
+              </div>
             </div>
-            <input type="range" min={0} max={15} step={0.5} value={sliderRate}
-              onChange={e => setSliderRate(Number(e.target.value))} className="w-full" />
           </div>
-          {newTarget && newContrib && (
-            <div className="p-4 bg-primary/5 border border-primary/20 rounded-card">
-              <p className="text-xs text-primary font-bold uppercase mb-1">Ahorro mensual estimado</p>
-              <p className="text-2xl font-black text-primary tabular-nums">{formatMXN(parseFloat(newContrib) || 0)}/mes</p>
-            </div>
-          )}
-          <div className="flex gap-3 pt-2">
-            <Button variant="secondary" className="flex-1 justify-center" onClick={() => setShowModal(false)}>Cancelar</Button>
-            <Button className="flex-1 justify-center" onClick={handleCreateGoal} disabled={!newName || !newTarget}>Crear meta</Button>
+
+          <div className="flex gap-4 pt-8">
+            <button className="flex-1 text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity" onClick={() => setShowModal(false)}>Cancelar</button>
+            <Button size="lg" className="flex-[2] justify-center !rounded-full py-5 text-[10px] font-black uppercase tracking-[0.3em] shadow-luster" 
+              onClick={handleCreateGoal} disabled={!newName || !newTarget}>Confirmar Originación</Button>
           </div>
         </div>
       </Modal>
 
-      {/* Drawer detalle */}
-      <Drawer isOpen={activeGoal !== null} onClose={() => setActiveGoal(null)} title={activeGoal?.name ?? ''}>
+      {/* Drawer Detalle Editorial */}
+      <Drawer isOpen={activeGoal !== null} onClose={() => setActiveGoal(null)} title="Proyección de Capital" width={520}>
         {activeGoal && (
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <GoalGauge
-                percentage={Math.min((activeGoal.currentAmount / activeGoal.targetAmount) * 100, 100)}
-                color={activeGoal.color}
-                size={80}
-              />
+          <div className="space-y-12 pb-12">
+            <div className="flex items-center gap-8">
+              <div className="w-20 h-20 rounded-[2rem] depth-2 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundColor: activeGoal.color }} />
+                <span className="material-symbols-outlined text-4xl font-light scale-110" style={{ color: activeGoal.color }}>{activeGoal.icon}</span>
+              </div>
               <div>
-                <p className="font-semibold text-light-text dark:text-dark-text">{activeGoal.name}</p>
-                <p className="text-sm text-light-text-2 dark:text-dark-text-2 tabular-nums">
-                  {formatMXN(activeGoal.currentAmount)} / {formatMXN(activeGoal.targetAmount)}
+                <h3 className="text-2xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">{activeGoal.name}</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 mt-1">Estatus: {getGoalStatus(activeGoal).label}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-6 depth-1 rounded-[2rem] space-y-2">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-40">Monto Nominal</p>
+                <p className="text-xl font-black tabular-nums tracking-tighter">{formatMXNShort(activeGoal.targetAmount)}</p>
+              </div>
+              <div className="p-6 depth-1 rounded-[2rem] space-y-2">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-40">Fecha Target</p>
+                <p className="text-xl font-black uppercase tracking-tighter text-atelier-text-main-light dark:text-atelier-text-main-dark">
+                  {new Date(activeGoal.targetDate).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}
                 </p>
               </div>
             </div>
 
-            <div className="h-0.5 bg-light-border dark:bg-dark-border" />
-
-            <div className="space-y-2 text-sm">
-              {[
-                ['Fecha objetivo', new Date(activeGoal.targetDate).toLocaleDateString('es-MX')],
-                ['Aportación mensual', formatMXN(activeGoal.monthlyContribution)],
-                ['Rendimiento esperado', `${(activeGoal.expectedReturn * 100).toFixed(1)}% anual`],
-                ['Restante', formatMXN(activeGoal.targetAmount - activeGoal.currentAmount)],
-              ].map(([k, v]) => (
-                <div key={k} className="flex justify-between py-1.5 border-b border-light-border dark:border-dark-border">
-                  <span className="text-light-text-2 dark:text-dark-text-2">{k}</span>
-                  <span className="font-medium text-light-text dark:text-dark-text tabular-nums">{v}</span>
-                </div>
-              ))}
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] opacity-60">Matriz de Proyección</h3>
+                <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">Interés Compuesto: {(activeGoal.expectedReturn * 100).toFixed(1)}%</span>
+              </div>
+              <div className="h-[220px] w-full depth-1 rounded-[2.5rem] p-8">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={drawerProjection}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.1} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#9CA3AF' }} />
+                    <YAxis hide />
+                    <Tooltip cursor={{ stroke: activeGoal.color, strokeDasharray: '4 4' }} contentStyle={{ backgroundColor: '#111', border: 'none', borderRadius: '12px', fontSize: '10px' }} />
+                    <Line type="monotone" dataKey="real" stroke={activeGoal.color} strokeWidth={3} dot={false} animationDuration={1000} />
+                    <Line type="monotone" dataKey="objetivo" stroke="#9CA3AF" strokeWidth={1} strokeDasharray="6 6" dot={false} opacity={0.3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div>
-              <p className="text-sm font-medium text-light-text dark:text-dark-text mb-3">Proyección 24 meses</p>
-              <ResponsiveContainer width="100%" height={180}>
-                <LineChart data={drawerProjection}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={0.3} />
-                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: 'var(--chart-label)' }} interval={3} />
-                  <YAxis tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10, fill: 'var(--chart-label)' }} />
-                  <Tooltip formatter={(v: number) => [formatMXN(v), '']} />
-                  <Line type="monotone" dataKey="real" stroke={activeGoal.color} strokeWidth={2} dot={false} animationDuration={600} />
-                  <Line type="monotone" dataKey="objetivo" stroke="#9CA3AF" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="flex gap-3">
-              <Button variant="secondary" className="flex-1 justify-center">Pausar</Button>
-              <Button className="flex-1 justify-center">Agregar fondos</Button>
+            <div className="space-y-6">
+               <div className="flex justify-between items-center px-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest opacity-40 italic">Asignación Mensual</p>
+                  <p className="text-lg font-black tabular-nums tracking-tighter">{formatMXN(activeGoal.monthlyContribution)}</p>
+               </div>
+               <div className="flex gap-4">
+                 <Button variant="secondary" className="flex-1 justify-center py-4 !rounded-full !text-[10px] uppercase font-black tracking-[0.2em]">Pausar Flujo</Button>
+                 <Button className="flex-[2] justify-center py-4 !rounded-full !text-[10px] uppercase font-black tracking-[0.2em] shadow-luster">Consolidar Capital</Button>
+               </div>
             </div>
           </div>
         )}

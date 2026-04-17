@@ -28,146 +28,141 @@ export default function Alertas() {
   const unreadCount = alerts.filter(a => !a.isRead).length
 
   return (
-    <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-light-text dark:text-dark-text tracking-tight uppercase">Centro de Alertas</h1>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 italic">
-            {unreadCount > 0 ? `Tienes ${unreadCount} alertas sin leer` : 'Todo al día'}
+    <div className="space-y-16 animate-fade-in pb-16">
+      {/* Editorial Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="space-y-4">
+          <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] opacity-80 italic">Monitoreo de Sistema</p>
+          <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark leading-[0.85]">
+            Centro <br />
+            <span className="text-primary/40 text-[0.8em]">de Alertas.宣</span>
+          </h1>
+          <p className="text-xs font-medium text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-60">
+            {unreadCount > 0 ? `Se han detectado ${unreadCount} eventos pendientes de revisión.` : 'Sincronización completa. Sin incidencias pendientes.'}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           {unreadCount > 0 && (
-            <Button variant="secondary" onClick={markAllAlertsRead}>
-              <span className="material-symbols-outlined text-lg">done_all</span> Marcar todas
-            </Button>
+            <button onClick={markAllAlertsRead} className="px-8 py-4 depth-1 rounded-full text-[10px] font-black uppercase tracking-widest text-primary hover:scale-[1.02] active:scale-95 transition-all shadow-luster border border-primary/5">
+              Depurar Todo
+            </button>
           )}
-          <Button variant="ghost" className="lg:hidden" onClick={() => setIsConfigOpen(true)}>
-            <span className="material-symbols-outlined text-lg">settings</span>
-          </Button>
+          <button onClick={() => setIsConfigOpen(true)} className="w-14 h-14 depth-1 rounded-full flex items-center justify-center text-atelier-text-main-light dark:text-atelier-text-main-dark hover:rotate-90 transition-all duration-500 shadow-luster border border-primary/5">
+            <span className="material-symbols-outlined font-light">settings宣</span>
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Lista de alertas */}
-        <div className="lg:col-span-8 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        {/* Alerts Stream */}
+        <div className="lg:col-span-8 space-y-12">
           {todayAlerts.length > 0 && (
-            <section>
-              <h2 className="text-xs font-black text-light-text-2 dark:text-dark-text-2 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> Hoy
-              </h2>
-              <div className="space-y-4">
+            <div className="space-y-8">
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary italic">Eventos de Hoy</span>
+                <div className="flex-1 h-px bg-primary/10" />
+              </div>
+              <div className="space-y-6">
                 {todayAlerts.map(a => (
                   <AlertItem key={a.id} alert={a} onRead={() => markAlertRead(a.id)} />
                 ))}
               </div>
-            </section>
+            </div>
           )}
 
           {previousAlerts.length > 0 && (
-            <section>
-              <h2 className="text-xs font-black text-light-text-2 dark:text-dark-text-2 uppercase tracking-[0.2em] mb-4">Anteriores</h2>
-              <div className="space-y-4">
+            <div className="space-y-8">
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 italic">Archivo Histórico</span>
+                <div className="flex-1 h-px bg-primary/5" />
+              </div>
+              <div className="space-y-6">
                 {previousAlerts.map(a => (
                   <AlertItem key={a.id} alert={a} onRead={() => markAlertRead(a.id)} />
                 ))}
               </div>
-            </section>
+            </div>
           )}
 
           {alerts.length === 0 && (
-            <EmptyState 
-              icon="notifications_off" 
-              title="Estás al día" 
-              description="No tienes notificaciones pendientes. Te avisaremos cuando haya algo importante." 
-            />
+            <div className="depth-1 p-20 rounded-[4rem] text-center border border-primary/5 flex flex-col items-center gap-6">
+              <div className="w-20 h-20 bg-primary/[0.03] rounded-full flex items-center justify-center border border-primary/5">
+                <span className="material-symbols-outlined text-4xl text-primary/40 font-light">notifications_off宣</span>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter">Sin Notificaciones</h3>
+                <p className="text-xs font-medium text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40 uppercase tracking-widest">Estado Nominal del Sistema</p>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Desktop Sidebar Settings */}
-        <div className="hidden lg:block lg:col-span-4 self-start sticky top-24">
-          <Card className="space-y-8 p-6 bg-light-surface/20 dark:bg-dark-surface/20 border-dashed border-2">
-            <h3 className="font-black text-sm uppercase tracking-widest text-light-text dark:text-dark-text border-b border-light-border dark:border-dark-border pb-4 mb-6">Configuración</h3>
-            
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="material-symbols-outlined text-primary text-lg">account_balance_wallet</span>
-                  <p className="text-[10px] font-black text-light-muted dark:text-dark-muted uppercase tracking-widest">Presupuestos</p>
-                </div>
-                <Toggle label="Alerta al 80% del límite" checked={alertSettings.presupuestoAlerta}
-                  onChange={v => updateAlertSettings({ presupuestoAlerta: v })} />
-                <Toggle label="Presupuesto excedido" checked={alertSettings.presupuestoExcedido}
-                  onChange={v => updateAlertSettings({ presupuestoExcedido: v })} />
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="material-symbols-outlined text-primary text-lg">payments</span>
-                  <p className="text-[10px] font-black text-light-muted dark:text-dark-muted uppercase tracking-widest">Pagos y Cuentas</p>
-                </div>
-                <Toggle label="Recordatorio pago próximo" checked={alertSettings.pagoProximo}
-                  onChange={v => updateAlertSettings({ pagoProximo: v })} />
-                <Toggle label="Saldo de cuenta bajo" checked={alertSettings.saldoBajo}
-                  onChange={v => updateAlertSettings({ saldoBajo: v })} />
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="material-symbols-outlined text-primary text-lg">flag</span>
-                  <p className="text-[10px] font-black text-light-muted dark:text-dark-muted uppercase tracking-widest">Logros</p>
-                </div>
-                <Toggle label="Meta completada" checked={alertSettings.metaLograda}
-                  onChange={v => updateAlertSettings({ metaLograda: v })} />
-              </div>
+        {/* Technical Config Console (Desktop) */}
+        <div className="hidden lg:block lg:col-span-4 sticky top-24 space-y-8">
+          <div className="depth-1 p-10 rounded-[3rem] border border-primary/5 space-y-12">
+            <div className="space-y-1">
+              <h3 className="text-sm font-black uppercase tracking-[0.3em] text-atelier-text-main-light dark:text-atelier-text-main-dark">Consola de Control宣</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 italic">Parámetros de Notificación</p>
             </div>
-          </Card>
+            
+            <div className="space-y-10">
+              <ConfigGroup icon="account_balance_wallet" title="Finanzas Core" />
+                <ToggleItem label="Umbral Crítico Presupuesto (80%)" checked={alertSettings.presupuestoAlerta} 
+                  onChange={v => updateAlertSettings({ presupuestoAlerta: v })} />
+                <ToggleItem label="Infracción de Límite" checked={alertSettings.presupuestoExcedido}
+                  onChange={v => updateAlertSettings({ presupuestoExcedido: v })} />
+
+              <ConfigGroup icon="payments" title="Operaciones" />
+                <ToggleItem label="Vencimientos Próximos" checked={alertSettings.pagoProximo}
+                  onChange={v => updateAlertSettings({ pagoProximo: v })} />
+                <ToggleItem label="Alerta de Liquidez Baja" checked={alertSettings.saldoBajo}
+                  onChange={v => updateAlertSettings({ saldoBajo: v })} />
+
+              <ConfigGroup icon="flag" title="Hitos de Gestión" />
+                <ToggleItem label="Objetivos Transmitidos" checked={alertSettings.metaLograda}
+                  onChange={v => updateAlertSettings({ metaLograda: v })} />
+            </div>
+          </div>
+
+          <div className="depth-1 p-8 rounded-[2.5rem] bg-primary/[0.02] border border-primary/5 flex gap-5 items-center">
+            <div className="w-12 h-12 bg-white dark:bg-atelier-bg-2-dark rounded-2xl flex items-center justify-center text-primary shadow-sm border border-primary/5">
+              <span className="material-symbols-outlined font-light">shield_with_heart</span>
+            </div>
+            <p className="text-[10px] font-medium text-atelier-text-main-light dark:text-atelier-text-main-dark leading-relaxed">
+              <span className="font-black text-primary">Encriptación End-to-End.</span> Sus datos de notificación están asegurados bajo protocolos de nivel bancario.宣
+            </p>
+          </div>
         </div>
       </div>
 
-      <Drawer isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} title="Configuración de Alertas" width={420}>
-        <div className="space-y-8">
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2">Personaliza cómo y cuándo recibes notificaciones.</p>
-
-          <div className="bg-light-surface/40 dark:bg-dark-surface/40 rounded-2xl p-4 border border-light-border/30 dark:border-dark-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>
-              <p className="text-xs font-bold text-light-text-2 dark:text-dark-text-2 uppercase tracking-widest">Presupuestos</p>
-            </div>
-            <div className="space-y-4">
-              <Toggle label="Alerta al 80% del límite" checked={alertSettings.presupuestoAlerta}
-                onChange={v => updateAlertSettings({ presupuestoAlerta: v })} />
-              <Toggle label="Presupuesto excedido" checked={alertSettings.presupuestoExcedido}
-                onChange={v => updateAlertSettings({ presupuestoExcedido: v })} />
-            </div>
-          </div>
-          
-          <div className="bg-light-surface/40 dark:bg-dark-surface/40 rounded-2xl p-4 border border-light-border/30 dark:border-dark-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-primary text-xl">payments</span>
-              <p className="text-xs font-bold text-light-text-2 dark:text-dark-text-2 uppercase tracking-widest">Pagos y Cuentas</p>
-            </div>
-            <div className="space-y-4">
-              <Toggle label="Recordatorio pago próximo" checked={alertSettings.pagoProximo}
-                onChange={v => updateAlertSettings({ pagoProximo: v })} />
-              <Toggle label="Saldo de cuenta bajo" checked={alertSettings.saldoBajo}
-                onChange={v => updateAlertSettings({ saldoBajo: v })} />
-              <Toggle label="Gasto inusual detectado" checked={alertSettings.gastoInusual}
-                onChange={v => updateAlertSettings({ gastoInusual: v })} />
-            </div>
-          </div>
-          
-          <div className="bg-light-surface/40 dark:bg-dark-surface/40 rounded-2xl p-4 border border-light-border/30 dark:border-dark-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-primary text-xl">flag</span>
-              <p className="text-xs font-bold text-light-text-2 dark:text-dark-text-2 uppercase tracking-widest">Logros</p>
-            </div>
-            <div className="space-y-4">
-              <Toggle label="Meta completada" checked={alertSettings.metaLograda}
-                onChange={v => updateAlertSettings({ metaLograda: v })} />
-              <Toggle label="Rachas de ahorro" checked={alertSettings.rachaAhorro}
-                onChange={v => updateAlertSettings({ rachaAhorro: v })} />
-            </div>
+      <Drawer isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} title="Configuración de Alertas" width={460}>
+        <div className="space-y-12 p-8">
+          <div className="space-y-10">
+            <section className="space-y-6">
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Core Patrimonial</span>
+                <div className="flex-1 h-px bg-primary/10" />
+              </div>
+              <div className="space-y-4">
+                <ToggleItem label="Presupuesto al 80%" checked={alertSettings.presupuestoAlerta}
+                  onChange={v => updateAlertSettings({ presupuestoAlerta: v })} />
+                <ToggleItem label="Excedente detectado" checked={alertSettings.presupuestoExcedido}
+                  onChange={v => updateAlertSettings({ presupuestoExcedido: v })} />
+              </div>
+            </section>
+            
+            <section className="space-y-6">
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Flujo de Caja</span>
+                <div className="flex-1 h-px bg-primary/10" />
+              </div>
+              <div className="space-y-4">
+                <ToggleItem label="Recordatorios de pago" checked={alertSettings.pagoProximo}
+                  onChange={v => updateAlertSettings({ pagoProximo: v })} />
+                <ToggleItem label="Saldo bajo detectado" checked={alertSettings.saldoBajo}
+                  onChange={v => updateAlertSettings({ saldoBajo: v })} />
+              </div>
+            </section>
           </div>
         </div>
       </Drawer>
@@ -177,42 +172,71 @@ export default function Alertas() {
 
 function AlertItem({ alert, onRead }: { alert: any; onRead: () => void }) {
   const time = new Date(alert.date).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-  return (
-    <Card padding={false} className={`transition-all duration-300 relative group overflow-hidden ${
-      alert.isRead
-        ? 'opacity-60 hover:opacity-100 bg-transparent border-light-border/50 shadow-none'
-        : 'bg-light-card dark:bg-dark-card border-l-4 shadow-md'
-    }`} style={{ borderLeftColor: alert.isRead ? 'transparent' : 'var(--primary-color, #2563EB)' }}>
-      
-      <div className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:items-start group-hover:-translate-y-0.5 transition-transform">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 border transition-all duration-300 group-hover:scale-110 ${SEVERITY_COLORS[alert.severity]}`}>
-          <span className="material-symbols-outlined text-2xl">{SEVERITY_ICONS[alert.severity]}</span>
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start mb-1.5">
-            <h3 className={`text-base font-bold truncate pr-2 ${alert.isRead ? 'text-light-text-2 dark:text-dark-text-2' : 'text-light-text dark:text-dark-text'}`}>
-              {alert.title}
-            </h3>
-            <span className="text-[11px] font-medium text-light-muted dark:text-dark-muted flex-shrink-0 whitespace-nowrap bg-light-surface dark:bg-dark-surface px-2 py-0.5 rounded-full">{time}</span>
-          </div>
-          <p className="text-sm text-light-text-2 dark:text-dark-text-2 leading-relaxed mb-4 sm:mb-0 pr-4">{alert.message}</p>
-        </div>
+  
+  const SEVERITY_SCHEMA: Record<string, { icon: string; color: string; bg: string }> = {
+    danger:  { icon: 'priority_high', color: '#EF4444', bg: 'bg-danger/[0.03]' },
+    warning: { icon: 'warning',       color: '#F59E0B', bg: 'bg-warning/[0.03]' },
+    info:    { icon: 'info',          color: '#2563EB', bg: 'bg-primary/[0.03]' },
+    success: { icon: 'verified',      color: '#10B981', bg: 'bg-success/[0.03]' },
+  }
 
-        {/* Action Buttons */}
-        <div className="flex sm:flex-col gap-2 sm:mt-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          {!alert.isRead && (
-            <Button variant="ghost" size="sm" onClick={onRead} className="w-full sm:w-auto text-xs py-1.5 px-3 bg-primary/5 hover:bg-primary/15 text-primary">
-              <span className="material-symbols-outlined text-sm">check</span>
-              Leída
-            </Button>
-          )}
-          <Button variant="ghost" size="sm" className="w-full sm:w-auto text-xs py-1.5 px-3 hover:bg-light-surface dark:hover:bg-dark-surface text-light-text-2 dark:text-dark-text-2">
-            <span className="material-symbols-outlined text-sm">schedule</span>
-            Posponer
-          </Button>
-        </div>
+  const schema = SEVERITY_SCHEMA[alert.severity] || SEVERITY_SCHEMA.info
+
+  return (
+    <div 
+      className={`group relative flex flex-col md:flex-row gap-8 p-10 rounded-[3rem] transition-all duration-700 border border-primary/5 ${
+        alert.isRead 
+          ? 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0 depth-1' 
+          : 'depth-2 ring-1 ring-primary/10'
+      } ${schema.bg} shadow-luster`}>
+      
+      <div className="flex-shrink-0 w-16 h-16 rounded-[1.5rem] flex items-center justify-center bg-white dark:bg-atelier-bg-2-dark shadow-sm border border-primary/5 transition-transform group-hover:scale-110 duration-500">
+        <span className="material-symbols-outlined text-3xl font-light" style={{ color: schema.color }}>宣{schema.icon}</span>
       </div>
-    </Card>
+
+      <div className="flex-1 space-y-3 min-w-0">
+        <div className="flex justify-between items-start">
+          <div className="space-y-1">
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-30 italic" style={{ color: schema.color }}>宣Evento Técnico</p>
+            <h3 className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter truncate">{alert.title}</h3>
+          </div>
+          <span className="text-[10px] font-black tabular-nums text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-30 bg-primary/5 px-4 py-1.5 rounded-full">{time}</span>
+        </div>
+        <p className="text-sm font-medium text-atelier-text-main-light dark:text-atelier-text-main-dark leading-relaxed opacity-70">{alert.message}</p>
+      </div>
+
+      <div className="flex md:flex-col gap-3 justify-end items-end opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        {!alert.isRead && (
+          <button onClick={onRead} className="h-12 px-6 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+            Validar
+          </button>
+        )}
+        <button className="h-12 px-6 rounded-2xl depth-1 text-atelier-text-main-light dark:text-atelier-text-main-dark text-[10px] font-black uppercase tracking-widest border border-primary/5 hover:bg-primary/5 transition-all">
+          Posponer
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function ConfigGroup({ icon, title }: { icon: string; title: string }) {
+  return (
+    <div className="flex items-center gap-4 mb-6 pt-4 border-t border-primary/5 first:border-0 first:pt-0">
+      <span className="material-symbols-outlined text-primary font-light text-xl">宣{icon}</span>
+      <p className="text-[11px] font-black text-atelier-text-main-light dark:text-atelier-text-main-dark uppercase tracking-[0.2em]">{title}</p>
+    </div>
+  )
+}
+
+function ToggleItem({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between group py-1">
+      <span className="text-[11px] font-medium text-atelier-text-main-light dark:text-atelier-text-main-dark opacity-60 group-hover:opacity-100 transition-opacity">{label}</span>
+      <div 
+        onClick={() => onChange(!checked)}
+        className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all duration-500 ease-in-out ${checked ? 'bg-primary' : 'bg-primary/10'}`}>
+        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-500 ${checked ? 'translate-x-6' : 'translate-x-0'}`} />
+      </div>
+    </div>
   )
 }

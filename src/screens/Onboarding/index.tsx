@@ -2,27 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { Button } from '../../components/ui'
-import type { BankName } from '../../types'
-
-const BANKS: { name: BankName; color: string; abbr: string }[] = [
-  { name: 'BBVA',     color: '#004A9F', abbr: 'BBVA' },
-  { name: 'Klar',     color: '#00C4B3', abbr: 'Klar' },
-  { name: 'Nu',       color: '#820AD1', abbr: 'Nu'   },
-  { name: 'Openbank', color: '#E3000F', abbr: 'Open' },
-  { name: 'Santander',color: '#CC0000', abbr: 'SAN'  },
-  { name: 'HSBC',     color: '#DB0011', abbr: 'HSBC' },
-  { name: 'Otra',     color: '#10B981', abbr: '💵'   },
-  { name: 'Otra',     color: '#6B7280', abbr: '···'  },
-]
-
-const CATEGORY_BUDGET = [
-  { label: 'Comida',       icon: 'restaurant',     pct: 30 },
-  { label: 'Transporte',   icon: 'directions_car', pct: 15 },
-  { label: 'Hogar',        icon: 'home',           pct: 35 },
-  { label: 'Entretenim.',  icon: 'movie',          pct: 10 },
-  { label: 'Salud',        icon: 'favorite',       pct: 5  },
-  { label: 'Varios',       icon: 'category',       pct: 5  },
-]
+import { formatMXN, BankName, BANKS, CATEGORY_BUDGET, CATEGORY_ICONS } from '../../types'
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -42,183 +22,236 @@ export default function Onboarding() {
   const progressPct = (step / 4) * 100
 
   return (
-    <div className="min-h-screen bg-dark-bg flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-primary rounded-btn flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-base">account_balance_wallet</span>
-            </div>
-            <span className="text-white font-bold text-sm">Fyn Finance OS</span>
-          </div>
-          {step > 1 && (
-            <button onClick={() => setStep(s => s - 1)}
-              className="text-dark-text-2 hover:text-dark-text transition-colors cursor-pointer">
-              <span className="material-symbols-outlined">arrow_back</span>
-            </button>
-          )}
-        </div>
+    <div className="min-h-screen bg-atelier-bg-alt-light dark:bg-atelier-bg-alt-dark flex items-center justify-center p-8 animate-fade-in">
+      <div className="w-full max-w-2xl bg-white dark:bg-atelier-bg-1-dark depth-1 rounded-[4rem] p-12 md:p-20 border border-primary/5 shadow-luster ring-1 ring-primary/5 relative overflow-hidden">
+        {/* Background Texture Accents */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
 
-        {/* Progress */}
-        <div className="mb-10 space-y-2">
-          <div className="flex justify-between">
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Paso {step} de 4</span>
-            <span className="text-xs font-bold text-primary">{progressPct}%</span>
+        <div className="relative z-10 flex flex-col min-h-[500px]">
+          {/* Technical Header */}
+          <div className="flex items-center justify-between mb-16">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/10 transition-transform hover:scale-110">
+                <span className="material-symbols-outlined text-primary text-xl font-light">terminal宣</span>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-atelier-text-main-light dark:text-atelier-text-main-dark opacity-40 italic">Fyn Initialize 1.0</p>
+            </div>
+            {step > 1 && (
+              <button 
+                onClick={() => setStep(s => s - 1)}
+                className="w-10 h-10 rounded-full depth-1 flex items-center justify-center text-atelier-text-muted-light dark:text-atelier-text-muted-dark hover:text-primary transition-all active:scale-90 border border-primary/5">
+                <span className="material-symbols-outlined text-xl">arrow_back宣</span>
+              </button>
+            )}
           </div>
-          <div className="h-1.5 w-full bg-dark-surface rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
-          </div>
-        </div>
 
-        {/* Step 1: Splash */}
-        {step === 1 && (
-          <div className="flex flex-col items-center text-center">
-            <div className="w-24 h-24 bg-primary/10 border border-primary/20 rounded-3xl flex items-center justify-center mb-8">
-              <span className="material-symbols-outlined text-primary text-5xl">bar_chart</span>
-            </div>
-            <h1 className="text-5xl font-bold text-dark-text tracking-tight mb-3">Fyn</h1>
-            <p className="text-dark-text-2 text-lg leading-relaxed max-w-xs">Tu dinero, claro y bajo control</p>
-            <div className="mt-16 w-full space-y-3">
-              <Button className="w-full justify-center py-4 text-base" onClick={() => setStep(2)}>
-                Comenzar
-              </Button>
-              <p className="text-dark-muted text-xs text-center">Ya tengo cuenta — <span className="text-primary cursor-pointer">Iniciar sesión</span></p>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Perfil */}
-        {step === 2 && (
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-3xl font-bold text-dark-text tracking-tight mb-2">¿Cómo te llamamos?</h1>
-              <p className="text-dark-text-2">Configura tu perfil en segundos</p>
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-dark-text-2">Tu nombre</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-dark-muted text-xl">person</span>
-                <input
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Escribe tu nombre"
-                  className="w-full bg-dark-surface border border-dark-border rounded-btn py-4 pl-11 pr-4 text-dark-text placeholder:text-dark-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
-                />
+          {/* Precision Progress Bar */}
+          <div className="mb-20 space-y-4">
+            <div className="flex justify-between items-end">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Secuencia de Configuración</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black italic tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark leading-none">{progressPct}宣</span>
+                <span className="text-[10px] font-black uppercase text-primary/40 leading-none">%</span>
               </div>
             </div>
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-dark-text-2">Moneda preferida</label>
-              <div className="flex gap-3">
-                <div className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-white rounded-btn font-semibold text-sm">
-                  <span className="material-symbols-outlined text-lg">payments</span> MXN
-                </div>
-                <div className="flex-1 flex items-center justify-center gap-2 py-3 bg-dark-surface border border-dark-border rounded-btn text-dark-muted font-semibold text-sm cursor-pointer hover:border-dark-text-2 transition-colors">
-                  <span className="material-symbols-outlined text-lg">monetization_on</span> USD
-                </div>
-              </div>
+            <div className="h-1.5 w-full bg-primary/5 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(37,99,235,0.3)]" 
+                style={{ width: `${progressPct}%` }} 
+              />
             </div>
-            <Button className="w-full justify-center py-4 text-base mt-4" onClick={() => setStep(3)} disabled={!name.trim()}>
-              Continuar
-            </Button>
           </div>
-        )}
 
-        {/* Step 3: Primera cuenta */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-dark-text tracking-tight mb-2">Agrega tu primera cuenta</h1>
-              <p className="text-dark-text-2">Selecciona tu banco principal</p>
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-              {BANKS.map((bank, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedBank(bank.name)}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-card border-2 transition-all cursor-pointer ${
-                    selectedBank === bank.name
-                      ? 'border-primary bg-primary/10'
-                      : 'border-dark-border bg-dark-surface hover:border-dark-text-2'
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-btn flex items-center justify-center text-white text-xs font-bold"
-                    style={{ backgroundColor: bank.color }}>
-                    {bank.abbr}
-                  </div>
-                  <span className="text-xs font-medium text-dark-text">{bank.name === 'Otra' && i === 7 ? 'Otro' : bank.name}</span>
-                </button>
-              ))}
-            </div>
-            {selectedBank && (
-              <div className="space-y-1.5 animate-fade-in-up">
-                <label className="block text-sm font-medium text-dark-text-2">Saldo actual</label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-dark-muted text-xl">attach_money</span>
-                  <input
-                    type="number"
-                    value={balance}
-                    onChange={e => setBalance(e.target.value)}
-                    placeholder="0.00"
-                    inputMode="decimal"
-                    className="w-full bg-dark-surface border border-dark-border rounded-btn py-4 pl-11 pr-4 text-dark-text text-xl font-bold tabular-nums placeholder:text-dark-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
-                  />
+          <div className="flex-1 flex flex-col justify-center">
+            {/* Step 1: Editorial Splash */}
+            {step === 1 && (
+              <div className="space-y-12 animate-fade-in-up">
+                <div className="space-y-6">
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Bienvenido al Futuro Digital</p>
+                  <h1 className="display-lg text-atelier-text-main-light dark:text-atelier-text-main-dark italic leading-[0.8] tracking-[-0.04em]">
+                    Atelier<br />
+                    <span className="text-primary/40 not-italic">Finance.宣</span>
+                  </h1>
+                  <p className="text-sm font-medium text-atelier-text-muted-light dark:text-atelier-text-muted-dark leading-relaxed opacity-60 max-w-sm">
+                    Sincronización avanzada, inteligencia analítica y control absoluto. Su nueva arquitectura patrimonial comienza ahora.宣
+                  </p>
+                </div>
+                <div className="space-y-4 pt-10">
+                  <button 
+                    onClick={() => setStep(2)}
+                    className="group w-full md:w-auto px-12 py-6 rounded-full bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-4">
+                    Inicializar Sistema
+                    <span className="material-symbols-outlined text-lg group-hover:translate-x-2 transition-transform">arrow_forward宣</span>
+                  </button>
+                  <p className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-20 italic">Acceso Seguro mediante Encriptación 256-bit宣</p>
                 </div>
               </div>
             )}
-            <div className="flex gap-3">
-              <button onClick={() => setStep(4)} className="flex-1 py-3 text-dark-muted font-medium hover:text-dark-text transition-colors text-sm cursor-pointer">
-                Omitir por ahora
-              </button>
-              <Button className="flex-1 justify-center py-4" onClick={() => setStep(4)} disabled={!selectedBank}>
-                Agregar cuenta
-              </Button>
-            </div>
-          </div>
-        )}
 
-        {/* Step 4: Presupuesto */}
-        {step === 4 && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-dark-text tracking-tight mb-2">¿Cuánto ganas al mes?</h1>
-              <div className="inline-block py-3 px-6 bg-primary/10 rounded-card border border-primary/20 mt-3">
-                <span className="text-primary text-3xl font-black tabular-nums tracking-tight">
-                  ${income.toLocaleString('es-MX')} MXN
-                </span>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-3 text-xs text-dark-muted font-bold">
-                <span>$0</span><span>$100,000 MXN</span>
-              </div>
-              <input
-                type="range" min={0} max={100000} step={1000} value={income}
-                onChange={e => setIncome(Number(e.target.value))}
-                className="w-full"
-              />
-              <p className="text-center text-dark-text-2 text-sm mt-2">Desliza para ajustar tu ingreso</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {CATEGORY_BUDGET.map(cat => (
-                <div key={cat.label}
-                  className="flex items-center gap-3 p-3 rounded-card border border-dark-border bg-dark-surface">
-                  <div className="w-9 h-9 bg-dark-bg rounded-btn flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-lg text-dark-text-2">{cat.icon}</span>
+            {/* Step 2: Perfil */}
+            {step === 2 && (
+              <div className="space-y-12 animate-fade-in-up">
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Identidad Técnica</p>
+                  <h2 className="text-5xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter leading-none italic">
+                    ¿Cuál es su nombre?宣
+                  </h2>
+                </div>
+                
+                <div className="space-y-10">
+                  <div className="relative group">
+                    <input
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      placeholder="Identificador del Usuario"
+                      className="w-full bg-primary/[0.03] border border-primary/5 rounded-[2rem] py-8 px-10 text-2xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark placeholder:text-atelier-text-muted-light dark:placeholder:text-atelier-text-muted-dark placeholder:opacity-20 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:bg-white dark:focus:bg-atelier-bg-2-dark transition-all duration-500 shadow-inner"
+                    />
+                    <div className="absolute right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full depth-1 flex items-center justify-center text-primary/40 group-focus-within:text-primary transition-colors border border-primary/5">
+                      <span className="material-symbols-outlined text-2xl font-light">fingerprint宣</span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-dark-text-2 font-medium">{cat.label}</p>
-                    <p className="text-sm font-bold text-dark-text tabular-nums">{cat.pct}%</p>
+
+                  <div className="space-y-4">
+                    <h3 className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-[0.3em] opacity-40">Prefijo Monetario del Sistema</h3>
+                    <div className="flex gap-4">
+                      {['MXN', 'USD'].map(cur => (
+                        <button key={cur} className={`flex-1 flex items-center justify-center gap-4 py-5 rounded-3xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 border border-primary/5 ${cur === 'MXN' ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-[1.02]' : 'depth-1 text-atelier-text-main-light dark:text-atelier-text-main-dark opacity-40 hover:opacity-100 hover:scale-[1.02]'}`}>
+                          <span className="material-symbols-outlined text-lg font-light">{cur === 'MXN' ? 'payments' : 'monetization_on'}</span>
+                          {cur}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-            <Button className="w-full justify-center py-4 text-base" onClick={handleComplete}>
-              Entrar al Dashboard
-            </Button>
-            <p className="text-center text-dark-muted text-xs">Al continuar, confirmas que esta es tu estimación inicial.</p>
+
+                <button 
+                  onClick={() => setStep(3)}
+                  disabled={!name.trim()}
+                  className="w-full py-6 rounded-full bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-20 disabled:scale-100 disabled:shadow-none mt-4">
+                  Confirmar Identidad
+                </button>
+              </div>
+            )}
+
+            {/* Step 3: Primera cuenta */}
+            {step === 3 && (
+              <div className="space-y-12 animate-fade-in-up">
+                <div className="space-y-4 text-center">
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Sincronización de Fondos</p>
+                  <h2 className="text-5xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter leading-none italic">
+                    Conectar Entidad.宣
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-4 gap-4">
+                  {BANKS.slice(0, 8).map((bank, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedBank(bank.name)}
+                      className={`relative aspect-square rounded-[2rem] flex flex-col items-center justify-center gap-3 transition-all duration-500 border border-primary/5 ${
+                        selectedBank === bank.name
+                          ? 'depth-2 ring-2 ring-primary bg-primary/5 scale-105'
+                          : 'depth-1 opacity-60 hover:opacity-100 hover:scale-105 hover:bg-white dark:hover:bg-atelier-bg-2-dark'
+                      }`}
+                    >
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-[10px] font-black shadow-lg"
+                        style={{ backgroundColor: bank.color }}>
+                        {bank.name.slice(0, 2)}
+                      </div>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-atelier-text-main-light dark:text-atelier-text-main-dark">{bank.name === 'Otra' ? (i === 6 ? 'Efectivo' : 'Otro') : bank.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {selectedBank && (
+                  <div className="space-y-4 animate-fade-in-up">
+                    <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Capital Inicial Sincronizado</h3>
+                    <div className="relative group">
+                      <input
+                        type="number"
+                        value={balance}
+                        onChange={e => setBalance(e.target.value)}
+                        placeholder="0.00"
+                        className="w-full bg-primary/[0.03] border border-primary/5 rounded-[2rem] py-8 px-10 text-4xl font-black tabular-nums text-atelier-text-main-light dark:text-atelier-text-main-dark placeholder:opacity-10 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:bg-white dark:focus:bg-atelier-bg-2-dark transition-all duration-500 shadow-inner"
+                      />
+                      <span className="absolute right-10 top-1/2 -translate-y-1/2 text-2xl font-black text-primary opacity-40 italic">MXN</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-4">
+                  <button onClick={() => setStep(4)} className="flex-1 py-6 rounded-full depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark text-[11px] font-black uppercase tracking-[0.2em] hover:text-primary transition-all active:scale-95 border border-primary/5">
+                    Omitir Paso
+                  </button>
+                  <button 
+                    disabled={!selectedBank || !balance}
+                    onClick={() => setStep(4)} 
+                    className="flex-[2] py-6 rounded-full bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-20 disabled:scale-100">
+                    Establecer Conexión
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Presupuesto */}
+            {step === 4 && (
+              <div className="space-y-12 animate-fade-in-up pb-8">
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Engine de Proyección</p>
+                  <h2 className="text-5xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tighter leading-none italic">
+                    Capacidad Mensual.
+                  </h2>
+                </div>
+
+                <div className="depth-1 p-10 rounded-[3rem] border border-primary/5 space-y-8 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest opacity-20">Analyst View</span>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-40 italic">Expectativa de Ingresos Brutos</p>
+                    <p className="text-5xl font-black tabular-nums tracking-tighter text-atelier-text-main-light dark:text-atelier-text-main-dark">
+                      ${income.toLocaleString('es-MX')}<span className="text-primary/40 text-[0.4em] ml-2 font-black uppercase not-italic tracking-widest">MXN</span>
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <input
+                      type="range" min={0} max={100000} step={1000} value={income}
+                      onChange={e => setIncome(Number(e.target.value))}
+                      className="w-full accent-primary h-2 bg-primary/5 rounded-full appearance-none cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[9px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-[0.3em] opacity-30 italic">
+                      <span>Baseline $0</span>
+                      <span>Target $100K+</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {CATEGORY_BUDGET.map(cat => (
+                    <div key={cat.label}
+                      className="depth-1 p-5 rounded-[2rem] border border-primary/5 flex items-center gap-5 hover:depth-2 transition-all duration-500 group">
+                      <div className="w-12 h-12 bg-primary/[0.03] rounded-2xl flex items-center justify-center border border-primary/5 text-primary group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-xl font-light">{CATEGORY_ICONS[cat.id]}</span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40">{cat.label}</p>
+                        <p className="text-lg font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tabular-nums">{Math.round((cat.limit / income || 1) * 100)}<span className="text-primary text-[0.6em] ml-1 opacity-40">%</span></p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={handleComplete}
+                  className="w-full py-6 rounded-full bg-primary text-white text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-4">
+                  Finalizar Parametrización y Entrar
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
