@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
 import { getDatabase, initSchema } from '../src/db/database'
 import { seedDatabase } from '../src/db/seeder'
 import { ProfileRepository } from '../src/db/repositories/profile.repository'
@@ -11,6 +12,7 @@ import { GoalRepository } from '../src/db/repositories/goal.repository'
 import { DebtRepository } from '../src/db/repositories/debt.repository'
 import { AlertRepository } from '../src/db/repositories/alert.repository'
 
+const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Desactivar aceleración por hardware para prevenir pantallas en blanco
@@ -145,8 +147,10 @@ app.whenReady().then(() => {
       const { detectBank, parsePdfContent } = await import('./parsers/index')
       const { extractAccountMeta } = await import('./parsers/metaExtractor')
       const { inferCategory, generateTxHash } = await import('./utils/categoryInfer')
-      const pdf = (await import('pdf-parse')).default
+      const pdf = require('pdf-parse') // ← Uso de require nativo
       const fs = await import('node:fs')
+
+      console.log('[Main] Starting PDF parse for:', filePath)
 
       // 1. Leer y extraer texto
       const dataBuffer = fs.readFileSync(filePath)

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import Database from "better-sqlite3";
 let dbInstance = null;
 function getDatabase(dbPath) {
@@ -571,6 +572,7 @@ class AlertRepository {
     );
   }
 }
+const require$1 = createRequire(import.meta.url);
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
 app.disableHardwareAcceleration();
 process.env.APP_ROOT = path.join(__dirname$1, "..");
@@ -668,8 +670,9 @@ app.whenReady().then(() => {
       const { detectBank, parsePdfContent } = await import("./index-CA6deghI.js");
       const { extractAccountMeta } = await import("./metaExtractor-DH8tcHXP.js");
       const { inferCategory, generateTxHash } = await import("./categoryInfer-Bf2rSKEv.js");
-      const pdf = (await import("./index-DEorM9wh.js")).default;
+      const pdf = require$1("pdf-parse");
       const fs = await import("node:fs");
+      console.log("[Main] Starting PDF parse for:", filePath);
       const dataBuffer = fs.readFileSync(filePath);
       const data = await pdf(dataBuffer);
       const text = data.text;
