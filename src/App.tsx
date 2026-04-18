@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppProvider } from './context/AppContext'
 import { ToastProvider } from './context/ToastContext'
 import { ThemeProvider } from './context/ThemeContext'
@@ -32,8 +32,7 @@ function InConstruction({ name }: { name: string }) {
 }
 
 function RequireAuth({ children }: { children: JSX.Element }) {
-  const { user, loading, session } = useAuth()
-  const isDone = localStorage.getItem('fyn-onboarding-done')
+  const { user, loading } = useAuth()
   
   if (loading) return (
     <div className="h-screen w-screen flex items-center justify-center bg-dark-bg">
@@ -41,12 +40,8 @@ function RequireAuth({ children }: { children: JSX.Element }) {
     </div>
   )
 
-  // Si ya terminó el onboarding local, permitimos entrar (modo invitado/dev)
-  // aunque no haya sesión de Supabase aún.
-  if (isDone) return children
-
-  // Si no hay sesión y no ha terminado el onboarding, va a onboarding
-  if (!user || !session) return <Navigate to="/onboarding" replace />
+  // Si no hay perfil guardado localmente, enviamos a Onboarding
+  if (!user) return <Navigate to="/onboarding" replace />
 
   return children
 }
@@ -55,7 +50,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
+        <HashRouter>
           <ToastProvider>
             <AppProvider>
               <Routes>
@@ -80,7 +75,7 @@ export default function App() {
               </Routes>
             </AppProvider>
           </ToastProvider>
-        </BrowserRouter>
+        </HashRouter>
       </AuthProvider>
     </ThemeProvider>
   )
