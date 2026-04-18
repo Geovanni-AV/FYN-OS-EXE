@@ -315,144 +315,88 @@ export default function Registro() {
       {/* PDF */}
       {tab === 'pdf' && (
         <Card className="space-y-6">
-          {/* Technical Step Indicator */}
-          <div className="flex items-center justify-between max-w-lg mx-auto mb-12">
-            {['Origen', 'Análisis', 'Validación', 'Carga'].map((s, i) => (
-              <React.Fragment key={s}>
-                <div className="flex flex-col items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-700 ${
-                    i < pdfStep ? 'bg-success text-white' :
-                    i === pdfStep ? 'bg-primary text-white shadow-luster' : 'depth-1 text-atelier-text-muted-light dark:text-atelier-text-muted-dark opacity-40'
-                  }`}>{i < pdfStep ? '✓' : `0${i + 1}`}</div>
-                  <p className={`text-[8px] font-black uppercase tracking-widest ${i === pdfStep ? 'text-primary' : 'opacity-40'}`}>{s}</p>
-                </div>
-                {i < 3 && <div className={`flex-1 h-px mx-2 mb-5 ${i < pdfStep ? 'bg-success' : 'bg-primary/10'}`} />}
-              </React.Fragment>
-            ))}
-          </div>
-
-          {pdfStep === 0 && (
-            <div className="space-y-12">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark ml-1">Institución Emisora</p>
-                  <select value={detectedBank} onChange={e => setDetectedBank(e.target.value)}
-                    className="w-full bg-transparent border-b border-primary/20 py-3 px-1 text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none cursor-pointer">
-                    <option value="bbva">BBVA</option>
-                    <option value="nu">Nu México</option>
-                    <option value="santander">Santander</option>
-                    <option value="openbank">Openbank</option>
-                  </select>
-                </div>
-                <div className="space-y-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-atelier-text-muted-light dark:text-atelier-text-muted-dark ml-1">Cuenta de Destino</p>
-                  <select value={accountId} onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-transparent border-b border-primary/20 py-3 px-1 text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark focus:outline-none cursor-pointer">
-                    {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
+          {/* Automation Flow */}
+          <div className="flex flex-col items-center gap-8 py-12 text-center">
+            {isUploading ? (
+              <div className="space-y-6 animate-pulse">
+                <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto border-2 border-primary/20 border-t-primary animate-spin" />
+                <div>
+                  <h3 className="text-xl font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark">Procesando Inteligencia Financiera.</h3>
+                  <p className="text-sm text-atelier-text-muted-light dark:text-atelier-text-muted-dark mt-2 font-medium opacity-60 italic tracking-widest">Identificando banco, cuenta y transacciones...</p>
                 </div>
               </div>
-
-              <label className="block depth-1 !rounded-[3rem] p-16 text-center space-y-6 hover:depth-2 transition-all cursor-pointer group border border-transparent hover:border-primary/10">
-                <input type="file" accept=".pdf" onChange={handleFileChange} className="hidden" />
-                <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-700">
-                  <span className="material-symbols-outlined text-4xl text-primary font-light">terminal</span>
+            ) : pdfStep === 3 ? (
+              <div className="space-y-8 animate-fade-in">
+                <div className="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mx-auto scale-110 transition-transform duration-1000">
+                  <span className="material-symbols-outlined text-5xl text-success">verified</span>
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">Cargar Archivo de Origen</p>
-                  <p className="text-[11px] font-medium text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-widest opacity-60 mt-2">Solo protocolos PDF (BBVA, Nu, Santander...)</p>
-                </div>
-                <div className="inline-flex items-center gap-3 px-8 py-3 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-luster">
-                  Seleccionar Documento
-                </div>
-              </label>
-            </div>
-          )}
-
-          {pdfStep === 1 && (
-            <div className="text-center space-y-4 py-8">
-              <div className="w-16 h-16 mx-auto border-4 border-primary border-t-transparent rounded-full animate-spin" />
-              <div>
-                <p className="font-bold text-lg text-light-text dark:text-dark-text">Analizando PDF...</p>
-                <p className="text-sm text-light-text-2 dark:text-dark-text-2 mt-1">Extrayendo movimientos {selectedFile?.name}</p>
-              </div>
-            </div>
-          )}
-
-          {pdfStep === 2 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-light-border dark:border-dark-border pb-4">
-                <div>
-                  <h3 className="font-bold text-light-text dark:text-dark-text">Movimientos encontrados</h3>
-                  <p className="text-xs text-light-text-2 dark:text-dark-text-2">Revisa y ajusta antes de importar</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-2xl font-black text-primary">{selectedTransactions.length}</span>
-                  <span className="text-xs font-bold text-light-text-2 dark:text-dark-text-2 ml-1 uppercase">Seleccionados</span>
-                </div>
-              </div>
-
-              <div className="max-h-[400px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                {parsedTransactions.map((tx, i) => (
-                  <div key={i} onClick={() => toggleTx(i)}
-                    className={`flex items-center gap-4 p-4 rounded-card border transition-all cursor-pointer ${
-                      selectedTransactions.includes(i) 
-                        ? 'bg-primary/5 border-primary/30 shadow-sm' 
-                        : 'bg-light-surface/30 dark:bg-dark-surface/30 border-transparent opacity-60'
-                    }`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                      tx.type === 'ingreso' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
-                    }`}>
-                      <span className="material-symbols-outlined text-xl">
-                        {tx.type === 'ingreso' ? 'south_west' : 'north_east'}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm text-light-text dark:text-dark-text truncate">{tx.description}</p>
-                      <p className="text-[10px] font-bold text-light-text-2 dark:text-dark-text-2 uppercase tracking-tighter">
-                        {tx.date} · {detectedBank.toUpperCase()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-black tracking-tight ${tx.type === 'ingreso' ? 'text-success' : 'text-light-text dark:text-dark-text'}`}>
-                        {tx.type === 'ingreso' ? '+' : '-'}${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
+                  <h3 className="text-2xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark uppercase tracking-tight">¡Sincronización Exitosa!</h3>
+                  <div className="mt-4 p-6 depth-1 !rounded-[2rem] bg-success/5 border border-success/10 max-w-sm mx-auto">
+                    <p className="text-sm font-bold text-atelier-text-main-light dark:text-atelier-text-main-dark leading-relaxed">
+                      {parsedTransactions[0]?.message || 'Datos importados correctamente'}
+                    </p>
                   </div>
-                ))}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+                  <Button variant="primary" className="!rounded-full px-8 py-3 text-[10px] font-black uppercase tracking-widest" onClick={() => setPdfStep(0)}>Importar Otro</Button>
+                  <Button variant="secondary" className="!rounded-full px-8 py-3 text-[10px] font-black uppercase tracking-widest" onClick={() => setTab('manual')}>Ir al Resumen</Button>
+                </div>
               </div>
+            ) : (
+              <div className="space-y-10">
+                <div className="w-24 h-32 depth-1 rounded-2xl flex items-center justify-center mx-auto relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  <span className="material-symbols-outlined text-6xl text-primary font-light opacity-60">post_add</span>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-primary/20" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-atelier-text-main-light dark:text-atelier-text-main-dark tracking-tight">Ingesta Inteligente de PDF</h3>
+                  <p className="text-sm text-atelier-text-muted-light dark:text-atelier-text-muted-dark mt-3 font-medium opacity-60 max-w-sm mx-auto leading-relaxed">
+                    Soporte nativo para <span className="text-primary font-bold">BBVA, Nu, Openbank</span> y más. 
+                    El sistema detectará automáticamente tu cuenta y categorizará cada transacción.
+                  </p>
+                </div>
+                
+                <Button 
+                  className="!rounded-full px-12 py-5 text-[11px] font-black uppercase tracking-[0.3em] shadow-luster scale-105 active:scale-95 transition-all"
+                  onClick={async () => {
+                    const electron = (window as any).electronAPI
+                    const filePath = await electron.showOpenDialog()
+                    if (!filePath) return
 
-              <div className="flex gap-3 pt-2">
-                <Button variant="secondary" className="flex-1" onClick={() => setPdfStep(0)}>Cancelar</Button>
-                <Button className="flex-[2] justify-center" onClick={handleImportSelected}>
-                  Importar {selectedTransactions.length} movimientos
+                    setIsUploading(true)
+                    try {
+                      const result = await electron.parseAndSavePDF(filePath)
+                      if (result.success) {
+                        setParsedTransactions([{ message: `
+                          ✓ Banco: ${result.bank}
+                          ✓ Cuenta: ${result.accountName}
+                          ✓ ${result.inserted} Importadas
+                          ${result.duplicates > 0 ? `✓ ${result.duplicates} Duplicadas omitidas` : ''}
+                        ` }])
+                        setPdfStep(3)
+                        success('Estado de cuenta procesado')
+                      } else {
+                        toastError(result.error || 'Error al procesar el archivo')
+                      }
+                    } catch (err: any) {
+                      toastError(err.message || 'Error crítico')
+                    } finally {
+                      setIsUploading(false)
+                    }
+                  }}
+                >
+                  <span className="material-symbols-outlined mr-3 text-xl">upload_file</span>
+                  Seleccionar Documento
                 </Button>
-              </div>
-            </div>
-          )}
-
-          {pdfStep >= 3 && (
-            <div className="text-center space-y-6 py-8">
-              <div className="relative inline-block">
-                <div className="w-20 h-20 mx-auto bg-success/20 rounded-full flex items-center justify-center animate-pulse">
-                  <span className="material-symbols-outlined text-5xl text-success">done_all</span>
-                </div>
-                <div className="absolute -bottom-2 -right-2 bg-dark-bg p-1 rounded-full border border-success">
-                  <div className="bg-success w-4 h-4 rounded-full" />
+                
+                <div className="pt-4">
+                  <p className="text-[9px] font-black text-atelier-text-muted-light dark:text-atelier-text-muted-dark uppercase tracking-[0.4em] opacity-40">Procesamiento Local Seguro · No se envían datos a la nube</p>
                 </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-black text-light-text dark:text-dark-text uppercase tracking-tight">¡Importación Exitosa!</h3>
-                <p className="text-sm text-light-text-2 dark:text-dark-text-2 mt-2 max-w-[280px] mx-auto">
-                  Los {selectedTransactions.length} movimientos han sido procesados y guardados en tu historial.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Button className="w-full justify-center" variant="primary" onClick={() => setPdfStep(0)}>Importar otro PDF</Button>
-                <Button className="w-full justify-center" variant="secondary" onClick={() => setTab('manual')}>Ir al resumen</Button>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </Card>
       )}
 

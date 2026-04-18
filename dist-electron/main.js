@@ -663,26 +663,93 @@ app.whenReady().then(() => {
     db.prepare("DELETE FROM profiles").run();
     return true;
   });
-  ipcMain.handle("parse-pdf", async (_, filePath) => {
+  ipcMain.handle("pdf:parseAndSave", async (event, filePath) => {
     try {
       const { detectBank, parsePdfContent } = await import("./index-CA6deghI.js");
+      const { extractAccountMeta } = await import("./metaExtractor-DH8tcHXP.js");
+      const { inferCategory, generateTxHash } = await import("./categoryInfer-Bf2rSKEv.js");
       const pdf = (await import("./index-DEorM9wh.js")).default;
       const fs = await import("node:fs");
       const dataBuffer = fs.readFileSync(filePath);
       const data = await pdf(dataBuffer);
       const text = data.text;
-      const bank = detectBank(text);
-      const transactions = parsePdfContent(bank, text);
+      const bankId = detectBank(text);
+      if (bankId === "Generic") {
+        return { success: false, error: "Banco no reconocido automáticamente." };
+      }
+      const meta = extractAccountMeta(text, bankId);
+      const profile = db.prepare("SELECT id FROM profiles LIMIT 1").get();
+      if (!profile) return { success: false, error: "No hay perfil configurado." };
+      let account = db.prepare(`
+        SELECT * FROM accounts 
+        WHERE user_id = ? AND bank = ? AND (last_four = ? OR name = ?)
+      `).get(profile.id, bankId, meta.lastFour, meta.accountName);
+      if (!account) {
+        console.log("[Main] Creating new account:", meta.accountName);
+        const result = db.prepare(`
+          INSERT INTO accounts (user_id, name, bank, type, balance, currency, color, last_four)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          profile.id,
+          meta.accountName,
+          bankId,
+          meta.accountType,
+          meta.finalBalance || 0,
+          meta.currency,
+          bankId === "Openbank" ? "#0066CC" : bankId === "BBVA" ? "#004481" : "#820AD1",
+          meta.lastFour
+        );
+        account = { id: result.lastInsertRowid.toString(), name: meta.accountName };
+      }
+      const parsed = parsePdfContent(bankId, text);
+      const insertStmt = db.prepare(`
+        INSERT OR IGNORE INTO transactions 
+        (user_id, account_id, date, amount, type, category, description, source, dedup_hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      let inserted = 0;
+      let duplicates = 0;
+      const transaction = db.transaction((txs) => {
+        for (const tx of txs) {
+          const hash = generateTxHash(tx.date, tx.amount, tx.description);
+          const result = insertStmt.run(
+            profile.id,
+            account.id,
+            tx.date,
+            tx.amount,
+            tx.type,
+            inferCategory(tx.description, tx.type),
+            tx.description,
+            "pdf",
+            hash
+          );
+          if (result.changes > 0) inserted++;
+          else duplicates++;
+        }
+      });
+      transaction(parsed);
+      if (meta.finalBalance !== void 0) {
+        db.prepare("UPDATE accounts SET balance = ? WHERE id = ?").run(meta.finalBalance, account.id);
+      }
       return {
         success: true,
-        bank,
-        count: transactions.length,
-        transactions
+        bank: bankId,
+        accountName: account.name,
+        inserted,
+        duplicates
       };
     } catch (error) {
-      console.error("[Main] PDF Parse Error:", error);
+      console.error("[Main] automated parse error:", error);
       return { success: false, error: error.message };
     }
+  });
+  ipcMain.handle("show-open-dialog", async () => {
+    const { dialog } = await import("electron");
+    const result = await dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [{ name: "Documentos PDF", extensions: ["pdf"] }]
+    });
+    return result.filePaths[0];
   });
   console.log("Database initialized at:", dbPath);
   createWindow();
